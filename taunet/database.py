@@ -83,3 +83,35 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
             _train, _target, test_size=0.1, random_state=42)
 
     return X_train, X_val, y_train, y_val
+
+def testing_data(
+        path, dataset, features, plotting_fields, regressor, 
+        nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree'):
+
+        import uproot
+        import awkward as ak
+        import numpy as np
+
+        _files = file_list(path, dataset)
+
+        for i_f, _file in enumerate(_files):
+            if nfiles > 0 and i_f > nfiles:
+                break
+            with uproot.open(_file) as up_file:
+                tree = up_file[tree_name]
+                log.info('file {} / {} -- entries = {}'.format(i_f, len(_files), tree.num_entries))
+                a = retrieve_arrays(
+                    tree,
+                    features + plotting_fields, 
+                    cut = 'EventInfoAux.eventNumber%3 != 0',
+                    select_1p=select_1p,
+                    select_3p=select_3p)
+                f = np.stack(
+                    [ak.flatten(a[__feat]).to_numpy() for __feat in features])
+                regressed_target = regressor.predict(f.T)
+
+
+        log.info('Total training input = {}'.format(_train.shape))
+
+
+
