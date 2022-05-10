@@ -32,3 +32,5 @@ if __name__ == '__main__':
     target_lineshape(d)
 
 
+    from taunet.plotting import response_and_resol_vs_pt
+    response_and_resol_vs_pt(d)
