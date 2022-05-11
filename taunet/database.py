@@ -80,7 +80,7 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
 
         from sklearn.model_selection import train_test_split
         X_train, X_val, y_train, y_val = train_test_split(
-            _train, _target, test_size=0.1, random_state=42)
+            _train, _target, test_size=0.2, random_state=42)
 
     return X_train, X_val, y_train, y_val
 

@@ -1,7 +1,7 @@
 """
 """
 
-DEFAULT_FEATURES = [
+FEATURES = [
     'TauJetsAuxDyn.mu',
     'TauJetsAuxDyn.nVtxPU',
     'TauJetsAuxDyn.rho',

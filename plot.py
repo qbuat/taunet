@@ -1,24 +1,26 @@
+import os
 import tensorflow as tf
 
 from taunet.database import PATH, DATASET, testing_data
-from taunet.fields import DEFAULT_FEATURES, TRUTH_FIELDS, OTHER_TES
+from taunet.fields import FEATURES, TRUTH_FIELDS, OTHER_TES
 if __name__ == '__main__':
     
-    from taunet.parser import train_parser
+    from taunet.parser import plot_parser
     # train_parser = argparse.ArgumentParser(parents=[common_parser])
     # train_parser.add_argument('--use-cache', action='store_true')
-    args = train_parser.parse_args()
+    args = plot_parser.parse_args()
 
     if args.debug:
         n_files = 2
     else:
         n_files = -1
 
-
-    regressor = tf.keras.models.load_model(args.model)
+        
+    regressor = tf.keras.models.load_model(os.path.join(
+        'cache', args.model))
 
     d = testing_data(
-        PATH, DATASET, DEFAULT_FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files)
+        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files)
 
 
     
