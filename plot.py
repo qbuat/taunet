@@ -22,7 +22,6 @@ if __name__ == '__main__':
     d = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files)
 
-
     
     from taunet.plotting import pt_lineshape
     pt_lineshape(d)
@@ -33,6 +32,9 @@ if __name__ == '__main__':
     from taunet.plotting import target_lineshape
     target_lineshape(d)
 
-
     from taunet.plotting import response_and_resol_vs_pt
     response_and_resol_vs_pt(d)
+
+    if args.copy_to_cernbox:
+        from taunet.utils import copy_plots_to_cernbox
+        copy_plots_to_cernbox()

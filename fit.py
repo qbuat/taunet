@@ -23,7 +23,7 @@ if __name__ == '__main__':
     regressor = keras_model_main(len(FEATURES))
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
-        rate = 0.00001
+        rate = 0.001
         batch_size = 64
         adam = tf.keras.optimizers.get('Adam')
         print (adam.learning_rate)

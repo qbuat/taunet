@@ -68,6 +68,8 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
                     cut = 'EventInfoAux.eventNumber%3 != 0',
                     select_1p=select_1p,
                     select_3p=select_3p)
+                a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ]
+                a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ]
                 f = np.stack(
                     [ak.flatten(a[__feat]).to_numpy() for __feat in features])
                 _train  += [f.T]

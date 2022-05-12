@@ -15,4 +15,4 @@ train_parser.add_argument('--use-cache', action='store_true')
 
 plot_parser = argparse.ArgumentParser(parents=[common_parser])
 plot_parser.add_argument('--model', default='simple_dnn.h5')
-
+plot_parser.add_argument('--copy-to-cernbox', default=False, action='store_true')

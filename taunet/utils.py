@@ -2,6 +2,8 @@ import numpy as np
 import os
 import subprocess
 
+from . import log; log = log.getChild(__name__)
+
 def get_quantile_width(arr, cl=0.68):
     """
     """
@@ -44,5 +46,15 @@ def copy_plots_to_cernbox(fmt='pdf'):
         os.getenv('USER'),
         'taunet_plots')
     if not os.path.exists(_cernbox):
-        pass
+        cmd = 'mkdir -p {}'.format(_cernbox)
+        log.info(cmd)
+        subprocess.run(cmd, shell=True)
 
+    for _fig in os.listdir('./plots/'):
+        if _fig.endswith(fmt):
+            cmd = 'cp {} {}'.format(
+                os.path.join('./plots', _fig),
+                _cernbox)
+            log.info(cmd)
+            subprocess.run(cmd, shell=True)
+            
