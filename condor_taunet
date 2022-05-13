@@ -1,0 +1,134 @@
+#!/usr/bin/env python
+
+# Imports
+import sys
+import string
+import os
+import getpass
+import argparse
+
+# Get username
+username = getpass.getuser()
+
+# First step: parse in arguments & configuration
+parser = argparse.ArgumentParser()
+parser.add_argument('--no-submit', action='store_true')
+parser.add_argument('--outdir', type=str, default='condor')
+parser.add_argument('--queue', type=str, default='workday')
+parser.add_argument('--ncpus', type=str, default='1')
+parser.add_argument('--ngpus', type=str, default='1')
+parser.add_argument('--jobname', type=str, default='0')
+argsKnown, myCommand = parser.parse_known_args()
+
+myArguments = vars(argsKnown)
+print( myArguments, myCommand)
+# Detect problems:
+if len(myCommand) < 1:
+    print ("ERROR: No executable script provided")
+    exit()    
+
+# Read arguments
+myExec = myCommand[0]
+myParams = ""
+
+if len(myCommand) > 1:
+    myParams = string.join(myCommand[0:], " ")
+
+myPath = os.getcwd()  
+
+# Second step: Auto-generate the shell script
+# Check if submission folder exists
+if not os.path.isdir(os.path.join(myPath, myArguments['outdir'])):
+    print ("WARNING: condor submission directory does not exist: creating")
+    os.mkdir(os.path.join(myPath, myArguments['outdir']))
+
+# Create job name
+# For now, use sequential book-keeping as protection
+jobName = myParams
+jobName = jobName.replace('-', '')
+jobName = jobName.replace(' ','_')
+jobName = jobName.replace('/','')
+# Override jobname if it's been specified
+if myArguments['jobname'] != '0':
+    jobName = myArguments['jobname']
+
+print ("condor_taunet >>>> Will use jobName: "+jobName)
+
+
+jobName += "_job0"
+iteration = 0
+
+condorPath = os.path.join(myPath, myArguments['outdir'])
+
+while os.path.exists(os.path.join(condorPath, 'jobScript_'+jobName+'.sh') ) :
+    # Strip away the last iteration name
+    jobName = jobName[: -1 * (len(str(iteration)))]
+    # Increment the job number, append to job name
+    iteration += 1
+    jobName += str(iteration)
+
+if iteration != 0:
+    print ("condor_taunet >>>> Using job increment: "+str(iteration))
+
+# Create output file folder:
+jobPath = os.path.join(condorPath, jobName)
+if not os.path.isdir(jobPath):
+    os.mkdir(jobPath)
+
+    
+# Basic set-up into local taunet area
+jobScript = []
+jobScript += ['#!/usr/bin/bash']
+jobScript += ['cd ' + myPath]
+# jobScript += ['export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase']
+# jobScript += ['source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh']
+# jobScript += ['lsetup "root 6.18.04-x86_64-centos7-gcc8-opt" ']
+jobScript += ['export OPENBLAS_MAIN_FREE=1']
+# Create a new taunet area on the tmp (allows for unique stores for each job)
+jobScript += ['mkdir -p /tmp/'+username+'/'+jobName+'/taunet']
+jobScript += ['mkdir -p /tmp/'+username+'/'+jobName+'/HAPPy']
+# Disgusting bash statement: only copy files under version control
+# This is to prevent unnecessary copying of files
+# If file is under a given folder, a new folder needs to be generated
+jobScript += ['for GITFILE in $(git ls-files); do if [[ $GITFILE == *"/"* ]]; then mkdir -p /tmp/'+username+'/'+jobName+'/taunet/${GITFILE%/*}; fi; cp $GITFILE /tmp/'+username+'/'+jobName+'/taunet/$GITFILE; done']
+jobScript += ['cd ..']
+jobScript += ['cp -r tesenv /tmp/'+username+'/'+jobName+'/']
+jobScript += ['source /tmp/'+username+'/'+jobName+'/tesenv/bin/activate']
+jobScript += ['python '+myExec+' '+myParams]
+jobScript += ['cp cache/*.h5 '+jobPath]
+jobScript += ['cp plots/*.pdf '+jobPath]
+jobScript += ['cd ..']
+jobScript += ['rm -rf '+jobName]
+
+# Create file
+f = open(myArguments['outdir']+ "/jobScript_" + jobName + ".sh", "w+")
+for line in jobScript:
+    f.write(line+"\n")
+f.close()
+
+# Third step: Auto-generate the submission file
+jobDef = []
+jobDef += ['executable            = ' + myArguments['outdir'] + '/jobScript_'+jobName+'.sh']
+jobDef += ['arguments             = '] #+ myParams] # Don't pass parameters, they're in the .sh
+jobDef += ['output                = ' + myArguments['outdir'] + '/' + jobName + '.out']
+jobDef += ['error                 = ' + myArguments['outdir'] + '/' + jobName + '.err']
+jobDef += ['log                   = ' + myArguments['outdir'] + '/' + jobName + '.log']
+jobDef += ['+JobFlavour           = "'+ myArguments['queue']+'"']
+
+if myArguments['ncpus'] != '1':
+    jobDef += ['request_CPUs           = '+myArguments['ncpus']]
+
+jobDef += ['request_GPUs           = '+myArguments['ngpus']]
+
+jobDef += ['queue']
+f = open(myArguments['outdir']+ "/jobDef_" + jobName + ".su", "w+")
+for line in jobDef:
+    f.write(line+"\n")
+f.close()
+
+# Submit the actual job
+if myArguments['no_submit']:
+    print ('Dry Run: Command would have been:')
+    print ('condor_submit condor/jobDef_'+jobName+'.su')
+else:
+    os.system('condor_submit ' + myArguments['outdir'] + '/jobDef_' + jobName + '.su')
