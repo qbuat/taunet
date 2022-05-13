@@ -92,37 +92,38 @@ def response_lineshape(testing_data):
     
 
 
-def target_lineshape(testing_data):
+def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target_lineshape', logy=True):
     """
     """
     log.info('Plotting the regressed target lineshape on the dataset')
     fig = plt.figure()
-    plt.yscale('log')
+    if logy:
+        plt.yscale('log')
     plt.hist(
         testing_data['TauJetsAuxDyn.truthPtVisDressed'] / testing_data['TauJetsAuxDyn.ptCombined'],
-        bins=100, 
-        range=(0, 10), 
+        bins=bins, 
+        range=range, 
         histtype='stepfilled', 
         color='cyan', 
         label='Truth / Combined')
     plt.hist(
         testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data['TauJetsAuxDyn.ptCombined'],
-        bins=100, 
-        range=(0, 10), 
+        bins=bins, 
+        range=range, 
         histtype='step', 
         color='red', 
         label='Final / Combined')
     plt.hist(
         testing_data['regressed_target'],
-        bins=100, 
-        range=(0, 10), 
+        bins=bins, 
+        range=range, 
         histtype='step', 
         color='purple', 
         label='This work')
     plt.ylabel('Number of $\\tau_{had-vis}$')
     plt.xlabel('Regressed target')
     plt.legend()
-    plt.savefig('plots/tes_target_lineshape.pdf')
+    plt.savefig('plots/{}.pdf'.format(basename))
     plt.yscale('linear')
     plt.close(fig)
     

@@ -86,7 +86,7 @@ jobScript += ['cd ' + myPath]
 jobScript += ['export OPENBLAS_MAIN_FREE=1']
 # Create a new taunet area on the tmp (allows for unique stores for each job)
 jobScript += ['mkdir -p /tmp/'+username+'/'+jobName+'/taunet']
-jobScript += ['mkdir -p /tmp/'+username+'/'+jobName+'/HAPPy']
+# jobScript += ['mkdir -p /tmp/'+username+'/'+jobName+'/HAPPy']
 # Disgusting bash statement: only copy files under version control
 # This is to prevent unnecessary copying of files
 # If file is under a given folder, a new folder needs to be generated
@@ -94,6 +94,7 @@ jobScript += ['for GITFILE in $(git ls-files); do if [[ $GITFILE == *"/"* ]]; th
 jobScript += ['cd ..']
 jobScript += ['cp -r tesenv /tmp/'+username+'/'+jobName+'/']
 jobScript += ['source /tmp/'+username+'/'+jobName+'/tesenv/bin/activate']
+jobScript += ['cd '+'/tmp/'+username+'/'+jobName+'/taunet']
 jobScript += ['python '+myExec+' '+myParams]
 jobScript += ['cp cache/*.h5 '+jobPath]
 jobScript += ['cp plots/*.pdf '+jobPath]

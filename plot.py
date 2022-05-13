@@ -31,6 +31,7 @@ if __name__ == '__main__':
 
     from taunet.plotting import target_lineshape
     target_lineshape(d)
+    target_lineshape(d, bins=100, range=(0.5, 1.5), basename='tes_target_lineshape_zoomedin', logy=False)
 
     from taunet.plotting import response_and_resol_vs_pt
     response_and_resol_vs_pt(d)
