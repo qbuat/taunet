@@ -2,7 +2,6 @@
 
 # Imports
 import sys
-import string
 import os
 import getpass
 import argparse
@@ -13,7 +12,7 @@ username = getpass.getuser()
 # First step: parse in arguments & configuration
 parser = argparse.ArgumentParser()
 parser.add_argument('--no-submit', action='store_true')
-parser.add_argument('--outdir', type=str, default='condor')
+parser.add_argument('--outdir', type=str, default='launch_condor')
 parser.add_argument('--queue', type=str, default='workday')
 parser.add_argument('--ncpus', type=str, default='1')
 parser.add_argument('--ngpus', type=str, default='1')
@@ -32,7 +31,7 @@ myExec = myCommand[0]
 myParams = ""
 
 if len(myCommand) > 1:
-    myParams = string.join(myCommand[0:], " ")
+    myParams = " ".join(myCommand[1:])
 
 myPath = os.getcwd()  
 
@@ -44,10 +43,11 @@ if not os.path.isdir(os.path.join(myPath, myArguments['outdir'])):
 
 # Create job name
 # For now, use sequential book-keeping as protection
-jobName = myParams
+jobName = myExec + '_' + myParams
 jobName = jobName.replace('-', '')
 jobName = jobName.replace(' ','_')
 jobName = jobName.replace('/','')
+jobName = jobName.replace('.','')
 # Override jobname if it's been specified
 if myArguments['jobname'] != '0':
     jobName = myArguments['jobname']
@@ -129,6 +129,6 @@ f.close()
 # Submit the actual job
 if myArguments['no_submit']:
     print ('Dry Run: Command would have been:')
-    print ('condor_submit condor/jobDef_'+jobName+'.su')
+    print ('condor_submit ' + myArguments['outdir'] + '/jobDef_' + jobName + '.su')
 else:
     os.system('condor_submit ' + myArguments['outdir'] + '/jobDef_' + jobName + '.su')

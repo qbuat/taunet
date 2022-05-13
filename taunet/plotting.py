@@ -106,6 +106,13 @@ def target_lineshape(testing_data):
         color='cyan', 
         label='Truth / Combined')
     plt.hist(
+        testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data['TauJetsAuxDyn.ptCombined'],
+        bins=100, 
+        range=(0, 10), 
+        histtype='step', 
+        color='red', 
+        label='Final / Combined')
+    plt.hist(
         testing_data['regressed_target'],
         bins=100, 
         range=(0, 10), 
@@ -149,7 +156,7 @@ def response_and_resol_vs_pt(testing_data):
     bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(response_reg, truth_pt, bins)
     bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(response_ref, truth_pt, bins)
     bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(response_comb, truth_pt, bins)
-    print(errs_comb)
+
     fig = plt.figure()
     plt.errorbar(bins_comb, means_comb, errs_comb, bin_errors_comb, fmt='o', color='black', label='Combined')
     plt.errorbar(bins_ref, means_ref, errs_ref, bin_errors_ref, fmt='o', color='red', label='Final')
