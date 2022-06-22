@@ -22,11 +22,16 @@ if __name__ == '__main__':
 
     from taunet.models import keras_model_main
     regressor = keras_model_main(len(FEATURES))
+    # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
-        rate = 0.005 #0.001
-        batch_size = 50 #64
+        # TODO varry values of rate and batch_size
+        rate = 0.001 #default rate 0.001
+        batch_size = 64
+        print ("Rate = {}, batch_size = {}".format(rate, batch_size))
+        # optimized is a stochastic gradient descent (i.e. Adam)
         adam = tf.keras.optimizers.get('Adam')
+        #? why is this printed twice
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
@@ -51,7 +56,8 @@ if __name__ == '__main__':
                     monitor='val_loss',
                     verbose=True, 
                     save_best_only=True)])
-        regressor.save(_model_file)
+        #? Does this only save the best model? How would this work in a for loop for e.g.
+        regressor.save(_model_file) # save results of training
         from taunet.plotting import nn_history
         for k in history.history.keys():
             if 'val' in k:

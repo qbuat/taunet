@@ -15,7 +15,7 @@ if __name__ == '__main__':
     else:
         n_files = -1
 
-        
+    #? loads result of training to make plots?    
     regressor = tf.keras.models.load_model(os.path.join(
         'cache', args.model))
 

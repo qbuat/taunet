@@ -1,0 +1,7 @@
+Questions: 
+    ☐ fit.py, go over model and how the ecosystem works
+    ☐ how do we build models, etc? See taunet/models.py
+    ☐ how is the model then loaded? See plot.py line 18
+
+Code edits: 
+    ☐ Iterate through rate and batch_size variables to find optimal parameters (currently set to default)
