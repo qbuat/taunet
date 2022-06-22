@@ -22,14 +22,14 @@ if __name__ == '__main__':
 
     from taunet.models import keras_model_main
     regressor = keras_model_main(len(FEATURES))
-    # create location to save training
+    #? create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
         # TODO varry values of rate and batch_size
         rate = 0.001 #default rate 0.001
-        batch_size = 64
-        print ("Rate = {}, batch_size = {}".format(rate, batch_size))
-        # optimized is a stochastic gradient descent (i.e. Adam)
+        batch_size = 64 #default size 32
+        # print ("Rate = {}, batch_size = {}".format(rate, batch_size))
+        # optimized as a stochastic gradient descent (i.e. Adam)
         adam = tf.keras.optimizers.get('Adam')
         #? why is this printed twice
         print (adam.learning_rate)
@@ -41,11 +41,12 @@ if __name__ == '__main__':
             optimizer=adam, 
             metrics=['mse', 'mae'])
         history = regressor.fit(
-            X_train, y_train,
+            X_train, # input data
+            y_train, # target data
             epochs=_epochs,
-            batch_size=batch_size,
+            batch_size=batch_size, #number of samples per gradient update
             shuffle=True,
-            verbose=2,
+            verbose=2, # reports on progress
             # sample_weight=sample_weights,
             ## validation_split=0.1,
             validation_data=(X_val, y_val),
