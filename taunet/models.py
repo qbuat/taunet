@@ -2,6 +2,7 @@ import tensorflow as tf
 
 def keras_model_main(n_variables, name='simple_dnn'):
     x_1 = tf.keras.Input(shape=n_variables)
+    # create some densely-connected NN layers
     hidden_0 = tf.keras.layers.Dense(1024, activation='relu')(x_1)
     hidden_1 = tf.keras.layers.Dense(512, activation='relu')(hidden_0)
     hidden_2 = tf.keras.layers.Dense(256, activation='relu')(hidden_1)

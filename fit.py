@@ -11,10 +11,11 @@ if __name__ == '__main__':
     args = train_parser.parse_args()
 
     if args.debug:
-        n_files = 4
+        n_files = 1 #set limit on files for testing / debugging
     else:
         n_files = -1
 
+    # get training data
     X_train, X_val, y_train, y_val = training_data(
         PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files)
 
