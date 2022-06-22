@@ -57,4 +57,3 @@ def copy_plots_to_cernbox(fmt='pdf'):
                 _cernbox)
             log.info(cmd)
             subprocess.run(cmd, shell=True)
-            

@@ -22,7 +22,7 @@ if __name__ == '__main__':
     d = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files)
 
-    
+
     from taunet.plotting import pt_lineshape
     pt_lineshape(d)
 

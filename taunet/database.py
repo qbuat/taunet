@@ -56,12 +56,15 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         _target = []
         _files = file_list(path, dataset)
 
+        # iterate through files in dataset
         for i_f, _file in enumerate(_files):
+            # stop after certain limit
             if nfiles > 0 and i_f > nfiles:
                 break
             with uproot.open(_file) as up_file:
                 tree = up_file[tree_name]
                 log.info('file {} / {} -- entries = {}'.format(i_f, len(_files), tree.num_entries))
+                # make some cuts of the data
                 a = retrieve_arrays(
                     tree,
                     features + [target], 
@@ -129,5 +132,3 @@ def testing_data(
     _arrs = np.concatenate(_arrs)
     log.info('Total testing input = {}'.format(_arrs.shape))
     return _arrs
-
-
