@@ -1,4 +1,5 @@
 import argparse
+from tokenize import Double
 
 
 
@@ -12,6 +13,8 @@ prongs.add_argument('--3prongs', default=False,  action='store_true')
 
 train_parser = argparse.ArgumentParser(parents=[common_parser])
 train_parser.add_argument('--use-cache', action='store_true')
+train_parser.add_argument('--rate', default=0.001, type=float)
+train_parser.add_argument('--batch-size', default=64, type=int)
 
 plot_parser = argparse.ArgumentParser(parents=[common_parser])
 plot_parser.add_argument('--model', default='simple_dnn.h5')

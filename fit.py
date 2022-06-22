@@ -25,9 +25,9 @@ if __name__ == '__main__':
     #? create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
-        # TODO varry values of rate and batch_size
-        rate = 0.001 #default rate 0.001
-        batch_size = 64 #default size 32
+        # TODO varry values of rate and batch_size via argumnenbt in command line
+        rate = args.rate #default rate 0.001
+        batch_size = args.batch_size #default size 64
         # print ("Rate = {}, batch_size = {}".format(rate, batch_size))
         # optimized as a stochastic gradient descent (i.e. Adam)
         adam = tf.keras.optimizers.get('Adam')
@@ -59,6 +59,7 @@ if __name__ == '__main__':
                     save_best_only=True)])
         #? Does this only save the best model? How would this work in a for loop for e.g.
         regressor.save(_model_file) # save results of training
+        # ! This doesn't currently export a plot (plot of history)
         from taunet.plotting import nn_history
         for k in history.history.keys():
             if 'val' in k:
@@ -67,6 +68,8 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('Ended early...')
 
+# History: save dictionary in .pickle or .json file
+# or: add print-out of values?
 
 
     
