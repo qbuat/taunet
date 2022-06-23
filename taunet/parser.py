@@ -1,8 +1,6 @@
 import argparse
 from tokenize import Double
 
-
-
 common_parser = argparse.ArgumentParser(add_help=False)
 common_parser.add_argument('--debug', default=False, action='store_true')
 common_parser.add_argument('--nfiles', default=-1, type=int)
