@@ -3,8 +3,8 @@
 #? What are these? 
 FEATURES = [
     'TauJetsAuxDyn.mu',
-    'TauJetsAuxDyn.nVtxPU',
-    'TauJetsAuxDyn.rho',
+    'TauJetsAuxDyn.nVtxPU', #number of vertices
+    'TauJetsAuxDyn.rho', #energy density pileup
     'TauJetsAuxDyn.ClustersMeanCenterLambda',
     'TauJetsAuxDyn.ClustersMeanFirstEngDens',
     'TauJetsAuxDyn.ClustersMeanSecondLambda',
@@ -17,7 +17,7 @@ FEATURES = [
     'TauJetsAuxDyn.etaPanTauCellBased',
     'TauJetsAuxDyn.PanTau_BDTValue_1p0n_vs_1p1n',
     'TauJetsAuxDyn.PanTau_BDTValue_1p1n_vs_1pXn',
-    'TauJetsAuxDyn.PanTau_BDTValue_1p1n_vs_1pXn',
+    'TauJetsAuxDyn.PanTau_BDTValue_3p0n_vs_3pXn',
     'TauJetsAuxDyn.nTracks',
     'TauJetsAuxDyn.PFOEngRelDiff',
     ]

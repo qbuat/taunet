@@ -1,5 +1,6 @@
 import os
 import tensorflow as tf
+import pickle
 
 from taunet.database import PATH, DATASET, training_data
 from taunet.fields import FEATURES, TARGET_FIELD
@@ -28,7 +29,6 @@ if __name__ == '__main__':
         # TODO varry values of rate and batch_size via argumnenbt in command line
         rate = args.rate #default rate 0.001
         batch_size = args.batch_size #default size 64
-        # print ("Rate = {}, batch_size = {}".format(rate, batch_size))
         # optimized as a stochastic gradient descent (i.e. Adam)
         adam = tf.keras.optimizers.get('Adam')
         #? why is this printed twice
@@ -59,17 +59,14 @@ if __name__ == '__main__':
                     save_best_only=True)])
         #? Does this only save the best model? How would this work in a for loop for e.g.
         regressor.save(_model_file) # save results of training
-        # ! This doesn't currently export a plot (plot of history)
+        # Plot history of training
         from taunet.plotting import nn_history
         for k in history.history.keys():
             if 'val' in k:
                 continue
             nn_history(history, metric=k)
+        #Now save history in a pickle file
+        pickle.dump(history.history, open("history.p", "wb"))
+    # Allow to keyboard interupt to not go over all epochs
     except KeyboardInterrupt:
         print('Ended early...')
-
-# History: save dictionary in .pickle or .json file
-# or: add print-out of values?
-
-
-    
