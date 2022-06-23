@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import pickle
 plt.rcParams['text.usetex'] = True
 
 from . import log; log = log.getChild(__name__)
 
-def nn_history(file):
+def nn_history(file, plotSaveLoc):
+    log.info('Plotting NN history info')
     #open pickle file stored from training
     data = pickle.load(open(file, "rb"))
     #create plots
@@ -20,11 +22,11 @@ def nn_history(file):
         plt.xlabel('epoch')
         plt.legend(['train', 'val'], loc='upper left')
         fig.axes[0].set_yscale('log')
-        fig.savefig('plots/nn_model_{}.pdf'.format(metric))
+        fig.savefig(os.path.join(plotSaveLoc, 'plots/nn_model_{}.pdf'.format(metric)))
         plt.close(fig)
 
 
-def pt_lineshape(testing_data):
+def pt_lineshape(testing_data, plotSaveLoc):
     """
     """
     log.info('Plotting the transverse momenta on the full dataset')
@@ -60,10 +62,10 @@ def pt_lineshape(testing_data):
     plt.ylabel('Number of $\\tau_{had-vis}$')
     plt.xlabel('$p_{T}(\\tau_{had-vis})$ [GeV]')
     plt.legend()
-    plt.savefig('plots/tes_pt_lineshape.pdf')
+    plt.savefig(os.path.join(plotSaveLoc, 'plots/tes_pt_lineshape.pdf'))
     plt.close(fig)
 
-def response_lineshape(testing_data):
+def response_lineshape(testing_data, plotSaveLoc):
     """
     """
     log.info('Plotting the response lineshape on the dataset')
@@ -93,13 +95,13 @@ def response_lineshape(testing_data):
     plt.ylabel('Number of $\\tau_{had-vis}$')
     plt.xlabel('Predicted $p_{T}(\\tau_{had-vis})$ / True $p_{T}(\\tau_{had-vis})$')
     plt.legend()
-    plt.savefig('plots/tes_response_lineshape.pdf')
+    plt.savefig(os.path.join(plotSaveLoc, 'plots/tes_response_lineshape.pdf'))
     plt.yscale('linear')
     plt.close(fig)
     
 
 
-def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target_lineshape', logy=True):
+def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target_lineshape', logy=True, plotSaveLoc=''):
     """
     """
     log.info('Plotting the regressed target lineshape on the dataset')
@@ -130,12 +132,12 @@ def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target
     plt.ylabel('Number of $\\tau_{had-vis}$')
     plt.xlabel('Regressed target')
     plt.legend()
-    plt.savefig('plots/{}.pdf'.format(basename))
+    plt.savefig(os.path.join(plotSaveLoc, 'plots/{}.pdf'.format(basename)))
     plt.yscale('linear')
     plt.close(fig)
     
 
-def response_and_resol_vs_pt(testing_data):
+def response_and_resol_vs_pt(testing_data, plotSaveLoc):
     """
     """
     log.info('plotting the response and resolution versus pt')
@@ -173,7 +175,7 @@ def response_and_resol_vs_pt(testing_data):
     plt.ylabel('Predicted $p_{T}(\\tau_{had-vis})$ / True $p_{T}(\\tau_{had-vis})$')
     plt.xlabel('True $p_{T}(\\tau_{had-vis})$ [GeV]')
     plt.legend()
-    plt.savefig('plots/tes_mdn_response_vs_truth_pt.pdf')
+    plt.savefig(os.path.join(plotSaveLoc, 'plots/tes_mdn_response_vs_truth_pt.pdf'))
     plt.close(fig) 
 
     fig = plt.figure()
@@ -183,5 +185,5 @@ def response_and_resol_vs_pt(testing_data):
     plt.ylabel('$p_{T}(\\tau_{had-vis})$ resolution [\%]')
     plt.xlabel('True $p_{T}(\\tau_{had-vis})$ [GeV]')
     plt.legend()
-    plt.savefig('plots/tes_mdn_resolution_vs_truth_pt.pdf')
+    plt.savefig(os.path.join(plotSaveLoc, 'plots/tes_mdn_resolution_vs_truth_pt.pdf'))
     plt.close(fig)

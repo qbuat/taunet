@@ -1,3 +1,6 @@
+#from asyncio import subprocess
+import subprocess
+from genericpath import exists
 import os
 import tensorflow as tf
 
@@ -15,29 +18,41 @@ if __name__ == '__main__':
     else:
         n_files = -1
 
+    path = args.path # path to where training is stored
+    # make plot folder if it doesn't already exist
+    if not os.path.exists(os.path.join(path, 'plots')):
+        cmd = 'mkdir -p {}'.format(os.path.join(path, 'plots'))
+        subprocess.run(cmd, shell=True)
     # loads result of training to make plots 
-    regressor = tf.keras.models.load_model(os.path.join(
-        'cache', args.model))
+    if path != '':
+        regressor = tf.keras.models.load_model(os.path.join(
+        path, args.model))
+    else:
+        regressor = tf.keras.models.load_model(os.path.join(
+            'cache', args.model))
 
     d = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files)
 
     from taunet.plotting import nn_history
-    nn_history("history.p")
+    nn_history(os.path.join(path, "history.p"), path)
 
     from taunet.plotting import pt_lineshape
-    pt_lineshape(d)
+    pt_lineshape(d, path)
 
     from taunet.plotting import response_lineshape
-    response_lineshape(d)
+    response_lineshape(d, path)
 
     from taunet.plotting import target_lineshape
-    target_lineshape(d)
+    target_lineshape(d, plotSaveLoc=path)
     target_lineshape(d, bins=100, range=(0.5, 1.5), basename='tes_target_lineshape_zoomedin', logy=False)
 
     from taunet.plotting import response_and_resol_vs_pt
-    response_and_resol_vs_pt(d)
+    response_and_resol_vs_pt(d, path)
 
     if args.copy_to_cernbox:
         from taunet.utils import copy_plots_to_cernbox
-        copy_plots_to_cernbox()
+        if path != '':
+            copy_plots_to_cernbox(location=path)
+        else:
+            copy_plots_to_cernbox()

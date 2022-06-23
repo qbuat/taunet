@@ -26,7 +26,6 @@ if __name__ == '__main__':
     #? create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
-        # TODO varry values of rate and batch_size via argumnenbt in command line
         rate = args.rate #default rate 0.001
         batch_size = args.batch_size #default size 64
         # optimized as a stochastic gradient descent (i.e. Adam)
@@ -35,7 +34,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
-        _epochs = 2
+        _epochs = 100
         regressor.compile(
             loss='mean_squared_error', 
             optimizer=adam, 
