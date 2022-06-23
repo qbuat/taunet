@@ -35,7 +35,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
-        _epochs = 2 #100
+        _epochs = 100
         regressor.compile(
             loss='mean_squared_error', 
             optimizer=adam, 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
                 continue
             nn_history(history, metric=k)
         #Now save history in a pickle file
-        pickle.dump(history.history, open("history.p", "wb"))
+        #pickle.dump(history.history, open("history.p", "wb"))
     # Allow to keyboard interupt to not go over all epochs
     except KeyboardInterrupt:
         print('Ended early...')
