@@ -15,13 +15,15 @@ if __name__ == '__main__':
     else:
         n_files = -1
 
-    #? loads result of training to make plots?    
+    # loads result of training to make plots 
     regressor = tf.keras.models.load_model(os.path.join(
         'cache', args.model))
 
     d = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files)
 
+    from taunet.plotting import nn_history
+    nn_history("history.p")
 
     from taunet.plotting import pt_lineshape
     pt_lineshape(d)

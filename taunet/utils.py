@@ -37,14 +37,14 @@ def response_curve(res, var, bins):
     return np.array(_bin_centers), np.array(_bin_errors), np.array(_means), np.array(_mean_stat_err), np.array(_resol)
 
 
-def copy_plots_to_cernbox(fmt='pdf'):
+def copy_plots_to_cernbox(fmt='pdf', location='taunet_plots'):
     """
     """
     _cernbox = os.path.join(
         '/eos/user/',
         os.getenv('USER')[0],
         os.getenv('USER'),
-        'taunet_plots')
+        location)
     if not os.path.exists(_cernbox):
         cmd = 'mkdir -p {}'.format(_cernbox)
         log.info(cmd)

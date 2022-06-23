@@ -35,7 +35,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
-        _epochs = 100
+        _epochs = 2
         regressor.compile(
             loss='mean_squared_error', 
             optimizer=adam, 
@@ -57,16 +57,10 @@ if __name__ == '__main__':
                     monitor='val_loss',
                     verbose=True, 
                     save_best_only=True)])
-        #? Does this only save the best model? How would this work in a for loop for e.g.
+        # save only best run
         regressor.save(_model_file) # save results of training
-        # Plot history of training
-        from taunet.plotting import nn_history
-        for k in history.history.keys():
-            if 'val' in k:
-                continue
-            nn_history(history, metric=k)
-        #Now save history in a pickle file
-        #pickle.dump(history.history, open("history.p", "wb"))
+        #Now save history in a pickle file for future use
+        pickle.dump(history.history, open("history.p", "wb"))
     # Allow to keyboard interupt to not go over all epochs
     except KeyboardInterrupt:
         print('Ended early...')

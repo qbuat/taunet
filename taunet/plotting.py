@@ -1,20 +1,27 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 plt.rcParams['text.usetex'] = True
 
 from . import log; log = log.getChild(__name__)
 
-def nn_history(history, metric='loss'):
-
-    fig = plt.figure()
-    plt.plot(history.history[metric])
-    plt.plot(history.history['val_' + metric])
-    plt.ylabel(metric)
-    plt.xlabel('epoch')
-    plt.legend(['train', 'val'], loc='upper left')
-    fig.axes[0].set_yscale('log')
-    fig.savefig('plots/nn_model_{}.pdf'.format(metric))
-    plt.close(fig)
+def nn_history(file):
+    #open pickle file stored from training
+    data = pickle.load(open(file, "rb"))
+    #create plots
+    for k in data.keys():
+        if 'val' in k:
+            continue
+        metric = k
+        fig = plt.figure()
+        plt.plot(data[metric])
+        plt.plot(data['val_' + metric])
+        plt.ylabel(metric)
+        plt.xlabel('epoch')
+        plt.legend(['train', 'val'], loc='upper left')
+        fig.axes[0].set_yscale('log')
+        fig.savefig('plots/nn_model_{}.pdf'.format(metric))
+        plt.close(fig)
 
 
 def pt_lineshape(testing_data):
