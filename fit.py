@@ -1,3 +1,9 @@
+"""
+Authors: Quinten Buat and Miles Cochran-Branson
+Date: 6/24/22
+
+Top-level file to perform machine learning analysis on 
+"""
 import os
 import tensorflow as tf
 import pickle
@@ -7,8 +13,6 @@ from taunet.fields import FEATURES, TARGET_FIELD
 if __name__ == '__main__':
     
     from taunet.parser import train_parser
-    # train_parser = argparse.ArgumentParser(parents=[common_parser])
-    # train_parser.add_argument('--use-cache', action='store_true')
     args = train_parser.parse_args()
 
     if args.debug:
@@ -20,10 +24,10 @@ if __name__ == '__main__':
     X_train, X_val, y_train, y_val = training_data(
         PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files)
 
-
+    # import model
     from taunet.models import keras_model_main
     regressor = keras_model_main(len(FEATURES))
-    #? create location to save training
+    # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
         rate = args.rate #default rate 0.001
