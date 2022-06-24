@@ -1,3 +1,19 @@
+"""
+Authors: Quentin Buat and Miles Cochran-Branson
+Date: 6/24/22
+
+Create plots of performance of machine learning analysis in comparison
+to standard methods currently in place. 
+
+Optional command-line arguments:
+
+    --debug : run with only three files
+    --copy-to-cernbox : copy plots to cernbox
+    --path : specify path where plots are saved. If used, training *.h5 file
+             may also be located in this folder without needing to specify a location 
+             as in --model below. 
+    --model : specify path to training model
+"""
 #from asyncio import subprocess
 import subprocess
 from genericpath import exists
@@ -24,12 +40,13 @@ if __name__ == '__main__':
         cmd = 'mkdir -p {}'.format(os.path.join(path, 'plots'))
         subprocess.run(cmd, shell=True)
     # loads result of training to make plots 
-    if path != '':
+    #! I did some weird things here... be careful when running with different 
+    #! models, etc
+    if path != '' and args.model == 'simple_dnn.h5':
         regressor = tf.keras.models.load_model(os.path.join(
         path, args.model))
     else:
-        regressor = tf.keras.models.load_model(os.path.join(
-            'cache', args.model))
+        regressor = tf.keras.models.load_model(args.model)
 
     d = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files)

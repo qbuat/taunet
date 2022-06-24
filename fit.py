@@ -2,7 +2,13 @@
 Authors: Quinten Buat and Miles Cochran-Branson
 Date: 6/24/22
 
-Top-level file to perform machine learning analysis on 
+Top-level file to perform machine learning training in order to better
+detect tau leptons at the ATLAS detector. 
+
+Command-line options:
+    --debug : run with only two files
+    --rate : specify sample rate for learning; defualt is 0.001
+    --batch-size : specify batch size for learning; default is 64
 """
 import os
 import tensorflow as tf
