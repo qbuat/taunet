@@ -83,6 +83,12 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         _target = _target.reshape(_target.shape[0], 1)
         log.info('Total training input = {}'.format(_train.shape))
 
+        # scale training data
+        from sklearn.preprocessing import StandardScaler
+        scaler = StandardScaler()
+        scaler.fit(_train)
+        _train = scaler.transform(_train)
+
         from sklearn.model_selection import train_test_split
         X_train, X_val, y_train, y_val = train_test_split(
             _train, _target, test_size=0.2, random_state=42)

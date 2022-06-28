@@ -13,7 +13,7 @@ username = getpass.getuser()
 parser = argparse.ArgumentParser()
 parser.add_argument('--no-submit', action='store_true')
 parser.add_argument('--outdir', type=str, default='launch_condor')
-parser.add_argument('--queue', type=str, default='workday')
+parser.add_argument('--queue', type=str, default='tomorrow')
 parser.add_argument('--ncpus', type=str, default='1')
 parser.add_argument('--ngpus', type=str, default='1')
 parser.add_argument('--jobname', type=str, default='0')
@@ -96,7 +96,7 @@ jobScript += ['cp -r tesenv /tmp/'+username+'/'+jobName+'/']
 jobScript += ['source /tmp/'+username+'/'+jobName+'/tesenv/bin/activate']
 jobScript += ['cd '+'/tmp/'+username+'/'+jobName+'/taunet']
 jobScript += ['python '+myExec+' '+myParams]
-jobScript += ['cp *.h '+jobPath]
+jobScript += ['cp *.p '+jobPath]
 jobScript += ['cp cache/*.h5 '+jobPath]
 jobScript += ['cp plots/*.pdf '+jobPath]
 jobScript += ['cd ..']

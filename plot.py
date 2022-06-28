@@ -45,14 +45,15 @@ if __name__ == '__main__':
     if path != '' and args.model == 'simple_dnn.h5':
         regressor = tf.keras.models.load_model(os.path.join(
         path, args.model))
+        print("works!")
     else:
-        regressor = tf.keras.models.load_model(args.model)
+        regressor = tf.keras.models.load_model(os.path.join('cache', args.model))
 
     d = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files)
 
-    from taunet.plotting import nn_history
-    nn_history(os.path.join(path, "history.p"), path)
+    # from taunet.plotting import nn_history
+    # nn_history(os.path.join(path, "history.p"), path)
 
     from taunet.plotting import pt_lineshape
     pt_lineshape(d, path)
