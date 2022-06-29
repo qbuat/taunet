@@ -13,7 +13,6 @@ Command-line options:
 import os
 import pickle
 import tensorflow as tf
-from sklearn.preprocessing import StandardScaler
 
 from taunet.database import PATH, DATASET, training_data
 from taunet.fields import FEATURES, TARGET_FIELD
@@ -30,12 +29,6 @@ if __name__ == '__main__':
     # get training data
     X_train, X_val, y_train, y_val = training_data(
         PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files)
-
-    #pre-process data via scaling 
-    # scaler = StandardScaler()
-    # scaler.fit(X_train)
-    # X_train = scaler.transform(X_train)
-    # X_val = scaler.transform(X_val)
 
     # import model
     from taunet.models import keras_model_main

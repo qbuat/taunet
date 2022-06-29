@@ -1,4 +1,6 @@
 import os
+
+from taunet.computation import SSNormalize, getVarIndices
 from . import log; log = log.getChild(__name__)
 
 DEFAULT_PATH = '/eos/atlas/atlascerngroupdisk/perf-tau/MxAODs/R22/Round3/TES/'
@@ -83,11 +85,8 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         _target = _target.reshape(_target.shape[0], 1)
         log.info('Total training input = {}'.format(_train.shape))
 
-        # scale training data
-        from sklearn.preprocessing import StandardScaler
-        scaler = StandardScaler()
-        scaler.fit(_train)
-        _train = scaler.transform(_train)
+        #normalize here!
+        _train = SSNormalize(_train, getVarIndices(features))
 
         from sklearn.model_selection import train_test_split
         X_train, X_val, y_train, y_val = train_test_split(
@@ -97,9 +96,12 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
 
 def testing_data(
         path, dataset, features, plotting_fields, regressor, 
-        nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree'):
+        nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree',saveToCache=False, useCache=False):
     """
     """
+    if useCache:
+        return np.load('cache/plottingData.npy')
+
     import uproot
     import awkward as ak
     import numpy as np
@@ -137,4 +139,6 @@ def testing_data(
 
     _arrs = np.concatenate(_arrs)
     log.info('Total testing input = {}'.format(_arrs.shape))
+    if saveToCache:
+        np.save('cache/plottingData', _arrs)
     return _arrs

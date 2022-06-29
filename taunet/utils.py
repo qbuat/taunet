@@ -50,10 +50,21 @@ def copy_plots_to_cernbox(fmt='pdf', location='taunet_plots'):
         log.info(cmd)
         subprocess.run(cmd, shell=True)
 
-    for _fig in os.listdir('./plots/'):
-        if _fig.endswith(fmt):
-            cmd = 'cp {} {}'.format(
-                os.path.join('./plots', _fig),
-                _cernbox)
-            log.info(cmd)
-            subprocess.run(cmd, shell=True)
+    #! kinda a sketch way but should work...
+    if location != 'taunet_plots':
+        os.listdir(os.path.join(location, 'plots'))
+        for _fig in os.listdir(os.path.join(location, 'plots')):
+            if _fig.endswith(fmt):
+                cmd = 'cp {} {}'.format(
+                    os.path.join(location, 'plots', _fig),
+                    _cernbox)
+                log.info(cmd)
+                subprocess.run(cmd, shell=True)
+    else:
+        for _fig in os.listdir('./plots/'):
+            if _fig.endswith(fmt):
+                cmd = 'cp {} {}'.format(
+                    os.path.join('./plots', _fig),
+                    _cernbox)
+                log.info(cmd)
+                subprocess.run(cmd, shell=True)

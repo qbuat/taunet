@@ -13,6 +13,7 @@ Optional command-line arguments:
              may also be located in this folder without needing to specify a location 
              as in --model below. 
     --model : specify path to training model
+    --use-cache : use data from cache for plotting
 """
 #from asyncio import subprocess
 import subprocess
@@ -42,18 +43,16 @@ if __name__ == '__main__':
     # loads result of training to make plots 
     #! I did some weird things here... be careful when running with different 
     #! models, etc
-    if path != '' and args.model == 'simple_dnn.h5':
-        regressor = tf.keras.models.load_model(os.path.join(
-        path, args.model))
-        print("works!")
+    if path != '':
+        regressor = tf.keras.models.load_model(os.path.join(path, args.model))
     else:
         regressor = tf.keras.models.load_model(os.path.join('cache', args.model))
 
     d = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files)
 
-    # from taunet.plotting import nn_history
-    # nn_history(os.path.join(path, "history.p"), path)
+    from taunet.plotting import nn_history
+    nn_history(os.path.join(path, 'history.p'), path)
 
     from taunet.plotting import pt_lineshape
     pt_lineshape(d, path)

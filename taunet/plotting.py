@@ -5,6 +5,7 @@ import pickle
 plt.rcParams['text.usetex'] = True
 
 from . import log; log = log.getChild(__name__)
+from taunet.computation import chi_squared
 
 def nn_history(file, plotSaveLoc):
     log.info('Plotting NN history info')
@@ -31,37 +32,40 @@ def pt_lineshape(testing_data, plotSaveLoc):
     """
     log.info('Plotting the transverse momenta on the full dataset')
     fig = plt.figure()
-    plt.hist(
+    counts_t, bins_t, bars_t = plt.hist(
         testing_data['TauJetsAuxDyn.truthPtVisDressed'] / 1000.,
         bins=200,
         range=(0, 200), 
         histtype='stepfilled',
-        color='cyan',
-        label='Truth')
-    plt.hist(
+        color='cyan')
+        #label='Truth')
+    counts_b, bins_b, bars_b = plt.hist(
         testing_data['TauJetsAuxDyn.ptCombined'] / 1000.,
         bins=200,
         range=(0, 200), 
         histtype='step',
-        color='black',
-        label='Combined')
-    plt.hist(
+        color='black')
+        #label='Combined')
+    counts_f, bins_f, bars_f = plt.hist(
         testing_data['TauJetsAuxDyn.ptFinalCalib'] / 1000.,
         bins=200,
         range=(0, 200), 
         histtype='step',
-        color='red',
-        label='Final')
-    plt.hist(
+        color='red')
+        #label='Final, $\\chi^2 = ${}'.format(chi_squared(counts_f, counts_t)))
+    counts_ts, bins_ts, bars_ts = plt.hist(
         testing_data['regressed_target'] * testing_data['TauJetsAuxDyn.ptCombined'] / 1000.,
         bins=200,
         range=(0, 200), 
         histtype='step',
-        color='purple',
-        label='This work')
+        color='purple')
+        #label='This work, $\\chi^2 = ${}'.format(chi_squared(counts_ts, counts_t)))
     plt.ylabel('Number of $\\tau_{had-vis}$')
     plt.xlabel('$p_{T}(\\tau_{had-vis})$ [GeV]')
-    plt.legend()
+    plt.legend(['Truth', 
+                'Combined $\\chi^2 = ${}'.format(chi_squared(counts_f, counts_b)), 
+                'Final, $\\chi^2 = ${}'.format(chi_squared(counts_f, counts_t)), 
+                'This work, $\\chi^2 = ${}'.format(chi_squared(counts_ts, counts_t))])
     plt.savefig(os.path.join(plotSaveLoc, 'plots/tes_pt_lineshape.pdf'))
     plt.close(fig)
 
