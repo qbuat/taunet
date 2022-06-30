@@ -63,9 +63,9 @@ def pt_lineshape(testing_data, plotSaveLoc):
     plt.ylabel('Number of $\\tau_{had-vis}$')
     plt.xlabel('$p_{T}(\\tau_{had-vis})$ [GeV]')
     plt.legend(['Truth', 
-                'Combined $\\chi^2 = ${}'.format(chi_squared(counts_f, counts_b)), 
-                'Final, $\\chi^2 = ${}'.format(chi_squared(counts_f, counts_t)), 
-                'This work, $\\chi^2 = ${}'.format(chi_squared(counts_ts, counts_t))])
+                'Combined $\\chi^2 = ${}'.format(round(chi_squared(counts_f, counts_b))), 
+                'Final, $\\chi^2 = ${}'.format(round(chi_squared(counts_f, counts_t))), 
+                'This work, $\\chi^2 = ${}'.format(round(chi_squared(counts_ts, counts_t)))])
     plt.savefig(os.path.join(plotSaveLoc, 'plots/tes_pt_lineshape.pdf'))
     plt.close(fig)
 

@@ -16,25 +16,37 @@ def StandardScalar(x, mean, std):
     """
     return (x - mean) / std
 
-def SSNormalize(data, vars=range(0,18)):
+def getSSNormalize(data, target):
     """
     Pre-process data using the standard scalar function. 
     Optionally select which variables to scale using the vars argument. 
     Takes a vector 
     """
-    for i in vars:
+    norms = []
+    for i in range(len(data[1,:])):
         dat = data[:,i]
         mean = np.mean(dat)
         std = np.std(dat)
-        data[:,i] = StandardScalar(dat, mean, std)
-    return data
+        norms.append([mean, std])
+    mean = np.mean(target)
+    std = np.std(target)
+    norms.append([mean, std])
+    np.save('data/normFactors', norms)
+    return norms
 
-def getVarIndices(features):
-    i = 0
-    indices = []
-    for _feat in features:
-        if ('mu' not in _feat) and ('nVtxPU' not in _feat) \
-            and ('PanTau_' not in _feat) and ('nTracks' not in _feat):
-            indices += [i]
-        i = i + 1
-    return indices
+def applySSNormalize(data, norms):
+    """
+    """
+    for i in range(len(data[1,:])):
+        data[:,i] = StandardScalar(data[:,i], norms[i][0], norms[i][1])
+    return data; 
+
+# def getVarIndices(features):
+#     i = 0
+#     indices = []
+#     for _feat in features:
+#         if ('mu' not in _feat) and ('nVtxPU' not in _feat) \
+#             and ('PanTau_' not in _feat) and ('nTracks' not in _feat):
+#             indices += [i]
+#         i = i + 1
+#     return indices

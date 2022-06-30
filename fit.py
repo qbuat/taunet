@@ -28,11 +28,12 @@ if __name__ == '__main__':
 
     # get training data
     X_train, X_val, y_train, y_val = training_data(
-        PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files)
+        PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files, normalize=True)
 
     # import model
-    from taunet.models import keras_model_main
-    regressor = keras_model_main(len(FEATURES))
+    from taunet.models import keras_model_main_simple
+    #regressor = keras_model_main(len(FEATURES))
+    regressor = keras_model_main_simple(len(FEATURES))
     # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:

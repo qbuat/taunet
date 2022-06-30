@@ -1,6 +1,6 @@
 import os
 
-from taunet.computation import SSNormalize, getVarIndices
+from taunet.computation import StandardScalar, getSSNormalize, applySSNormalize
 from . import log; log = log.getChild(__name__)
 
 DEFAULT_PATH = '/eos/atlas/atlascerngroupdisk/perf-tau/MxAODs/R22/Round3/TES/'
@@ -38,13 +38,14 @@ def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
     arrays = tree.arrays(fields, cut=cut)
     arrays = arrays[ arrays['TauJetsAuxDyn.nTracks'] > 0 ]
     arrays = arrays[ arrays['TauJetsAuxDyn.nTracks'] < 6 ]
+    #arrays = arrays[ arrays['']]
     if select_1p:
         arrays = arrays[ arrays['TauJetsAuxDyn.nTracks'] == 1 ]
     if select_3p: 
         arrays = arrays[ arrays['TauJetsAuxDyn.nTracks'] == 3 ]
     return arrays
         
-def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree'):
+def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', normalize=True):
     """
     """
     if use_cache:
@@ -86,7 +87,10 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total training input = {}'.format(_train.shape))
 
         #normalize here!
-        _train = SSNormalize(_train, getVarIndices(features))
+        if normalize:
+            norms = getSSNormalize(_train, _target)
+            _train = applySSNormalize(_train, norms)
+            _target = StandardScalar(_target, norms[18][0], norms[18][1])
 
         from sklearn.model_selection import train_test_split
         X_train, X_val, y_train, y_val = train_test_split(
@@ -99,12 +103,14 @@ def testing_data(
         nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree',saveToCache=False, useCache=False):
     """
     """
+    import numpy as np
+
     if useCache:
-        return np.load('cache/plottingData.npy')
+        log.info('Using cache')
+        return np.load('cache/testingData_temp.npy')
 
     import uproot
     import awkward as ak
-    import numpy as np
     
     # from numpy.lib.recfunctions import append_fields
     
@@ -138,7 +144,11 @@ def testing_data(
             _arrs += [_arr]
 
     _arrs = np.concatenate(_arrs)
+    #normalize output
+    # norms = np.load('data/normFactors.npy')
+    # _arrs = applySSNormalize(_arrs, norms)
     log.info('Total testing input = {}'.format(_arrs.shape))
     if saveToCache:
-        np.save('cache/plottingData', _arrs)
+        np.save('cache/testingData_temp', _arrs)
+        log.info('Saving data to cache')
     return _arrs
