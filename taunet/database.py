@@ -1,12 +1,16 @@
+"""
+Database changes:
+    - added ability to normalize input / output data
+    - removed nTracks from vairiable list and cuts
+"""
 import os
 
-from taunet.computation import StandardScalar, getSSNormalize, applySSNormalize
+from taunet.computation import StandardScalar, applySSNormalizeTest, getSSNormalize, applySSNormalize, applySSNormalizeTest
 from . import log; log = log.getChild(__name__)
 
 DEFAULT_PATH = '/eos/atlas/atlascerngroupdisk/perf-tau/MxAODs/R22/Round3/TES/'
 PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
 DATASET = 'group.perf-tau.Round3_FinalMVATES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v1_output.root'
-
 
 def file_list(path, dataset):
     """
@@ -29,8 +33,10 @@ def file_list(path, dataset):
 def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
     """
     """
+    #! Temporarrily removing nTracks from variable list
     if not 'TauJetsAuxDyn.nTracks' in fields:
-        raise ValueError
+        log.info("nTracks temporarrily added to variable list")
+        fields = fields + ['TauJetsAuxDyn.nTracks']
 
     if select_1p and select_3p:
         raise ValueError
@@ -45,7 +51,8 @@ def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
         arrays = arrays[ arrays['TauJetsAuxDyn.nTracks'] == 3 ]
     return arrays
         
-def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', normalize=True):
+def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False
+, no_norm_target=False):
     """
     """
     if use_cache:
@@ -87,27 +94,29 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total training input = {}'.format(_train.shape))
 
         #normalize here!
-        if normalize:
+        if not no_normalize:
             norms = getSSNormalize(_train, _target)
             _train = applySSNormalize(_train, norms)
-            _target = StandardScalar(_target, norms[18][0], norms[18][1])
+            if not no_norm_target:
+                _target = StandardScalar(_target, norms[len(norms) - 1][0], norms[len(norms) - 1][1])
 
         from sklearn.model_selection import train_test_split
         X_train, X_val, y_train, y_val = train_test_split(
             _train, _target, test_size=0.2, random_state=42)
+        log.info('Total validation input {}'.format(len(X_val)))
 
     return X_train, X_val, y_train, y_val
 
 def testing_data(
         path, dataset, features, plotting_fields, regressor, 
-        nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree',saveToCache=False, useCache=False):
+        nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree',saveToCache=False, useCache=False, optional_path='', no_normalize=False, no_norm_target=False):
     """
     """
     import numpy as np
 
     if useCache:
         log.info('Using cache')
-        return np.load('cache/testingData_temp.npy')
+        return np.load('data/testingData_temp.npy')
 
     import uproot
     import awkward as ak
@@ -117,6 +126,11 @@ def testing_data(
     _files = file_list(path, dataset)
     # build unique list of variables to retrieve
     _fields_to_lookup = list(set(features + plotting_fields))
+
+    if optional_path == '':
+        norms = np.load('data/normFactors.npy')
+    else:
+        norms = np.load(os.path.join(optional_path, 'normFactors.npy'))
     
     _arrs = []
     for i_f, _file in enumerate(_files):
@@ -133,7 +147,12 @@ def testing_data(
                 select_3p=select_3p)
             f = np.stack(
                 [ak.flatten(a[__feat]).to_numpy() for __feat in features])
-            regressed_target = regressor.predict(f.T)
+            #! I think the correct way to do this but still acting funky
+            if not no_normalize:
+                f = applySSNormalizeTest(f, norms)
+            regressed_target = regressor.predict(f.T) #alpha norm with scaling
+            if not no_norm_target:
+                regressed_target = norms[len(norms)-1][1] * regressed_target + norms[len(norms)-1][0] # revert to alpha
             regressed_target = regressed_target.reshape((regressed_target.shape[0], ))
             _arr = np.stack(
                 [ak.flatten(a[_var]).to_numpy() for _var in plotting_fields] + [regressed_target], axis=1)
@@ -144,11 +163,8 @@ def testing_data(
             _arrs += [_arr]
 
     _arrs = np.concatenate(_arrs)
-    #normalize output
-    # norms = np.load('data/normFactors.npy')
-    # _arrs = applySSNormalize(_arrs, norms)
     log.info('Total testing input = {}'.format(_arrs.shape))
     if saveToCache:
-        np.save('cache/testingData_temp', _arrs)
+        np.save('data/testingData_temp', _arrs)
         log.info('Saving data to cache')
     return _arrs

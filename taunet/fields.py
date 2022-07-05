@@ -18,7 +18,7 @@ FEATURES = [
     'TauJetsAuxDyn.PanTau_BDTValue_1p0n_vs_1p1n',
     'TauJetsAuxDyn.PanTau_BDTValue_1p1n_vs_1pXn',
     'TauJetsAuxDyn.PanTau_BDTValue_3p0n_vs_3pXn',
-    'TauJetsAuxDyn.nTracks',
+    #'TauJetsAuxDyn.nTracks',
     'TauJetsAuxDyn.PFOEngRelDiff', #upsilon; quantifies polar
     ]
 

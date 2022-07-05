@@ -1,8 +1,10 @@
 import numpy as np
 
+from . import log; log = log.getChild(__name__)
+
 def chi_squared(obs, exp):
     """
-    Compute chi squared value of a given dataset
+    Compute chi squared of variable obs wrt exp (expectation)
     """
     chi_squared = 0;
     for i in range(len(obs)):
@@ -14,6 +16,8 @@ def StandardScalar(x, mean, std):
     """
     Standard Scalar function for pre-processing data 
     """
+    if std == 0:
+        log.info("Standard deviation is zero!")
     return (x - mean) / std
 
 def getSSNormalize(data, target):
@@ -37,8 +41,15 @@ def getSSNormalize(data, target):
 def applySSNormalize(data, norms):
     """
     """
-    for i in range(len(data[1,:])):
+    for i in range(len(data[0,:])):
         data[:,i] = StandardScalar(data[:,i], norms[i][0], norms[i][1])
+    return data; 
+
+def applySSNormalizeTest(data, norms):
+    """
+    """
+    for i in range(len(data)):
+        data = StandardScalar(data, norms[i][0], norms[i][1])
     return data; 
 
 # def getVarIndices(features):

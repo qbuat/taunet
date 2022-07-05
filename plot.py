@@ -49,7 +49,8 @@ if __name__ == '__main__':
         regressor = tf.keras.models.load_model(os.path.join('cache', args.model))
 
     d = testing_data(
-        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files)
+        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files, optional_path=path, 
+        select_1p=args.oneProng, select_3p=args.threeProngs)
 
     from taunet.plotting import nn_history
     nn_history(os.path.join(path, 'history.p'), path)

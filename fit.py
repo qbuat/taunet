@@ -22,13 +22,15 @@ if __name__ == '__main__':
     args = train_parser.parse_args()
 
     if args.debug:
-        n_files = 1 #set limit on files for testing / debugging
+        n_files = 2 #set limit on files for testing / debugging
     else:
         n_files = -1
-
+    
     # get training data
     X_train, X_val, y_train, y_val = training_data(
-        PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files, normalize=True)
+        PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files, 
+        select_1p=args.oneProng, select_3p=args.threeProngs,
+        no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
 
     # import model
     from taunet.models import keras_model_main_simple
@@ -37,7 +39,7 @@ if __name__ == '__main__':
     # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
-        rate = args.rate #default rate 0.001
+        rate = args.rate #default rate 1e-5
         batch_size = args.batch_size #default size 64
         # optimized as a stochastic gradient descent (i.e. Adam)
         adam = tf.keras.optimizers.get('Adam')
