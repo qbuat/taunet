@@ -32,10 +32,9 @@ def keras_model_terry(n_variables, name='more_simple_dnn'):
     output   = tf.keras.layers.Dense(1, activation='linear')(hidden_4)
     return tf.keras.Model(inputs=x_1, outputs=output, name=name)
 
+# model for MDN
 def keras_model_mdn(n_variables, name='simple_mdn'):
     x_1 = tf.keras.Input(shape=n_variables)
-    # create some densely-connected NN layers
-    # relu = rectified linear unit activation, i.e. f(x) = max(x, 0)
     hidden_0 = tf.keras.layers.Dense(192, activation='relu')(x_1)
     hidden_1 = tf.keras.layers.Dense(192, activation='relu')(hidden_0)
     hidden_2 = tf.keras.layers.Dense(192, activation='relu')(hidden_1)
@@ -43,5 +42,3 @@ def keras_model_mdn(n_variables, name='simple_mdn'):
     hidden_4 = tf.keras.layers.Dense(64, activation='relu')(hidden_3)
     output   = tfp.layers.MixtureNormal(1)(hidden_4)
     return tf.keras.Model(inputs=x_1, output=output, name=name)
-
-test = 32;
