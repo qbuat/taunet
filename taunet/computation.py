@@ -1,4 +1,7 @@
 import numpy as np
+from numpy import empty
+
+from taunet.fields import FEATURES
 
 from . import log; log = log.getChild(__name__)
 
@@ -17,8 +20,10 @@ def StandardScalar(x, mean, std):
     Standard Scalar function for pre-processing data 
     """
     if std == 0:
-        log.info("Standard deviation is zero!")
-    return (x - mean) / std
+        log.info("Standard deviation is zero! Returning nothing :(")
+        return;
+    else:
+        return (x - mean) / std
 
 def getSSNormalize(data, target):
     """
@@ -38,10 +43,12 @@ def getSSNormalize(data, target):
     np.save('data/normFactors', norms)
     return norms
 
-def applySSNormalize(data, norms):
+def applySSNormalize(data, norms, vars=[]):
     """
     """
-    for i in range(len(data[0,:])):
+    if vars == []:
+        vars = range(len(data[0,:]))
+    for i in vars:
         data[:,i] = StandardScalar(data[:,i], norms[i][0], norms[i][1])
     return data; 
 
@@ -52,12 +59,29 @@ def applySSNormalizeTest(data, norms):
         data = StandardScalar(data, norms[i][0], norms[i][1])
     return data; 
 
-# def getVarIndices(features):
-#     i = 0
-#     indices = []
-#     for _feat in features:
-#         if ('mu' not in _feat) and ('nVtxPU' not in _feat) \
-#             and ('PanTau_' not in _feat) and ('nTracks' not in _feat):
-#             indices += [i]
-#         i = i + 1
-#     return indices
+# indices of variables to normalize
+# Note: variable 12 doesn't really need to be normalized
+# Update function getVarIndices to make this clearer... 
+NormVarIndices = [0, 1, 2, 3, 4, 5, 9, 12, len(FEATURES)-1]
+
+# variables to normalize
+VARNORM = [
+    'TauJetsAuxDyn.mu', 
+    'TauJetsAuxDyn.nVtxPU',
+    'TauJetsAuxDyn.rho',
+    'TauJetsAuxDyn.ClustersMeanCenterLambda',
+    'TauJetsAuxDyn.ClustersMeanFirstEngDens',
+    'TauJetsAuxDyn.ClustersMeanSecondLambda',
+    'TauJetsAuxDyn.ptCombined',
+    'TauJetsAuxDyn.etaPanTauCellBased',
+    'TauJetsAuxDyn.ptTauEnergyScale'
+]
+
+def getVarIndices(features, vars=FEATURES):
+    i = 0
+    indices = []
+    for _feat in features:
+        if _feat in vars:
+            indices += [i]
+        i = i + 1
+    return indices

@@ -15,14 +15,16 @@ FEATURES = [
     'TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined',
     'TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined',
     'TauJetsAuxDyn.etaPanTauCellBased',
-    'TauJetsAuxDyn.PanTau_BDTValue_1p0n_vs_1p1n',
-    'TauJetsAuxDyn.PanTau_BDTValue_1p1n_vs_1pXn',
-    'TauJetsAuxDyn.PanTau_BDTValue_3p0n_vs_3pXn',
-    #'TauJetsAuxDyn.nTracks',
-    'TauJetsAuxDyn.PFOEngRelDiff', #upsilon; quantifies polar
+    # 'TauJetsAuxDyn.PanTau_BDTValue_1p0n_vs_1p1n',
+    # 'TauJetsAuxDyn.PanTau_BDTValue_1p1n_vs_1pXn',
+    # 'TauJetsAuxDyn.PanTau_BDTValue_3p0n_vs_3pXn',
+    # 'TauJetsAuxDyn.nTracks',
+    # 'TauJetsAuxDyn.PFOEngRelDiff', #upsilon; quantifies polar
+    'TauJetsAuxDyn.ptTauEnergyScale',
     ]
 
 TRUTH_FIELDS = [
+    # 'TauJetsAuxDyn.truthPtVis'
     'TauJetsAuxDyn.truthPtVisDressed',
     'TauJetsAuxDyn.truthEtaVisDressed',
     # 'TauJetsAuxDyn.truthPhiVisDressed',

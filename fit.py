@@ -27,15 +27,15 @@ if __name__ == '__main__':
         n_files = -1
     
     # get training data
-    X_train, X_val, y_train, y_val = training_data(
+    X_train, X_val, y_train, y_val, test1, test2 = training_data(
         PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files, 
         select_1p=args.oneProng, select_3p=args.threeProngs,
         no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
 
     # import model
-    from taunet.models import keras_model_main_simple
+    from taunet.models import keras_model_terry
     #regressor = keras_model_main(len(FEATURES))
-    regressor = keras_model_main_simple(len(FEATURES))
+    regressor = keras_model_terry(len(FEATURES))
     # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
-        _epochs = 100
+        _epochs = 250
         regressor.compile(
             loss='mean_squared_error', 
             optimizer=adam, 
