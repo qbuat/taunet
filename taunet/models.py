@@ -1,5 +1,5 @@
 import tensorflow as tf
-import tensorflow_probability as tfp
+#import tensorflow_probability as tfp
 
 def keras_model_main(n_variables, name='simple_dnn'):
     x_1 = tf.keras.Input(shape=n_variables)
