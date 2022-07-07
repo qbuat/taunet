@@ -100,7 +100,11 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total training input = {}'.format(_train.shape))
 
         #! added for testing
-        old_data = np.array(_train)
+        # old_data = np.array(_train)
+        # old_target = np.array(_target)
+
+        #place cuts on target -- doesn't work because of later stuff
+        #_target = _target[:,0][_target[:,0] < 2]
 
         #normalize here!
         if not no_normalize:
@@ -112,7 +116,7 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
                 log.info('Normalizing validation data')
                 _target = StandardScalar(_target, norms[len(norms) - 1][0], norms[len(norms) - 1][1])
 
-        print((old_data == _train).all())
+        #print((old_data == _train).all())
         
         from sklearn.model_selection import train_test_split
         X_train, X_val, y_train, y_val = train_test_split(
@@ -120,7 +124,7 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total validation input {}'.format(len(X_val)))
 
 
-    return X_train, X_val, y_train, y_val, old_data, _train
+    return X_train, X_val, y_train, y_val
 
 def testing_data(
         path, dataset, features, plotting_fields, regressor, 
