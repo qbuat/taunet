@@ -33,9 +33,9 @@ if __name__ == '__main__':
         no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
 
     # import model
-    from taunet.models import keras_model_terry
-    #regressor = keras_model_main(len(FEATURES))
-    regressor = keras_model_terry(len(FEATURES))
+    from taunet.models import keras_model_mdn
+    from taunet.computation import gaussian_nll
+    regressor = keras_model_mdn(len(FEATURES))
     # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         _epochs = 250
         regressor.compile(
-            loss='mean_squared_error', 
+            loss=gaussian_nll, 
             optimizer=adam, 
             metrics=['mse', 'mae'])
         history = regressor.fit(
