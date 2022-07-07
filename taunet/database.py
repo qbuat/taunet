@@ -100,11 +100,8 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total training input = {}'.format(_train.shape))
 
         #! added for testing
-        # old_data = np.array(_train)
-        # old_target = np.array(_target)
-
-        #place cuts on target -- doesn't work because of later stuff
-        #_target = _target[:,0][_target[:,0] < 2]
+        og_train = np.array(_train)
+        old_target = np.array(_target)
 
         #normalize here!
         if not no_normalize:
@@ -124,7 +121,7 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total validation input {}'.format(len(X_val)))
 
 
-    return X_train, X_val, y_train, y_val
+    return X_train, X_val, y_train, y_val#, og_train, _train, old_target, _target
 
 def testing_data(
         path, dataset, features, plotting_fields, regressor, 
