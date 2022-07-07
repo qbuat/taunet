@@ -34,8 +34,7 @@ def keras_model_terry(n_variables, name='main_dnn'):
 def keras_model_terry_regular(n_variables, name='main_dnn_regular'):
     x_1 = tf.keras.Input(shape=n_variables)
     """
-    Potentially the NN network used in:
-    https://indico.cern.ch/event/830584/contributions/3653901/attachments/1955169/3247362/20191203_first_RNN_TES.pdf
+    NN used above but added in some regularization!
     """
     # create some densely-connected NN layers
     # relu = rectified linear unit activation, i.e. f(x) = max(x, 0)
