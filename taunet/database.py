@@ -80,15 +80,14 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
                     cut = 'EventInfoAux.eventNumber%3 != 0',
                     select_1p=select_1p,
                     select_3p=select_3p)
-                a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 1.25]
-                a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 2.5 ] # previosly 25
-                a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 4. ] # previously 25
-                a = a[ a['TauJetsAuxDyn.ptTauEnergyScale'] < 0.5e6 ]
-                a = a[ a['TauJetsAuxDyn.ClustersMeanCenterLambda'] < 2.5e3 ] 
-                a = a[ a['TauJetsAuxDyn.ClustersMeanSecondLambda'] < 0.5e6]
-                a = a[ a['TauJetsAuxDyn.ptCombined'] < 0.5e6]
-                # next few cuts may not be necessary
-                a = a[ a['TauJetsAuxDyn.ClustersMeanPresamplerFrac'] < 0.3]
+                # a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 1.25]
+                a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] # previosly 25
+                a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ] # previously 25
+                # a = a[ a['TauJetsAuxDyn.ptTauEnergyScale'] < 0.5e6 ]
+                # a = a[ a['TauJetsAuxDyn.ClustersMeanCenterLambda'] < 2.5e3 ] 
+                # a = a[ a['TauJetsAuxDyn.ClustersMeanSecondLambda'] < 0.5e6]
+                # a = a[ a['TauJetsAuxDyn.ptCombined'] < 0.5e6]
+                # a = a[ a['TauJetsAuxDyn.ClustersMeanPresamplerFrac'] < 0.3]
                 f = np.stack(
                     [ak.flatten(a[__feat]).to_numpy() for __feat in features])
                 _train  += [f.T]
