@@ -4,6 +4,7 @@ from taunet.fields import FEATURES
 
 from . import log; log = log.getChild(__name__)
 
+#%% Just a function for computing chi^2
 def chi_squared(obs, exp):
     """
     Compute chi squared of variable obs wrt exp (expectation)
@@ -16,6 +17,7 @@ def chi_squared(obs, exp):
             log.info('Potential error: expected value was zero!')
     return chi_squared
 
+#%% Functions for scaling variables
 def StandardScalar(x, mean, std):
     """
     Standard Scalar function for pre-processing data 
@@ -87,13 +89,13 @@ def getVarIndices(features, vars=FEATURES):
         i = i + 1
     return indices
 
-#-----------------------------------------------------------
+#%%-----------------------------------------------------------
 # Loss function for MDN
 # Function from https://gist.github.com/sergeyprokudin/4a50bf9b75e0559c1fcd2cae860b879e
-import keras.backend as K
+from keras import backend
 
 
-def gaussian_nll(ytrue, ypreds):
+def gaussian_nll(y_true, y_pred, sample_weight=None):
     """Keras implmementation of multivariate Gaussian negative loglikelihood loss function. 
     This implementation implies diagonal covariance matrix.
     
@@ -113,15 +115,17 @@ def gaussian_nll(ytrue, ypreds):
         model.compile(loss=gaussian_nll, optimizer='Adam') 
     
     """
+    mu = y_pred[:,0]
+    logsigma = y_pred[:,1]
     
-    n_dims = int(int(ypreds.shape[1])/2)
-    mu = ypreds[:, 0:n_dims]
-    logsigma = ypreds[:, n_dims:]
+    mse = -0.5*backend.square((y_true-mu)/backend.exp(logsigma))
+    log2pi = -0.5*np.log(2*np.pi)
     
-    mse = -0.5*K.sum(K.square((ytrue-mu)/K.exp(logsigma)),axis=1)
-    sigma_trace = -K.sum(logsigma, axis=1)
-    log2pi = -0.5*n_dims*np.log(2*np.pi)
-    
-    log_likelihood = mse+sigma_trace+log2pi
-
-    return K.mean(-log_likelihood)
+    if sample_weight is not None:
+        print('Using Sample Weight!')
+        log_likelihood = (mse - logsigma + log2pi) * sample_weight
+        return -backend.sum(log_likelihood) / backend.sum(sample_weight)
+        
+    print('NOT Using Sample Weight!')
+    log_likelihood = mse - logsigma + log2pi
+    return -backend.mean(log_likelihood)

@@ -22,7 +22,7 @@ if __name__ == '__main__':
     args = train_parser.parse_args()
 
     if args.debug:
-        n_files = 2 #set limit on files for testing / debugging
+        n_files = 1 #set limit on files for testing / debugging
     else:
         n_files = -1
     
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # import model
     from taunet.models import keras_model_mdn
     from taunet.computation import gaussian_nll
-    regressor = keras_model_mdn(len(FEATURES))
+    regressor = keras_model_mdn((len(FEATURES),))
     # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
-        _epochs = 250
+        _epochs = 10
         regressor.compile(
             loss=gaussian_nll, 
             optimizer=adam, 
