@@ -27,7 +27,7 @@ if __name__ == '__main__':
         n_files = -1
     
     # get training data
-    X_train, X_val, y_train, y_val, test1, test2 = training_data(
+    X_train, X_val, y_train, y_val = training_data(
         PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files, 
         select_1p=args.oneProng, select_3p=args.threeProngs,
         no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
