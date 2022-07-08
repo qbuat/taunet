@@ -170,7 +170,7 @@ def testing_data(
                 log.info('Normalizing input data to regressor')
             regressed_target = regressor.predict(f.T)
             if not no_norm_target:
-                # If target was normalize, revent to original
+                # If target was normalized, revert to original
                 # Last element of variable "norms" contains mean (element 0) 
                 # and std (element 1) of target. 
                 regressed_target = norms[len(norms)-1][1] * regressed_target + norms[len(norms)-1][0]
