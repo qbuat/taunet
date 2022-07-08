@@ -95,26 +95,28 @@ def getVarIndices(features, vars=FEATURES):
 from keras import backend
 
 
+
+    # """Keras implmementation of multivariate Gaussian negative loglikelihood loss function. 
+    # This implementation implies diagonal covariance matrix.
+    
+    # Parameters
+    # ----------
+    # ytrue: tf.tensor of shape [n_samples, n_dims]
+    #     ground truth values
+    # ypreds: tf.tensor of shape [n_samples, n_dims*2]
+    #     predicted mu and logsigma values (e.g. by your neural network)
+        
+    # Returns
+    # -------
+    # neg_log_likelihood: float
+    #     negative loglikelihood averaged over samples
+        
+    # This loss can then be used as a target loss for any keras model, e.g.:
+    #     model.compile(loss=gaussian_nll, optimizer='Adam') 
+    
+    # """
+
 def gaussian_nll(y_true, y_pred, sample_weight=None):
-    """Keras implmementation of multivariate Gaussian negative loglikelihood loss function. 
-    This implementation implies diagonal covariance matrix.
-    
-    Parameters
-    ----------
-    ytrue: tf.tensor of shape [n_samples, n_dims]
-        ground truth values
-    ypreds: tf.tensor of shape [n_samples, n_dims*2]
-        predicted mu and logsigma values (e.g. by your neural network)
-        
-    Returns
-    -------
-    neg_log_likelihood: float
-        negative loglikelihood averaged over samples
-        
-    This loss can then be used as a target loss for any keras model, e.g.:
-        model.compile(loss=gaussian_nll, optimizer='Adam') 
-    
-    """
     mu = y_pred[:,0]
     logsigma = y_pred[:,1]
     
