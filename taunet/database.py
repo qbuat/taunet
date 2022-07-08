@@ -51,7 +51,7 @@ def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
         arrays = arrays[ arrays['TauJetsAuxDyn.nTracks'] == 3 ]
     return arrays
         
-def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False):
+def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False, normSavePath='data/normFactors'):
     """
     """
     if use_cache:
@@ -105,7 +105,7 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         #normalize here!
         if not no_normalize:
             log.info('Normalizing training data')
-            norms = getSSNormalize(_train, _target)
+            norms = getSSNormalize(_train, _target, savepath=normSavePath)
             _train = applySSNormalize(_train, norms, 
                         vars=getVarIndices(features, VARNORM))
             if not no_norm_target:

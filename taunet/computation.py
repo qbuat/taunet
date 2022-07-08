@@ -5,6 +5,7 @@ from taunet.fields import FEATURES
 
 from . import log; log = log.getChild(__name__)
 
+#%%-------------------------------------------------------------
 def chi_squared(obs, exp):
     """
     Compute chi squared of variable obs wrt exp (expectation)
@@ -15,6 +16,8 @@ def chi_squared(obs, exp):
             chi_squared += (obs[i] - exp[i]) ** 2 / exp[i]
     return chi_squared
 
+#%%-------------------------------------------------------------
+# Normalization functions
 def StandardScalar(x, mean, std):
     """
     Standard Scalar function for pre-processing data 
@@ -25,7 +28,7 @@ def StandardScalar(x, mean, std):
     else:
         return (x - mean) / std
 
-def getSSNormalize(data, target):
+def getSSNormalize(data, target, savepath='data/normFactors'):
     """
     Pre-process data using the standard scalar function. 
     Optionally select which variables to scale using the vars argument. 
@@ -40,7 +43,8 @@ def getSSNormalize(data, target):
     mean = np.mean(target)
     std = np.std(target)
     norms.append([mean, std])
-    np.save('data/normFactors', norms)
+    np.save(file=savepath, arr=norms)
+    log.info('Saving normalization to {}.npy'.format(savepath))
     return norms
 
 def applySSNormalize(data, norms, vars=[]):
