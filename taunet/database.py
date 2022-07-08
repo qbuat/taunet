@@ -51,7 +51,7 @@ def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
         arrays = arrays[ arrays['TauJetsAuxDyn.nTracks'] == 3 ]
     return arrays
         
-def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False):
+def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False, normSavePath='data/normFactors'):
     """
     """
     if use_cache:
@@ -99,19 +99,20 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total training input = {}'.format(_train.shape))
 
         #! added for testing
-        old_data = np.array(_train)
+        og_train = np.array(_train)
+        old_target = np.array(_target)
 
         #normalize here!
         if not no_normalize:
             log.info('Normalizing training data')
-            norms = getSSNormalize(_train, _target)
+            norms = getSSNormalize(_train, _target, savepath=normSavePath)
             _train = applySSNormalize(_train, norms, 
                         vars=getVarIndices(features, VARNORM))
             if not no_norm_target:
                 log.info('Normalizing validation data')
                 _target = StandardScalar(_target, norms[len(norms) - 1][0], norms[len(norms) - 1][1])
 
-        print((old_data == _train).all())
+        #print((old_data == _train).all())
         
         from sklearn.model_selection import train_test_split
         X_train, X_val, y_train, y_val = train_test_split(
@@ -119,7 +120,7 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total validation input {}'.format(len(X_val)))
 
 
-    return X_train, X_val, y_train, y_val, old_data, _train
+    return X_train, X_val, y_train, y_val#, og_train, _train, old_target, _target
 
 def testing_data(
         path, dataset, features, plotting_fields, regressor, 
@@ -141,6 +142,7 @@ def testing_data(
     # build unique list of variables to retrieve
     _fields_to_lookup = list(set(features + plotting_fields))
 
+    # load normalization from training if used
     if not no_normalize or not no_norm_target:
         if optional_path == '':
             norms = np.load('data/normFactors.npy')
@@ -162,13 +164,17 @@ def testing_data(
                 select_3p=select_3p)
             f = np.stack(
                 [ak.flatten(a[__feat]).to_numpy() for __feat in features])
-            #! I think the correct way to do this but still acting funky
+            print('Shape of f is {}'.format(np.shape(f)))
+            # Optionally normalize data if done in the training
             if not no_normalize:
-                f = applySSNormalizeTest(f, norms)
+                f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, VARNORM))
                 log.info('Normalizing input data to regressor')
-            regressed_target = regressor.predict(f.T) #alpha norm with scaling
+            regressed_target = regressor.predict(f.T)
             if not no_norm_target:
-                regressed_target = norms[len(norms)-1][1] * regressed_target + norms[len(norms)-1][0] # revert to alpha
+                # If target was normalized, revert to original
+                # Last element of variable "norms" contains mean (element 0) 
+                # and std (element 1) of target. 
+                regressed_target = norms[len(norms)-1][1] * regressed_target + norms[len(norms)-1][0]
                 log.info('Returning data to orginal format for plotting')
             regressed_target = regressed_target.reshape((regressed_target.shape[0], ))
             _arr = np.stack(

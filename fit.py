@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     # import model
     from taunet.models import keras_model_mdn
-    from taunet.computation import gaussian_nll
+    from taunet.computation import tf_mdn_loss
     regressor = keras_model_mdn((len(FEATURES),))
     # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         _epochs = 10
         regressor.compile(
-            loss=gaussian_nll, 
+            loss=tf_mdn_loss, 
             optimizer=adam,
             metrics=['mse', 'mae'])
         history = regressor.fit(
