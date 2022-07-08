@@ -19,6 +19,7 @@ def chi_squared(obs, exp):
 
 #%%-------------------------------------------------------------
 # Normalization functions
+
 def StandardScalar(x, mean, std):
     """
     Standard Scalar function for pre-processing data 
@@ -32,8 +33,6 @@ def StandardScalar(x, mean, std):
 def getSSNormalize(data, target, savepath='data/normFactors'):
     """
     Pre-process data using the standard scalar function. 
-    Optionally select which variables to scale using the vars argument. 
-    Takes a vector 
     """
     norms = []
     for i in range(len(data[1,:])):
@@ -50,6 +49,8 @@ def getSSNormalize(data, target, savepath='data/normFactors'):
 
 def applySSNormalize(data, norms, vars=[]):
     """
+    Use already find means and std to re-shape data
+    Optionally choose which variables to normalize
     """
     if vars == []:
         vars = range(len(data[0,:]))
@@ -59,15 +60,23 @@ def applySSNormalize(data, norms, vars=[]):
 
 def applySSNormalizeTest(data, norms):
     """
+    Apply norms to testing data. 
     """
     for i in range(len(data)):
         data = StandardScalar(data, norms[i][0], norms[i][1])
     return data; 
 
-# indices of variables to normalize
-# Note: variable 12 doesn't really need to be normalized
-# Update function getVarIndices to make this clearer... 
-NormVarIndices = [0, 1, 2, 3, 4, 5, 9, 12, len(FEATURES)-1]
+def getVarIndices(features, vars=FEATURES):
+    """
+    Get indices of variable to apply normalization to
+    """
+    i = 0
+    indices = []
+    for _feat in features:
+        if _feat in vars:
+            indices += [i]
+        i = i + 1
+    return indices
 
 # variables to normalize
 VARNORM = [
@@ -81,12 +90,3 @@ VARNORM = [
     'TauJetsAuxDyn.etaPanTauCellBased',
     'TauJetsAuxDyn.ptTauEnergyScale'
 ]
-
-def getVarIndices(features, vars=FEATURES):
-    i = 0
-    indices = []
-    for _feat in features:
-        if _feat in vars:
-            indices += [i]
-        i = i + 1
-    return indices
