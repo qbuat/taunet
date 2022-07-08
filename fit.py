@@ -50,7 +50,7 @@ if __name__ == '__main__':
         _epochs = 10
         regressor.compile(
             loss=gaussian_nll, 
-            optimizer=adam, 
+            optimizer=adam,
             metrics=['mse', 'mae'])
         history = regressor.fit(
             X_train, # input data
@@ -59,7 +59,7 @@ if __name__ == '__main__':
             batch_size=batch_size, #number of samples per gradient update
             shuffle=True,
             verbose=2, # reports on progress
-            # sample_weight=sample_weights,
+            sample_weight=None,
             ## validation_split=0.1,
             validation_data=(X_val, y_val),
             callbacks=[
