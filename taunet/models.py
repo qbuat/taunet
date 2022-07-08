@@ -36,8 +36,6 @@ def keras_model_terry_regular(n_variables, name='main_dnn_regular'):
     """
     NN used above but added in some regularization!
     """
-    # create some densely-connected NN layers
-    # relu = rectified linear unit activation, i.e. f(x) = max(x, 0)
     hidden_0 = tf.keras.layers.Dense(192, activation='relu', kernel_regularizer='l2')(x_1)
     hidden_1 = tf.keras.layers.Dense(192, activation='relu', kernel_regularizer='l2')(hidden_0)
     hidden_2 = tf.keras.layers.Dense(192, activation='relu', kernel_regularizer='l2')(hidden_1)

@@ -12,6 +12,7 @@ Command-line options:
 """
 import os
 import pickle
+from taunet.models import keras_model_terry_regular
 import tensorflow as tf
 
 from taunet.database import PATH, DATASET, training_data
@@ -33,9 +34,9 @@ if __name__ == '__main__':
         no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
 
     # import model
-    from taunet.models import keras_model_terry
+    from taunet.models import keras_model_terry_regular
     #regressor = keras_model_main(len(FEATURES))
-    regressor = keras_model_terry(len(FEATURES))
+    regressor = keras_model_terry_regular(len(FEATURES))
     # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
