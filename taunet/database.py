@@ -162,9 +162,9 @@ def testing_data(
                 cut = 'EventInfoAux.eventNumber%3 == 0',
                 select_1p=select_1p,
                 select_3p=select_3p)
+            # shape is (n_variables, n_samples)
             f = np.stack(
                 [ak.flatten(a[__feat]).to_numpy() for __feat in features])
-            print('Shape of f is {}'.format(np.shape(f)))
             # Optionally normalize data if done in the training
             if not no_normalize:
                 f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, VARNORM))
