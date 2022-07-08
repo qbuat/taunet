@@ -82,13 +82,13 @@ def getVarIndices(features, vars=FEATURES):
 
 # variables to normalize
 VARNORM = [
-    'TauJetsAuxDyn.mu', 
-    'TauJetsAuxDyn.nVtxPU',
-    'TauJetsAuxDyn.rho',
-    'TauJetsAuxDyn.ClustersMeanCenterLambda',
+    # 'TauJetsAuxDyn.mu', 
+    # 'TauJetsAuxDyn.nVtxPU',
+    # 'TauJetsAuxDyn.rho',
+    # 'TauJetsAuxDyn.ClustersMeanCenterLambda',
     'TauJetsAuxDyn.ClustersMeanFirstEngDens',
-    'TauJetsAuxDyn.ClustersMeanSecondLambda',
-    #'TauJetsAuxDyn.ptCombined',
-    'TauJetsAuxDyn.etaPanTauCellBased',
-    'TauJetsAuxDyn.ptTauEnergyScale'
+    # 'TauJetsAuxDyn.ClustersMeanSecondLambda',
+    # 'TauJetsAuxDyn.ptCombined',
+    # 'TauJetsAuxDyn.etaPanTauCellBased',
+    # 'TauJetsAuxDyn.ptTauEnergyScale'
 ]
