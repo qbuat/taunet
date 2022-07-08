@@ -141,10 +141,11 @@ def testing_data(
     # build unique list of variables to retrieve
     _fields_to_lookup = list(set(features + plotting_fields))
 
-    if optional_path == '':
-        norms = np.load('data/normFactors.npy')
-    else:
-        norms = np.load(os.path.join(optional_path, 'normFactors.npy'))
+    if not no_normalize or not no_norm_target:
+        if optional_path == '':
+            norms = np.load('data/normFactors.npy')
+        else:
+            norms = np.load(os.path.join(optional_path, 'normFactors.npy'))
     
     _arrs = []
     for i_f, _file in enumerate(_files):
