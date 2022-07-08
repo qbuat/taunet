@@ -142,6 +142,7 @@ def testing_data(
     # build unique list of variables to retrieve
     _fields_to_lookup = list(set(features + plotting_fields))
 
+    # load normalization from training if used
     if not no_normalize or not no_norm_target:
         if optional_path == '':
             norms = np.load('data/normFactors.npy')
@@ -163,13 +164,16 @@ def testing_data(
                 select_3p=select_3p)
             f = np.stack(
                 [ak.flatten(a[__feat]).to_numpy() for __feat in features])
-            #! I think the correct way to do this but still acting funky
+            # Optionally normalize data if done in the training
             if not no_normalize:
                 f = applySSNormalizeTest(f, norms)
                 log.info('Normalizing input data to regressor')
-            regressed_target = regressor.predict(f.T) #alpha norm with scaling
+            regressed_target = regressor.predict(f.T)
             if not no_norm_target:
-                regressed_target = norms[len(norms)-1][1] * regressed_target + norms[len(norms)-1][0] # revert to alpha
+                # Ff target was normalize, revent to original
+                # Last element of variable "norms" contains mean (element 0) 
+                # and std (element 1) of target. 
+                regressed_target = norms[len(norms)-1][1] * regressed_target + norms[len(norms)-1][0]
                 log.info('Returning data to orginal format for plotting')
             regressed_target = regressed_target.reshape((regressed_target.shape[0], ))
             _arr = np.stack(

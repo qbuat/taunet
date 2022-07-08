@@ -6,6 +6,7 @@ from taunet.fields import FEATURES
 from . import log; log = log.getChild(__name__)
 
 #%%-------------------------------------------------------------
+# Implement chi^2 test
 def chi_squared(obs, exp):
     """
     Compute chi squared of variable obs wrt exp (expectation)
