@@ -58,12 +58,14 @@ def applySSNormalize(data, norms, vars=[]):
         data[:,i] = StandardScalar(data[:,i], norms[i][0], norms[i][1])
     return data; 
 
-def applySSNormalizeTest(data, norms):
+def applySSNormalizeTest(data, norms, vars=[]):
     """
     Apply norms to testing data. 
     """
-    for i in range(len(data)):
-        data = StandardScalar(data, norms[i][0], norms[i][1])
+    if vars == []:
+        vars = range(len(data[:,0]))
+    for i in vars:
+        data[i,:] = StandardScalar(data[i,:], norms[i][0], norms[i][1])
     return data; 
 
 def getVarIndices(features, vars=FEATURES):
