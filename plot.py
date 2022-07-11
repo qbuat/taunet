@@ -19,7 +19,7 @@ Optional command-line arguments:
 import subprocess
 from genericpath import exists
 import os
-import tensorflow as tf
+import keras 
 
 from taunet.database import PATH, DATASET, testing_data
 from taunet.fields import FEATURES, TRUTH_FIELDS, OTHER_TES
@@ -43,10 +43,12 @@ if __name__ == '__main__':
     # loads result of training to make plots 
     #! I did some weird things here... be careful when running with different 
     #! models, etc
+    from taunet.computation import tf_mdn_loss
+    import tensorflow_probability as tfp
     if path != '':
-        regressor = tf.keras.models.load_model(os.path.join(path, args.model))
+        regressor = keras.models.load_model(os.path.join(path, args.model), custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
     else:
-        regressor = tf.keras.models.load_model(os.path.join('cache', args.model))
+        regressor = keras.models.load_model(os.path.join('cache', args.model), custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
 
     d = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files, 

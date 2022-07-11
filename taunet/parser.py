@@ -13,7 +13,7 @@ prongs.add_argument('--threeProngs', default=False,  action='store_true')
 # parse commands for training (fit.py)
 train_parser = argparse.ArgumentParser(parents=[common_parser])
 train_parser.add_argument('--use-cache', action='store_true')
-train_parser.add_argument('--rate', default=1e-5, type=float)
+train_parser.add_argument('--rate', default=1e-7, type=float)
 train_parser.add_argument('--batch-size', default=64, type=int)
 
 # parse commands for plotting (plot.py)

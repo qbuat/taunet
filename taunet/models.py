@@ -40,5 +40,6 @@ def keras_model_mdn(n_variables, name='simple_mdn'):
     hidden_2 = tf.keras.layers.Dense(192, activation='relu')(hidden_1)
     hidden_3 = tf.keras.layers.Dense(128, activation='relu')(hidden_2)
     hidden_4 = tf.keras.layers.Dense(64, activation='relu')(hidden_3)
-    output   = tfp.layers.MixtureNormal(1)(hidden_4)
+    hidden_5 = tf.keras.layers.Dense(tfp.layers.MixtureNormal.params_size(1, [1]), activation=None)(hidden_4)
+    output   = tfp.layers.MixtureNormal(1, [1])(hidden_5)
     return tf.keras.Model(inputs=x_1, outputs=output, name=name)

@@ -80,14 +80,8 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
                     cut = 'EventInfoAux.eventNumber%3 != 0',
                     select_1p=select_1p,
                     select_3p=select_3p)
-                # a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 1.25]
                 a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] # previosly 25
                 a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ] # previously 25
-                # a = a[ a['TauJetsAuxDyn.ptTauEnergyScale'] < 0.5e6 ]
-                # a = a[ a['TauJetsAuxDyn.ClustersMeanCenterLambda'] < 2.5e3 ] 
-                # a = a[ a['TauJetsAuxDyn.ClustersMeanSecondLambda'] < 0.5e6]
-                # a = a[ a['TauJetsAuxDyn.ptCombined'] < 0.5e6]
-                # a = a[ a['TauJetsAuxDyn.ClustersMeanPresamplerFrac'] < 0.3]
                 f = np.stack(
                     [ak.flatten(a[__feat]).to_numpy() for __feat in features])
                 _train  += [f.T]
@@ -98,10 +92,6 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         _target = _target.reshape(_target.shape[0], 1)
         log.info('Total training input = {}'.format(_train.shape))
 
-        #! added for testing
-        og_train = np.array(_train)
-        old_target = np.array(_target)
-
         #normalize here!
         if not no_normalize:
             log.info('Normalizing training data')
@@ -111,16 +101,13 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
             if not no_norm_target:
                 log.info('Normalizing validation data')
                 _target = StandardScalar(_target, norms[len(norms) - 1][0], norms[len(norms) - 1][1])
-
-        #print((old_data == _train).all())
         
         from sklearn.model_selection import train_test_split
         X_train, X_val, y_train, y_val = train_test_split(
             _train, _target, test_size=0.2, random_state=42)
         log.info('Total validation input {}'.format(len(X_val)))
 
-
-    return X_train, X_val, y_train, y_val#, og_train, _train, old_target, _target
+    return X_train, X_val, y_train, y_val
 
 def testing_data(
         path, dataset, features, plotting_fields, regressor, 
