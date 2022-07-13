@@ -22,7 +22,7 @@ if __name__ == '__main__':
     args = train_parser.parse_args()
 
     if args.debug:
-        n_files = 1 #set limit on files for testing / debugging
+        n_files = 3 #set limit on files for testing / debugging
     else:
         n_files = -1
     
@@ -58,7 +58,7 @@ if __name__ == '__main__':
             epochs=_epochs,
             batch_size=batch_size, #number of samples per gradient update
             shuffle=True,
-            verbose=1, # reports on progress
+            verbose=2, # reports on progress
             #sample_weight=None,
             ## validation_split=0.1,
             validation_data=(X_val, y_val),
