@@ -33,9 +33,9 @@ if __name__ == '__main__':
         no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
 
     # import model
-    from taunet.models import keras_model_mdn
+    from taunet.models import keras_model_small_mdn, keras_model_big_mdn
     from taunet.computation import tf_mdn_loss
-    regressor = keras_model_mdn((len(FEATURES),))
+    regressor = keras_model_big_mdn((len(FEATURES),))
     # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
