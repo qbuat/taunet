@@ -49,18 +49,18 @@ def getSSNormalize(data, target, savepath='data/normFactors'):
 
 def applySSNormalize(data, norms, vars=[]):
     """
-    Use already find means and std to re-shape data
+    Use alread found means and stds to re-shape data
     Optionally choose which variables to normalize
     """
     if vars == []:
         vars = range(len(data[0,:]))
     for i in vars:
         data[:,i] = StandardScalar(data[:,i], norms[i][0], norms[i][1])
-    return data; 
+    return data
 
 def applySSNormalizeTest(data, norms, vars=[]):
     """
-    Apply norms to testing data. 
+    Apply norms to testing data
     """
     if vars == []:
         vars = range(len(data[:,0]))
@@ -80,6 +80,13 @@ def getVarIndices(features, vars=FEATURES):
         i = i + 1
     return indices
 
+# sketch function for condor things 
+def select_norms(norms, vec):
+    tempNorms = []
+    for i in vec:
+        tempNorms += [norms[i]]
+    return tempNorms
+
 # variables to normalize
 VARNORM = [
     'TauJetsAuxDyn.mu', 
@@ -92,10 +99,3 @@ VARNORM = [
     'TauJetsAuxDyn.etaPanTauCellBased',
     'TauJetsAuxDyn.ptTauEnergyScale'
 ]
-
-#%%------------------------------------------------
-# MDN loss function
-def tf_mdn_loss(y, model, sample_weight=None):
-    if sample_weight is not None:
-        return -model.log_prob(y) * sample_weight
-    return -model.log_prob(y)
