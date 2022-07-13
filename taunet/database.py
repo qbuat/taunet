@@ -116,7 +116,7 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total validation input {}'.format(len(X_val)))
 
 
-    return X_train, X_val, y_train, y_val, old_train, _train
+    return X_train, X_val, y_train, y_val
 
 def testing_data(
         path, dataset, features, plotting_fields, regressor, 
