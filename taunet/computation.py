@@ -95,7 +95,7 @@ VARNORM = [
     'TauJetsAuxDyn.ClustersMeanCenterLambda',
     'TauJetsAuxDyn.ClustersMeanFirstEngDens',
     'TauJetsAuxDyn.ClustersMeanSecondLambda',
-    #'TauJetsAuxDyn.ptCombined',
+    'TauJetsAuxDyn.ptCombined',
     'TauJetsAuxDyn.etaPanTauCellBased',
     'TauJetsAuxDyn.ptTauEnergyScale'
 ]
