@@ -47,7 +47,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
-        _epochs = 100
+        _epochs = 250
         regressor.compile(
             loss=tf_mdn_loss, 
             optimizer=adam, 
