@@ -47,6 +47,17 @@ def keras_model_small_mdn(n_variables, name='simple_mdn'):
     output   = tfp.layers.MixtureNormal(1, [1])(hidden_5)
     return tf.keras.Model(inputs=x_1, outputs=output, name=name)
 
+def keras_model_small_mdn_regular(n_variables, name='simple_mdn_regular'):
+    x_1 = tf.keras.Input(shape=n_variables)
+    hidden_0 = tf.keras.layers.Dense(192, activation='relu', kernel_regularizer='l2')(x_1)
+    hidden_1 = tf.keras.layers.Dense(192, activation='relu', kernel_regularizer='l2')(hidden_0)
+    hidden_2 = tf.keras.layers.Dense(192, activation='relu', kernel_regularizer='l2')(hidden_1)
+    hidden_3 = tf.keras.layers.Dense(128, activation='relu', kernel_regularizer='l2')(hidden_2)
+    hidden_4 = tf.keras.layers.Dense(64, activation='relu', kernel_regularizer='l2')(hidden_3)
+    hidden_5 = tf.keras.layers.Dense(tfp.layers.MixtureNormal.params_size(1, [1]), activation=None)(hidden_4)
+    output   = tfp.layers.MixtureNormal(1, [1])(hidden_5)
+    return tf.keras.Model(inputs=x_1, outputs=output, name=name)
+
 # bigger MDN model
 def keras_model_big_mdn(n_variables, name='less_simple_mdn'):
     x_1 = tf.keras.Input(shape=n_variables) 
@@ -58,6 +69,20 @@ def keras_model_big_mdn(n_variables, name='less_simple_mdn'):
     hidden_5 = tf.keras.layers.Dense(32, activation='relu')(hidden_4)
     hidden_6 = tf.keras.layers.Dense(16, activation='relu')(hidden_5)
     hidden_7 = tf.keras.layers.Dense(8, activation='relu')(hidden_6)
+    hidden_8 = tf.keras.layers.Dense(tfp.layers.MixtureNormal.params_size(1, [1]), activation=None)(hidden_7)
+    output   = tfp.layers.MixtureNormal(1, [1])(hidden_8)
+    return tf.keras.Model(inputs=x_1, outputs=output, name=name)
+
+def keras_model_big_mdn_regular(n_variables, name='less_simple_mdn_regular'):
+    x_1 = tf.keras.Input(shape=n_variables) 
+    hidden_0 = tf.keras.layers.Dense(1024, activation='relu', kernel_regularizer='l2')(x_1)
+    hidden_1 = tf.keras.layers.Dense(512, activation='relu', kernel_regularizer='l2')(hidden_0)
+    hidden_2 = tf.keras.layers.Dense(256, activation='relu', kernel_regularizer='l2')(hidden_1)
+    hidden_3 = tf.keras.layers.Dense(128, activation='relu', kernel_regularizer='l2')(hidden_2)
+    hidden_4 = tf.keras.layers.Dense(64, activation='relu', kernel_regularizer='l2')(hidden_3)
+    hidden_5 = tf.keras.layers.Dense(32, activation='relu', kernel_regularizer='l2')(hidden_4)
+    hidden_6 = tf.keras.layers.Dense(16, activation='relu', kernel_regularizer='l2')(hidden_5)
+    hidden_7 = tf.keras.layers.Dense(8, activation='relu', kernel_regularizer='l2')(hidden_6)
     hidden_8 = tf.keras.layers.Dense(tfp.layers.MixtureNormal.params_size(1, [1]), activation=None)(hidden_7)
     output   = tfp.layers.MixtureNormal(1, [1])(hidden_8)
     return tf.keras.Model(inputs=x_1, outputs=output, name=name)
