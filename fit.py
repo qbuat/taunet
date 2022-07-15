@@ -22,7 +22,7 @@ if __name__ == '__main__':
     args = train_parser.parse_args()
 
     if args.debug:
-        n_files = 3 #set limit on files for testing / debugging
+        n_files = 7 #set limit on files for testing / debugging
     else:
         n_files = -1
     
@@ -33,9 +33,9 @@ if __name__ == '__main__':
         no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
 
     # import model
-    from taunet.models import keras_model_small_mdn, keras_model_big_mdn
+    from taunet.models import keras_model_small_mdn, keras_model_big_mdn, keras_model_big_mdn_regular
     from taunet.computation import tf_mdn_loss
-    regressor = keras_model_small_mdn((len(FEATURES),))
+    regressor = keras_model_big_mdn((len(FEATURES),))
     # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
