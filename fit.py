@@ -24,7 +24,7 @@ if __name__ == '__main__':
     if args.debug:
         n_files = 7 #set limit on files for testing / debugging
     else:
-        n_files = -1
+        n_files = args.nfiles
     
     # get training data
     X_train, X_val, y_train, y_val = training_data(
@@ -33,9 +33,19 @@ if __name__ == '__main__':
         no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
 
     # import model
-    from taunet.models import keras_model_small_mdn, keras_model_big_mdn, keras_model_big_mdn_regular
+    from taunet.models import keras_model_small_mdn, keras_model_big_mdn, keras_model_big_mdn_regular, keras_model_2gauss_mdn_small
     from taunet.computation import tf_mdn_loss
-    regressor = keras_model_big_mdn((len(FEATURES),))
+    # choose model 
+    if args.small_model:
+        regressor = keras_model_small_mdn((len(FEATURES),))
+    elif args.big_model:
+        regressor = keras_model_big_mdn((len(FEATURES),))
+    elif args.big_model_regular:
+        regressor = keras_model_big_mdn_regular((len(FEATURES),))
+    elif args.small_2gauss:
+        regressor = keras_model_2gauss_mdn_small((len(FEATURES),))
+    else:
+        raise NameError('No model provided!')
     # create location to save training
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
@@ -47,7 +57,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
-        _epochs = 300
+        _epochs = 200
         regressor.compile(
             loss=tf_mdn_loss, 
             optimizer=adam, 

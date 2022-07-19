@@ -102,7 +102,5 @@ VARNORM = [
 
 #%%------------------------------------------------
 # MDN loss function
-def tf_mdn_loss(y, model, sample_weight=None):
-    if sample_weight is not None:
-        return -model.log_prob(y) * sample_weight
+def tf_mdn_loss(y, model):
     return -model.log_prob(y)
