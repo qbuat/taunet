@@ -30,7 +30,7 @@ if __name__ == '__main__':
     args = plot_parser.parse_args()
 
     if args.debug:
-        n_files = 2
+        n_files = 3
     else:
         n_files = -1
 

@@ -22,7 +22,7 @@ if __name__ == '__main__':
     args = train_parser.parse_args()
 
     if args.debug:
-        n_files = 7 #set limit on files for testing / debugging
+        n_files = 3 #set limit on files for testing / debugging
     else:
         n_files = args.nfiles
     
@@ -33,8 +33,8 @@ if __name__ == '__main__':
         no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
 
     # import model
-    from taunet.models import keras_model_small_mdn, keras_model_big_mdn, keras_model_big_mdn_regular, keras_model_2gauss_mdn_small
-    from taunet.computation import tf_mdn_loss
+    from taunet.models import keras_model_small_mdn, keras_model_big_mdn, keras_model_big_mdn_regular, keras_model_2gauss_mdn_small, keras_model_MultiGauss_mdn
+    from taunet.computation import tf_mdn_loss, gaussian_nll
     # choose model 
     if args.small_model:
         regressor = keras_model_small_mdn((len(FEATURES),))
@@ -44,6 +44,8 @@ if __name__ == '__main__':
         regressor = keras_model_big_mdn_regular((len(FEATURES),))
     elif args.small_2gauss:
         regressor = keras_model_2gauss_mdn_small((len(FEATURES),))
+    elif args.multi_gauss:
+        regressor = keras_model_MultiGauss_mdn((len(FEATURES),))
     else:
         raise NameError('No model provided!')
     # create location to save training
