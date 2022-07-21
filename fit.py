@@ -13,6 +13,7 @@ Command-line options:
 import os
 import pickle
 import tensorflow as tf
+import numpy as np
 
 from taunet.database import PATH, DATASET, training_data
 from taunet.fields import FEATURES, TARGET_FIELD
@@ -27,10 +28,22 @@ if __name__ == '__main__':
         n_files = args.nfiles
     
     # get training data
-    X_train, X_val, y_train, y_val = training_data(
-        PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files, 
-        select_1p=args.oneProng, select_3p=args.threeProngs,
-        no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
+    if args.use_cache:
+        X_train = np.load('data/X_train.npy')
+        X_val = np.load('data/X_val.npy')
+        y_train = np.load('data/y_train.npy')
+        y_val = np.load('data/y_val.npy')
+    else:
+        X_train, X_val, y_train, y_val = training_data(
+            PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files, 
+            select_1p=args.oneProng, select_3p=args.threeProngs,
+            no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
+
+    if args.add_to_cache:
+        np.save(file='data/X_train', arr=X_train)
+        np.save(file='data/X_val', arr=X_val)
+        np.save(file='data/y_train', arr=y_train)
+        np.save(file='data/y_val', arr=y_val)
 
     # import model
     from taunet.models import keras_model_small_mdn, keras_model_big_mdn, keras_model_big_mdn_regular, keras_model_2gauss_mdn_small, keras_model_MultiGauss_mdn
@@ -59,7 +72,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
-        _epochs = 200
+        _epochs = 100
         regressor.compile(
             loss=tf_mdn_loss, 
             optimizer=adam, 
