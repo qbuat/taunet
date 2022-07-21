@@ -108,7 +108,7 @@ def keras_model_MultiGauss_mdn(n_variables, name='less_simple_mdn'):
 
 def keras_model_2gauss_mdn_small(n_variables, name='gauss2_simple_mdn'):
     event_shape = [1]
-    num_components = 5
+    num_components = 2
     param_size = tfp.layers.MixtureNormal.params_size(num_components, event_shape)
     x_1 = tf.keras.Input(shape=n_variables)
     hidden_0 = tf.keras.layers.Dense(192, activation='relu', kernel_regularizer='l2')(x_1)
