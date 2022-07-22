@@ -51,7 +51,7 @@ def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
 
     return arrays
         
-def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False, normSavePath='data/normFactors', normIndices=range(8)):
+def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False, normSavePath='data/normFactors', normIndices=range(9)):
     """
     """
     if use_cache:
@@ -122,7 +122,7 @@ def testing_data(
         path, dataset, features, plotting_fields, regressor, 
         nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree',
         saveToCache=False, useCache=False, optional_path='', 
-        no_normalize=False, no_norm_target=False, normIndices=range(8)):
+        no_normalize=False, no_norm_target=False, normIndices=range(9)):
     """
     """
     import numpy as np
