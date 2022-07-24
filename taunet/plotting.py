@@ -74,6 +74,31 @@ def pt_lineshape(testing_data, plotSaveLoc):
     plt.savefig(os.path.join(plotSaveLoc, 'plots/tes_pt_lineshape.pdf'))
     plt.close(fig)
 
+    fig = plt.figure(figsize=(5,5), dpi = 300)
+    plt.ticklabel_format(axis='y',style='sci',scilimits=(-3,3))
+    plt.hist(
+        counts_b / counts_t,
+        bins=200,
+        range=(0, 200), 
+        histtype='step',
+        color='black')
+        #label='Combined')
+    plt.hist(
+        counts_f / counts_t,
+        bins=200,
+        range=(0, 200), 
+        histtype='step',
+        color='red')
+        #label='Final, $\\chi^2 = ${}'.format(chi_squared(counts_f, counts_t)))
+    plt.hist(
+        counts_ts / counts_t,
+        bins=200,
+        range=(0, 200), 
+        histtype='step',
+        color='purple')
+    plt.savefig(os.path.join(plotSaveLoc, "plots/test.pdf"))
+    plt.close(fig)
+
 def response_lineshape(testing_data, plotSaveLoc, 
             plotSaveName='plots/tes_response_lineshape.pdf'):
     """

@@ -32,7 +32,7 @@ if __name__ == '__main__':
     if args.debug:
         n_files = 3
     else:
-        n_files = -1
+        n_files = args.nfiles
 
     path = args.path # path to where training is stored
     # make plot folder if it doesn't already exist
