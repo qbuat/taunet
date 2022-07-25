@@ -4,13 +4,19 @@ Database changes:
     - removed nTracks from vairiable list and cuts
 """
 import os
+from unittest.mock import DEFAULT
 
 from taunet.computation import StandardScalar, applySSNormalizeTest, getSSNormalize, applySSNormalizeTest, getVarIndices, select_norms, VARNORM, applySSNormalize
 from . import log; log = log.getChild(__name__)
 
-DEFAULT_PATH = '/eos/atlas/atlascerngroupdisk/perf-tau/MxAODs/R22/Round3/TES/'
-PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
-DATASET = 'group.perf-tau.Round3_FinalMVATES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v1_output.root'
+if '/Users/miles_cb' in os.getcwd():
+    DEFAULT_PATH = '/Users/miles_cb/cernbox/TES_dataset_new'
+    PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
+    DATASET = 'group.perf-tau.MC20d_StreamTES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v1_output.root'
+else:
+    DEFAULT_PATH = '/eos/atlas/atlascerngroupdisk/perf-tau/MxAODs/R22/Run2repro/TES/'
+    PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
+    DATASET = 'group.perf-tau.MC20d_StreamTES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v3_output.root'
 
 def file_list(path, dataset):
     """
@@ -18,7 +24,7 @@ def file_list(path, dataset):
     log.info('Looking in folder {}'.format(path))
     if not os.path.exists(
             os.path.join(path, dataset)):
-        raise ValueError('{} not found in {}'.format(path, dataset))
+        raise ValueError('{} not found in {}'.format(dataset, path))
     log.info('Gathering files from dataset {}'.format(dataset))
     _files = []
     for _f in  os.listdir(
@@ -50,8 +56,26 @@ def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
         arrays = arrays[ arrays['TauJetsAuxDyn.nTracks'] == 3 ]
 
     return arrays
-        
-def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False, normSavePath='data/normFactors', normIndices=range(9)):
+
+# select only part of the data for debuging
+def debug_mode(tree, features, select_1p = False, select_3p = False, cut = None, stepsize='50 MB'):
+    # features + vars for 
+    feats_new = features + ['TauJetsAuxDyn.nTracks']
+    log.info('Taking {} chunck of size {} from file'.format(1, stepsize))
+    for arr in tree.iterate(feats_new, step_size=stepsize, cut=cut):
+        # apply cuts
+        arr = arr[ arr['TauJetsAuxDyn.nTracks'] > 0 ]
+        arr = arr[ arr['TauJetsAuxDyn.nTracks'] < 6 ]
+        if select_1p and select_3p:
+            raise ValueError
+        if select_1p:
+            arr = arr[ arr['TauJetsAuxDyn.nTracks'] == 1 ]
+        if select_3p: 
+            arr = arr[ arr['TauJetsAuxDyn.nTracks'] == 3 ]
+
+        return arr
+      
+def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False, normSavePath='data/normFactors', normIndices=range(9), debug=False):
     """
     """
     if use_cache:
@@ -68,26 +92,30 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         # iterate through files in dataset
         for i_f, _file in enumerate(_files):
             # stop after certain limit
-            if nfiles > 0 and i_f > nfiles:
+            if nfiles >= 0 and i_f > nfiles:
                 break
             with uproot.open(_file) as up_file:
                 tree = up_file[tree_name]
                 log.info('file {} / {} -- entries = {}'.format(i_f, len(_files), tree.num_entries))
                 # make some cuts of the data
-                a = retrieve_arrays(
-                    tree,
-                    features + [target], 
-                    cut = 'EventInfoAux.eventNumber%3 != 0',
-                    select_1p=select_1p,
-                    select_3p=select_3p)
+                if debug:
+                    a = debug_mode(
+                        tree,
+                        features + [target], 
+                        cut = 'EventInfoAuxDyn.eventNumber%3 != 0',
+                        select_1p=select_1p,
+                        select_3p=select_3p)
+                else:
+                    a = retrieve_arrays(
+                        tree,
+                        features + [target], 
+                        cut = 'EventInfoAuxDyn.eventNumber%3 != 0',
+                        select_1p=select_1p,
+                        select_3p=select_3p)
                 a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
                 a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ] 
                 f = np.stack(
                     [ak.flatten(a[__feat]).to_numpy() for __feat in features])
-                # remove default outliers from PanTau BDT variables
-                if 'TauJetsAuxDyn.PanTau_BDTValue_1p0n_vs_1p1n' in features:
-                    for i in [13, 14, 15]:
-                        f[i][f[i] == -1.111e+03] = -5.1
                 _train  += [f.T]
                 _target += [ak.flatten(a[target]).to_numpy()]
 
@@ -122,7 +150,7 @@ def testing_data(
         path, dataset, features, plotting_fields, regressor, 
         nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree',
         saveToCache=False, useCache=False, optional_path='', 
-        no_normalize=False, no_norm_target=False, normIndices=range(9)):
+        no_normalize=False, no_norm_target=False, normIndices=range(9), debug=False):
     """
     """
     import numpy as np
@@ -155,14 +183,22 @@ def testing_data(
         with uproot.open(_file) as up_file:
             tree = up_file[tree_name]
             log.info('file {} / {} -- entries = {}'.format(i_f, len(_files), tree.num_entries))
-            a = retrieve_arrays(
-                tree,
-                _fields_to_lookup,
-                cut = 'EventInfoAux.eventNumber%3 == 0',
-                select_1p=select_1p,
-                select_3p=select_3p)
+            if debug:
+                a = debug_mode(
+                    tree,
+                    _fields_to_lookup, 
+                    cut = 'EventInfoAuxDyn.eventNumber%3 != 0',
+                    select_1p=select_1p,
+                    select_3p=select_3p)
+            else:
+                a = retrieve_arrays(
+                    tree,
+                    features, 
+                    cut = 'EventInfoAuxDyn.eventNumber%3 != 0',
+                    select_1p=select_1p,
+                    select_3p=select_3p)
             a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
-            a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ] 
+            a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ]
             f = np.stack(
                 [ak.flatten(a[__feat]).to_numpy() for __feat in features])
             # print('Shape of f is {}'.format(np.shape(f)))

@@ -37,7 +37,7 @@ if __name__ == '__main__':
         X_train, X_val, y_train, y_val = training_data(
             PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files, 
             select_1p=args.oneProng, select_3p=args.threeProngs, normIndices=list(map(int, args.normIDs)),
-            no_normalize=args.no_normalize, no_norm_target=args.no_norm_target)
+            no_normalize=args.no_normalize, no_norm_target=args.no_norm_target, debug=args.debug)
 
     if args.add_to_cache:
         np.save(file='data/X_train', arr=X_train)
