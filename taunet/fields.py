@@ -21,6 +21,12 @@ FEATURES = [
     # 'TauJetsAuxDyn.nTracks',
     'TauJetsAuxDyn.PFOEngRelDiff', #upsilon; quantifies polar
     'TauJetsAuxDyn.ptTauEnergyScale',
+    # 'TauJetsAuxDyn.NNDecayMode',
+    'TauJetsAuxDyn.NNDecayModeProb_1p0n',
+    'TauJetsAuxDyn.NNDecayModeProb_1p1n',
+    'TauJetsAuxDyn.NNDecayModeProb_1pXn',
+    'TauJetsAuxDyn.NNDecayModeProb_3p0n',
+    'TauJetsAuxDyn.NNDecayModeProb_3pXn',
     ]
 
 TRUTH_FIELDS = [
