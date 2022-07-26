@@ -10,9 +10,9 @@ from taunet.computation import StandardScalar, applySSNormalizeTest, getSSNormal
 from . import log; log = log.getChild(__name__)
 
 if '/Users/miles_cb' in os.getcwd():
-    DEFAULT_PATH = '/Users/miles_cb/cernbox/TES_dataset_new'
+    DEFAULT_PATH = '/Users/miles_cb/cernbox/TES_dataset'
     PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
-    DATASET = 'group.perf-tau.MC20d_StreamTES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v1_output.root'
+    DATASET = 'group.perf-tau.MC20d_StreamTES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v3_output.root'
 else:
     DEFAULT_PATH = '/eos/atlas/atlascerngroupdisk/perf-tau/MxAODs/R22/Run2repro/TES/'
     PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
@@ -58,10 +58,10 @@ def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
     return arrays
 
 # select only part of the data for debuging
-def debug_mode(tree, features, select_1p = False, select_3p = False, cut = None, stepsize='50 MB'):
+def debug_mode(tree, features, select_1p = False, select_3p = False, cut = None, stepsize=200000):
     # features + vars for 
     feats_new = features + ['TauJetsAuxDyn.nTracks']
-    log.info('Taking {} chunck of size {} from file'.format(1, stepsize))
+    log.info('Taking {} chunck with {} events from file'.format(1, stepsize))
     for arr in tree.iterate(feats_new, step_size=stepsize, cut=cut):
         # apply cuts
         arr = arr[ arr['TauJetsAuxDyn.nTracks'] > 0 ]
