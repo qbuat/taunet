@@ -187,14 +187,14 @@ def testing_data(
                 a = debug_mode(
                     tree,
                     _fields_to_lookup, 
-                    cut = 'EventInfoAuxDyn.eventNumber%3 != 0',
+                    cut = 'EventInfoAuxDyn.eventNumber%3 == 0',
                     select_1p=select_1p,
                     select_3p=select_3p)
             else:
                 a = retrieve_arrays(
                     tree,
                     features, 
-                    cut = 'EventInfoAuxDyn.eventNumber%3 != 0',
+                    cut = 'EventInfoAuxDyn.eventNumber%3 == 0',
                     select_1p=select_1p,
                     select_3p=select_3p)
             a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
