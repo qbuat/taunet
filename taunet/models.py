@@ -119,3 +119,31 @@ def keras_model_2gauss_mdn_small(n_variables, name='gauss2_simple_mdn'):
     hidden_5 = tf.keras.layers.Dense(param_size, activation=None)(hidden_4)
     output   = tfp.layers.MixtureNormal(num_components, event_shape)(hidden_5)
     return tf.keras.Model(inputs=x_1, outputs=output, name=name)
+
+def keras_model_1gauss_mdn_small(n_variables, name='gauss_simple_mdn'):
+    event_shape = [1]
+    num_components = 1
+    param_size = tfp.layers.MixtureNormal.params_size(num_components, event_shape)
+    x_1 = tf.keras.Input(shape=n_variables)
+    hidden_0 = tf.keras.layers.Dense(192, activation='relu', kernel_regularizer='l2')(x_1)
+    hidden_1 = tf.keras.layers.Dense(192, activation='relu', kernel_regularizer='l2')(hidden_0)
+    hidden_2 = tf.keras.layers.Dense(192, activation='relu', kernel_regularizer='l2')(hidden_1)
+    hidden_3 = tf.keras.layers.Dense(128, activation='relu', kernel_regularizer='l2')(hidden_2)
+    hidden_4 = tf.keras.layers.Dense(64, activation='relu', kernel_regularizer='l2')(hidden_3)
+    hidden_5 = tf.keras.layers.Dense(param_size, activation=None)(hidden_4)
+    output   = tfp.layers.MixtureNormal(num_components, event_shape)(hidden_5)
+    return tf.keras.Model(inputs=x_1, outputs=output, name=name)
+
+def keras_model_2gauss_mdn_small_noreg(n_variables, name='gauss2_simple_mdn_noreg'):
+    event_shape = [1]
+    num_components = 2
+    param_size = tfp.layers.MixtureNormal.params_size(num_components, event_shape)
+    x_1 = tf.keras.Input(shape=n_variables)
+    hidden_0 = tf.keras.layers.Dense(192, activation='relu')(x_1)
+    hidden_1 = tf.keras.layers.Dense(192, activation='relu')(hidden_0)
+    hidden_2 = tf.keras.layers.Dense(192, activation='relu')(hidden_1)
+    hidden_3 = tf.keras.layers.Dense(128, activation='relu')(hidden_2)
+    hidden_4 = tf.keras.layers.Dense(64, activation='relu')(hidden_3)
+    hidden_5 = tf.keras.layers.Dense(param_size, activation=None)(hidden_4)
+    output   = tfp.layers.MixtureNormal(num_components, event_shape)(hidden_5)
+    return tf.keras.Model(inputs=x_1, outputs=output, name=name)

@@ -17,11 +17,9 @@ prongs.add_argument('--threeProngs', default=False,  action='store_true')
 train_parser = argparse.ArgumentParser(parents=[common_parser])
 train_parser.add_argument('--rate', default=1e-5, type=float)
 train_parser.add_argument('--batch-size', default=64, type=int)
-train_parser.add_argument('--small-model', default=False, action='store_true')
-train_parser.add_argument('--big-model', default=False, action='store_true')
-train_parser.add_argument('--big-model-regular', default=False, action='store_true')
 train_parser.add_argument('--small-2gauss', default=False, action='store_true')
-train_parser.add_argument('--multi-gauss', default=False, action='store_true')
+train_parser.add_argument('--small-1gauss', default=False, action='store_true')
+train_parser.add_argument('--small-2gauss-noreg', default=False, action='store_true')
 
 
 # parse commands for plotting (plot.py)
