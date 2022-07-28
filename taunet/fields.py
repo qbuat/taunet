@@ -42,3 +42,4 @@ OTHER_TES = [
 ]
 
 TARGET_FIELD = 'TauJetsAuxDyn.truthPtVisDressed/TauJetsAuxDyn.ptCombined'
+TARGET_FIELD_NEW = 'TauJetsAuxDyn.truthPtVisDressed/TauJetsAuxDyn.ptTauEnergyScale'
