@@ -41,16 +41,16 @@ if __name__ == '__main__':
         subprocess.run(cmd, shell=True)
     # load potentially required packages
     if not args.use_cache:
+        import tensorflow as tf
         import tensorflow_probability as tfp
-        import keras 
     # loads result of training to make plots 
     #! I did some weird things here... be careful when running with different 
     #! models, etc
     from taunet.computation import tf_mdn_loss
     if path != '' and not args.use_cache:
-        regressor = keras.models.load_model(os.path.join(path, args.model), custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
+        regressor = tf.keras.models.load_model(os.path.join(path, args.model), custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
     elif not args.use_cache:
-        regressor = keras.models.load_model(os.path.join('cache', args.model), custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
+        regressor = tf.keras.models.load_model(os.path.join('cache', args.model), custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
     else:
         regressor = ''
 
