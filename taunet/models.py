@@ -87,21 +87,21 @@ def keras_model_big_mdn_regular(n_variables, name='less_simple_mdn_regular'):
     output   = tfp.layers.MixtureNormal(1, [1])(hidden_8)
     return tf.keras.Model(inputs=x_1, outputs=output, name=name)
 
-def keras_model_MultiGauss_mdn(n_variables, name='less_simple_mdn'):
+def keras_model_big_mdn(n_variables, name='less_simple_mdn'):
     # compute some initial values for the model
-    event_shape = [5]
-    num_components = 10
+    event_shape = [1]
+    num_components = 2
     param_size = tfp.layers.MixtureNormal.params_size(num_components, event_shape)
     # Build the model
     x_1 = tf.keras.Input(shape=n_variables) 
-    hidden_0 = tf.keras.layers.Dense(1024, activation='relu')(x_1)
-    hidden_1 = tf.keras.layers.Dense(512, activation='relu')(hidden_0)
-    hidden_2 = tf.keras.layers.Dense(256, activation='relu')(hidden_1)
-    hidden_3 = tf.keras.layers.Dense(128, activation='relu')(hidden_2)
-    hidden_4 = tf.keras.layers.Dense(64, activation='relu')(hidden_3)
-    hidden_5 = tf.keras.layers.Dense(32, activation='relu')(hidden_4)
-    hidden_6 = tf.keras.layers.Dense(16, activation='relu')(hidden_5)
-    hidden_7 = tf.keras.layers.Dense(8, activation='relu')(hidden_6)
+    hidden_0 = tf.keras.layers.Dense(1024)(x_1)
+    hidden_1 = tf.keras.layers.Dense(512)(hidden_0)
+    hidden_2 = tf.keras.layers.Dense(256)(hidden_1)
+    hidden_3 = tf.keras.layers.Dense(128)(hidden_2)
+    hidden_4 = tf.keras.layers.Dense(64)(hidden_3)
+    hidden_5 = tf.keras.layers.Dense(32)(hidden_4)
+    hidden_6 = tf.keras.layers.Dense(16)(hidden_5)
+    hidden_7 = tf.keras.layers.Dense(8)(hidden_6)
     hidden_8 = tf.keras.layers.Dense(param_size, activation=None)(hidden_7)
     output   = tfp.layers.MixtureNormal(num_components, event_shape)(hidden_8)
     return tf.keras.Model(inputs=x_1, outputs=output, name=name)
