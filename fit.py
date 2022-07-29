@@ -70,7 +70,7 @@ if __name__ == '__main__':
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
-        _epochs = 300
+        _epochs = 3
         regressor.compile(
             loss=tf_mdn_loss, 
             optimizer=adam, 
@@ -94,6 +94,7 @@ if __name__ == '__main__':
                     save_best_only=True)])
         # save only best run
         regressor.save(_model_file) # save results of training
+        np.save(file='data/distribution_weights', arr=regressor.get_weights()[len(regressor.get_weights())-1])
         #Now save history in a pickle file for future use
         pickle.dump(history.history, open("history.p", "wb"))
     # Allow to keyboard interupt to not go over all epochs
