@@ -198,6 +198,7 @@ def testing_data(
                     cut = 'EventInfoAuxDyn.eventNumber%3 == 0',
                     select_1p=select_1p,
                     select_3p=select_3p)
+            a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 25. ] # may not be necessary; must justify this cut
             a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
             a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ]
             f = np.stack(
