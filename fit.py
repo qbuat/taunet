@@ -94,13 +94,6 @@ if __name__ == '__main__':
                     save_best_only=True)])
         # save only best run
         regressor.save(_model_file) # save results of training
-        # get means and stdevs from model
-        temp = tf.constant([[1. for _ in range(len(FEATURES))]])
-        dist = regressor(temp)
-        means = dist.tensor_distribution.components_distribution.tensor_distribution.mean().numpy()
-        stddevs = dist.tensor_distribution.components_distribution.tensor_distribution.stddev().numpy()
-        dictionary = {'mean':means.flatten(), 'stddevs':stddevs.flatten()}
-        pickle.dump(dictionary, open("data/means_and_stddevs.p", "wb"))
         #Now save history in a pickle file for future use
         pickle.dump(history.history, open("history.p", "wb"))
     # Allow to keyboard interupt to not go over all epochs
