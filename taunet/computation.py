@@ -6,7 +6,9 @@ from taunet.fields import FEATURES
 from . import log; log = log.getChild(__name__)
 
 #%%-------------------------------------------------------------
-# Implement chi^2 test
+# some simple computations
+
+# compute chi^2
 def chi_squared(obs, exp):
     """
     Compute chi squared of variable obs wrt exp (expectation)
@@ -16,6 +18,11 @@ def chi_squared(obs, exp):
         if exp[i] != 0:
             chi_squared += (obs[i] - exp[i]) ** 2 / exp[i]
     return chi_squared
+
+def logit2prob(logits):
+    odds = np.exp(logits)
+    probs = odds / (1 + odds)
+    return probs
 
 #%%-------------------------------------------------------------
 # Normalization functions
