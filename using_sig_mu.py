@@ -124,9 +124,9 @@ def testing_data(
             _arr = np.stack([ak.flatten(a[_var]).to_numpy() for _var in plotting_fields], axis=1)
             _arr_above = _arr[cut1]
             _arr_below = _arr[cut2]
-            _arr = np.insert(_arr, 4, regressed_target, axis=1)
-            _arr_above = np.insert(_arr_above, 4, regressed_target1, axis=1)
-            _arr_below = np.insert(_arr_below, 4, regressed_target2, axis=1)
+            _arr = np.insert(_arr, len(_arr[0]), regressed_target, axis=1)
+            _arr_above = np.insert(_arr_above, len(_arr[0]), regressed_target1, axis=1)
+            _arr_below = np.insert(_arr_below, len(_arr[0]), regressed_target2, axis=1)
             _arr = np.core.records.fromarrays(_arr.transpose(), names=[_var for _var in plotting_fields] + ['regressed_target'])
             _arr_above = np.core.records.fromarrays(_arr_above.transpose(), names=[_var for _var in plotting_fields] + ['regressed_target'])
             _arr_below = np.core.records.fromarrays(_arr_below.transpose(), names=[_var for _var in plotting_fields] + ['regressed_target'])
