@@ -11,16 +11,36 @@ from taunet.database import PATH, DATASET
 from taunet.fields import FEATURES, TRUTH_FIELDS, OTHER_TES
 from taunet.computation import tf_mdn_loss, VARNORM
 
-regressor = tf.keras.models.load_model('cache/gauss_simple_mdn.h5', custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
+regressor = tf.keras.models.load_model('launch_condor/fitpy_small1gauss_job0/gauss_simple_mdn.h5', custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
 
 from taunet.database import file_list, retrieve_arrays, debug_mode, select_norms
 from taunet.computation import applySSNormalizeTest, getVarIndices
+
+def logit2prob(logits):
+    odds = np.exp(logits)
+    probs = odds / (1 + odds)
+    return probs
+
+def get_mu_sigma(regressor, arr):
+    dist = regressor(arr)
+    logits = dist.tensor_distribution.mixture_distribution.logits.numpy()
+    means = dist.tensor_distribution.components_distribution.tensor_distribution.mean().numpy()
+    stddevs = dist.tensor_distribution.components_distribution.tensor_distribution.stddev().numpy()
+    probs = logit2prob(logits)
+    globalmean = probs[0] * means[0] + probs[1] * means[1]
+    globalstd = np.sqrt(probs[0]*stddevs[0]**2 + probs[1]*stddevs[1]**2 + probs[0]*probs[1]*(means[0]-means[1])**2)
+    cut1 = (globalstd/globalmean < 1).flatten()
+    cut2 = (globalstd/globalmean >= 1).flatten()
+    return cut1, cut2
+
+import taunet
+d_old = taunet.database.testing_data(PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=3, debug=True)
 
 def testing_data(
     path, dataset, features, plotting_fields, regressor, 
     nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree',
     saveToCache=False, useCache=False, optional_path='', 
-    no_normalize=False, no_norm_target=False, normIndices=range(9), debug=False, multiMDN=False):
+    no_normalize=False, no_norm_target=False, normIndices=range(9), debug=False):
     """
     """
     import numpy as np
@@ -79,6 +99,7 @@ def testing_data(
             if not no_normalize:
                 f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, varnom))
                 print('Normalizing input data to regressor')
+            regressed_target = regressor.predict(f.T)
             # find mu and sigma for each 
             dist = regressor(f.T)
             means = dist.tensor_distribution.components_distribution.tensor_distribution.mean().numpy()
@@ -89,7 +110,6 @@ def testing_data(
             f2 = f.T[cut2]
             regressed_target1 = regressor.predict(f1)
             regressed_target2 = regressor.predict(f2)
-            regressed_target = regressor.predict(f.T)
             if not no_norm_target:
                 # If target was normalized, revert to original
                 # Last element of variable "norms" contains mean (element 0) 
@@ -104,14 +124,12 @@ def testing_data(
             _arr = np.stack([ak.flatten(a[_var]).to_numpy() for _var in plotting_fields], axis=1)
             _arr_above = _arr[cut1]
             _arr_below = _arr[cut2]
-            print(len(_arr), " ", sum(cut2), " ", len(_arr_below), " ", len(regressed_target2), " ", len(f2))
-            _arr = np.insert(_arr, 0, regressed_target, axis=1)
-            _arr_above = np.insert(_arr_above, 0, regressed_target1, axis=1)
-            _arr_below = np.insert(_arr_below, 0, regressed_target2, axis=1)
+            _arr = np.insert(_arr, 4, regressed_target, axis=1)
+            _arr_above = np.insert(_arr_above, 4, regressed_target1, axis=1)
+            _arr_below = np.insert(_arr_below, 4, regressed_target2, axis=1)
             _arr = np.core.records.fromarrays(_arr.transpose(), names=[_var for _var in plotting_fields] + ['regressed_target'])
             _arr_above = np.core.records.fromarrays(_arr_above.transpose(), names=[_var for _var in plotting_fields] + ['regressed_target'])
             _arr_below = np.core.records.fromarrays(_arr_below.transpose(), names=[_var for _var in plotting_fields] + ['regressed_target'])
-            print(len)
             _arrs += [_arr]
             _arrs_above += [_arr_above]
             _arrs_below += [_arr_below]
@@ -129,37 +147,16 @@ def testing_data(
 d, d_above, d_below = testing_data(
     PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=3, debug=True)
 
-def get_quantile_width(arr, cl=0.68):
-    """
-    """
-    q1 = (1. - cl) / 2.
-    q2 = 1. - q1
-    y = np.quantile(arr, [q1, q2])
-    width = (y[1] - y[0]) / 2.
-    return width
+from taunet.plotting import response_and_resol_vs_pt
+response_and_resol_vs_pt(d_old, 'debug_plots')
 
+print(d)
+print(d.shape)
 
-def response_curve(res, var, bins):
-    """
-    """
-    _bin_centers = []
-    _bin_errors = []
-    _means = []
-    _mean_stat_err = []
-    _resol = []
-    for _bin in bins:
-        a = res[(var > _bin[0]) & (var < _bin[1])]
-        if len(a) == 0:
-            print('Bin was empty! Moving on to next bin')
-            continue
-        _means += [np.mean(a)]
-        _mean_stat_err += [np.std(a, ddof=1) / np.sqrt(np.size(a))]
-        _resol += [get_quantile_width(a)]
-        _bin_centers += [_bin[0] + (_bin[1] - _bin[0]) / 2]
-        _bin_errors += [(_bin[1] - _bin[0]) / 2]
-    return np.array(_bin_centers), np.array(_bin_errors), np.array(_means), np.array(_mean_stat_err), np.array(_resol)
+def plot_thang(d, save_loc, name):
 
-def plot_thang(d, save_loc):
+    from taunet.utils import response_curve
+
     response_reg = d['regressed_target'] * d['TauJetsAuxDyn.ptCombined'] / d['TauJetsAuxDyn.truthPtVisDressed']
     response_ref = d['TauJetsAuxDyn.ptFinalCalib'] / d['TauJetsAuxDyn.truthPtVisDressed']
     response_comb = d['TauJetsAuxDyn.ptCombined'] / d['TauJetsAuxDyn.truthPtVisDressed']
@@ -193,7 +190,7 @@ def plot_thang(d, save_loc):
     plt.ylabel('Predicted $p_{T}(\\tau_{had-vis})$ / True $p_{T}(\\tau_{had-vis})$', loc = 'top')
     plt.xlabel('True $p_{T}(\\tau_{had-vis})$ [GeV]', loc = 'right')
     plt.legend()
-    plt.savefig(os.path.join(save_loc, 'response_vs_pt.pdf'))
+    plt.savefig(os.path.join(save_loc, 'response_vs_pt_{}.pdf'.format(name)))
     plt.close(fig) 
 
     fig = plt.figure(figsize=(5,5), dpi = 100)
@@ -203,8 +200,45 @@ def plot_thang(d, save_loc):
     plt.ylabel('$p_{T}(\\tau_{had-vis})$ resolution [\%]', loc = 'top')
     plt.xlabel('True $p_{T}(\\tau_{had-vis})$ [GeV]', loc = 'right')
     plt.legend()
-    plt.savefig(os.path.join(save_loc, 'resolution_vs_truth.pdf'))
+    plt.savefig(os.path.join(save_loc, 'resolution_vs_truth_{}.pdf'.format(name)))
     plt.close(fig)
 
+#plot distributions
+plot_thang(d, 'debug_plots/plots', 'all')
+plot_thang(d_above, 'debug_plots/plots', 'above')
+plot_thang(d_below, 'debug_plots/plots', 'below')
 
+from taunet.utils import copy_plots_to_cernbox
+copy_plots_to_cernbox(location='debug_plots')
 
+print((d == d_old).all())
+print(sum(d == d_old))
+
+# def get_quantile_width(arr, cl=0.68):
+#     """
+#     """
+#     q1 = (1. - cl) / 2.
+#     q2 = 1. - q1
+#     y = np.quantile(arr, [q1, q2])
+#     width = (y[1] - y[0]) / 2.
+#     return width
+
+# def response_curve(res, var, bins):
+#     """
+#     """
+#     _bin_centers = []
+#     _bin_errors = []
+#     _means = []
+#     _mean_stat_err = []
+#     _resol = []
+#     for _bin in bins:
+#         a = res[(var > _bin[0]) & (var < _bin[1])]
+#         if len(a) == 0:
+#             print('Bin was empty! Moving on to next bin')
+#             continue
+#         _means += [np.mean(a)]
+#         _mean_stat_err += [np.std(a, ddof=1) / np.sqrt(np.size(a))]
+#         _resol += [get_quantile_width(a)]
+#         _bin_centers += [_bin[0] + (_bin[1] - _bin[0]) / 2]
+#         _bin_errors += [(_bin[1] - _bin[0]) / 2]
+#     return np.array(_bin_centers), np.array(_bin_errors), np.array(_means), np.array(_mean_stat_err), np.array(_resol)
