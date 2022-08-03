@@ -7,6 +7,7 @@ from . import log; log = log.getChild(__name__)
 def get_quantile_width(arr, cl=0.68):
     """
     """
+    print('test')
     q1 = (1. - cl) / 2.
     q2 = 1. - q1
     y = np.quantile(arr, [q1, q2])
@@ -24,11 +25,9 @@ def response_curve(res, var, bins):
     _resol = []
     for _bin in bins:
         a = res[(var > _bin[0]) & (var < _bin[1])]
-        # mean = 
-        # mean, std = norm.fit(a)
-        # y = np.quantile(a, [q1, q2])
-        # res_68 = (y[1] - y[0]) / 2.
-        # print (_bin, len(a), a.mean(), mean, a.std(), std, (y[1] - y[0]) / 2., np.quantile(a-1, 0.95))
+        if len(a) == 0:
+            log.info('Bin was empty! Moving on to next bin')
+            continue
         _means += [np.mean(a)]
         _mean_stat_err += [np.std(a, ddof=1) / np.sqrt(np.size(a))]
         _resol += [get_quantile_width(a)]

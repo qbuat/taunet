@@ -194,7 +194,7 @@ def testing_data(
             else:
                 a = retrieve_arrays(
                     tree,
-                    features, 
+                    _fields_to_lookup, 
                     cut = 'EventInfoAuxDyn.eventNumber%3 == 0',
                     select_1p=select_1p,
                     select_3p=select_3p)
