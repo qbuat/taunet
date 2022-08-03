@@ -7,7 +7,6 @@ from . import log; log = log.getChild(__name__)
 def get_quantile_width(arr, cl=0.68):
     """
     """
-    print('test')
     q1 = (1. - cl) / 2.
     q2 = 1. - q1
     y = np.quantile(arr, [q1, q2])
