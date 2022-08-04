@@ -38,7 +38,7 @@ def get_cut_abovebelow_2gauss(regressor, arr):
     cutbelow = (abs(globalstd/globalmean) < 1).flatten()
     return cutabove, cutbelow
 #%------------------------------------------------------------------
-# Function to retrieve data
+# Load data 
 
 def testing_data(
     path, dataset, features, plotting_fields, regressor, 
