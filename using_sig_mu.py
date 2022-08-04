@@ -11,11 +11,17 @@ from taunet.database import PATH, DATASET
 from taunet.fields import FEATURES, TRUTH_FIELDS, OTHER_TES
 from taunet.computation import tf_mdn_loss, VARNORM
 
+from taunet.parser import plot_parser
+args = plot_parser.parse_args()
+
 regressor = tf.keras.models.load_model('launch_condor/fitpy_small2gaussnoreg_job0/gauss2_simple_mdn_noreg.h5', 
                 custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
 
 from taunet.database import file_list, retrieve_arrays, debug_mode, select_norms
 from taunet.computation import applySSNormalizeTest, getVarIndices
+
+#%------------------------------------------------------------------
+# Cut above and below sigma/mu
 
 def get_cut_abovebelow_2gauss(regressor, arr):
     dist = regressor(arr)
@@ -34,8 +40,10 @@ def get_cut_abovebelow_2gauss(regressor, arr):
         + probs[i][0]*probs[i][1]*(means[i][0]-means[i][1])**2 
                         for i in range(len(means))]).flatten())
     cutabove = (abs(globalstd/globalmean) < 1).flatten()
-    cutbelow = (abs(globalstd/globalmean) >= 1).flatten()
+    cutbelow = (abs(globalstd/globalmean) > 1).flatten()
     return cutabove, cutbelow
+#%------------------------------------------------------------------
+# Function to retrieve data
 
 def testing_data(
     path, dataset, features, plotting_fields, regressor, 
@@ -141,8 +149,24 @@ def testing_data(
         print('Saving data to cache')
     return _arrs, _arrs_above, _arrs_below
 
-d, d_above, d_below = testing_data(
-    PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=3, debug=True)
+KINEMATICS = ['TauJetsAuxDyn.mu', 'TauJetsAuxDyn.etaPanTauCellBased', 'TauJetsAuxDyn.phiPanTauCellBased']
+
+if not args.use_cache:
+    d, d_above, d_below = testing_data(
+        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES + KINEMATICS, regressor, nfiles=args.nfiles, debug=args.debug)
+
+if args.add_to_cache:
+    np.save(file='data/d', arr=d)
+    np.save(file='data/d_above', arr=d_above)
+    np.save(file='data/d_below', arr=d_below)
+
+if args.use_cache:
+    d = np.load('data/d.npy')
+    d_above = np.load('data/d_above.npy')
+    d_below = np.load('data/d_below.npy')
+
+#%------------------------------------------------------------------
+# Plotting functions
 
 def plot_thang(d, d_below, d_above, save_loc, name):
 
@@ -178,17 +202,17 @@ def plot_thang(d, d_below, d_above, save_loc, name):
     bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(response_ref, truth_pt, bins)
     bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(response_comb, truth_pt, bins)
 
-    fig = plt.figure(figsize=(5,5), dpi = 100)
-    plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3))
-    plt.errorbar(bins_comb, means_comb, errs_comb, bin_errors_comb, fmt='o', color='black', label='Combined')
-    plt.errorbar(bins_ref, means_ref, errs_ref, bin_errors_ref, fmt='o', color='red', label='Final')
-    plt.errorbar(bins_reg, means_reg, errs_reg, bin_errors_reg, fmt='o', color='purple', label='This work')
-    plt.grid(color='0.95')
-    plt.ylabel('Predicted $p_{T}(\\tau_{had-vis})$ / True $p_{T}(\\tau_{had-vis})$', loc = 'top')
-    plt.xlabel('True $p_{T}(\\tau_{had-vis})$ [GeV]', loc = 'right')
-    plt.legend()
-    plt.savefig(os.path.join(save_loc, 'response_vs_pt_{}.pdf'.format(name)))
-    plt.close(fig) 
+    # fig = plt.figure(figsize=(5,5), dpi = 100)
+    # plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3))
+    # plt.errorbar(bins_comb, means_comb, errs_comb, bin_errors_comb, fmt='o', color='black', label='Combined')
+    # plt.errorbar(bins_ref, means_ref, errs_ref, bin_errors_ref, fmt='o', color='red', label='Final')
+    # plt.errorbar(bins_reg, means_reg, errs_reg, bin_errors_reg, fmt='o', color='purple', label='This work')
+    # plt.grid(color='0.95')
+    # plt.ylabel('Predicted $p_{T}(\\tau_{had-vis})$ / True $p_{T}(\\tau_{had-vis})$', loc = 'top')
+    # plt.xlabel('True $p_{T}(\\tau_{had-vis})$ [GeV]', loc = 'right')
+    # plt.legend()
+    # plt.savefig(os.path.join(save_loc, 'response_vs_pt_{}.pdf'.format(name)))
+    # plt.close(fig) 
 
     fig = plt.figure(figsize=(5,5), dpi = 100)
     plt.plot(bins_ref, 100 * resol_ref, color='red', label='Final')
@@ -196,25 +220,67 @@ def plot_thang(d, d_below, d_above, save_loc, name):
     plt.plot(bins_ref, 100 * resol_reg, color='purple', label='This work')
     plt.plot(bins_ref, 100 * aresol_reg, '--', color = 'purple', label = '$|\\frac{\\sigma}{\\mu}| > 1$')
     plt.plot(bins_ref, 100 * bresol_reg, '-.', color = 'purple', label = '$|\\frac{\\sigma}{\\mu}| < 1$')
-    plt.ylabel('$p_{T}(\\tau_{had-vis})$ resolution [%]', loc = 'top')
+    plt.ylabel('$p_{T}(\\tau_{had-vis})$ resolution, 68% CL [%]', loc = 'top')
     plt.xlabel('True $p_{T}(\\tau_{had-vis})$ [GeV]', loc = 'right')
     plt.legend()
     plt.savefig(os.path.join(save_loc, 'resolution_vs_truth_{}.pdf'.format(name)))
     plt.close(fig)
 
+def response_lineshape(testing_data, alt_data, plotSaveLoc, 
+            plotSaveName='plots/tes_response_lineshape.pdf', txt=''):
+    """
+    """
+    fig = plt.figure(figsize=(5,5), dpi = 300)
+    plt.yscale('log')
+    plt.hist(
+        alt_data['regressed_target'] * alt_data['TauJetsAuxDyn.ptCombined'] / alt_data['TauJetsAuxDyn.truthPtVisDressed'],
+        density=True,
+        bins=200, 
+        range=(0, 2), 
+        histtype='step', 
+        color='purple', 
+        label='This work')
+    plt.hist(
+        testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
+        density=True,
+        bins=200, 
+        range=(0, 2), 
+        histtype='step', 
+        color='red', 
+        label='Final')
+    plt.hist(
+        testing_data['TauJetsAuxDyn.ptCombined'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
+        density=True,
+        bins=200, 
+        range=(0, 2), 
+        histtype='step', 
+        color='black', 
+        label='Combined')
+    xmin, xmax, ymin, ymax = plt.axis()
+    plt.plot([1.0, 1.0], [ymin, ymax], linestyle='dashed', color='grey')
+    if txt!='':
+        plt.text(1.5, 4e-1, txt, fontsize=15)
+    plt.ylabel('Number of $\\tau_{had-vis}$ / $\\int$ Number of $\\tau_{had-vis}$', loc = 'top')
+    plt.xlabel('Predicted $p_{T}(\\tau_{had-vis})$ / True $p_{T}(\\tau_{had-vis})$', loc = 'right')
+    plt.legend()
+    plt.savefig(os.path.join(plotSaveLoc, plotSaveName), bbox_inches='tight')
+    plt.yscale('linear')
+    plt.close(fig)
+
 #plot distributions
 plot_thang(d, d_above, d_below, 'debug_plots/plots', 'all')
+response_lineshape(d, d_above, 'debug_plots/plots', 'response_lineshape_above.pdf', txt='$|\\frac{\\sigma}{\\mu}| > 1$')
+response_lineshape(d, d_below, 'debug_plots/plots', 'response_lineshape_below.pdf', txt='$|\\frac{\\sigma}{\\mu}| < 1$')
 
-path = 'debug_plots'
-from taunet.plotting import pt_lineshape
-pt_lineshape(d_above, path)
+# explore the kinematics of these vars!
+def pT_explore():
+    return;
 
-from taunet.plotting import response_lineshape
-response_lineshape(d_above, path)
+def eta_explore():
+    return;
 
-from taunet.plotting import target_lineshape
-target_lineshape(d_above, plotSaveLoc=path)
-target_lineshape(d_above, bins=100, range=(0.5, 1.5), basename='tes_target_lineshape_zoomedin', logy=False, plotSaveLoc=path)
+def mu_explore():
+    return;
 
 from taunet.utils import copy_plots_to_cernbox
 copy_plots_to_cernbox(location='debug_plots')
