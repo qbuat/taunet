@@ -63,13 +63,13 @@ def pt_lineshape(testing_data, plotSaveLoc):
         color='purple')
     ax1.set_ylabel('Number of $\\tau_{had-vis}$', loc='top')
     ax1.legend(['Truth', 
-                'Combined, $\\chi^2 = ${}'.format(round(chi_squared(counts_f, counts_b))), 
-                'Final, $\\chi^2 = ${}'.format(round(chi_squared(counts_f, counts_t))), 
-                'This work, $\\chi^2 = ${}'.format(round(chi_squared(counts_ts, counts_t)))])
+                'Combined, $\\chi^2 = {}$'.format(round(chi_squared(counts_f, counts_b))), 
+                'Final, $\\chi^2 = {}$'.format(round(chi_squared(counts_f, counts_t))), 
+                'This work, $\\chi^2 = {}$'.format(round(chi_squared(counts_ts, counts_t)))])
     
-    ax2.plot(bins_t[0:len(bins_t)-1], counts_ts / counts_t, color='purple')
     ax2.plot(bins_t[0:len(bins_t)-1], counts_b / counts_t, color='black')
     ax2.plot(bins_t[0:len(bins_t)-1], counts_f / counts_t, color='red')
+    ax2.plot(bins_t[0:len(bins_t)-1], counts_ts / counts_t, color='purple')
     ax2.set_ylabel('Ratio', loc='top')
     ax2.set_xlabel('$p_{T}(\\tau_{had-vis})$ [GeV]', loc='right')
     
