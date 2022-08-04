@@ -273,8 +273,14 @@ response_lineshape(d, d_above, 'debug_plots/plots', 'response_lineshape_above.pd
 response_lineshape(d, d_below, 'debug_plots/plots', 'response_lineshape_below.pdf', txt='$|\\frac{\\sigma}{\\mu}| < 1$')
 
 # explore the kinematics of these vars!
-def pT_explore():
-    return;
+def pT_explore(d, d_above, d_below):
+    plt.figure(figsize=(5,5), dpi = 100)
+    plt.hist(d['regressed_target'] * d['TauJetsAuxDyn.ptCombined'] / d['TauJetsAuxDyn.truthPtVisDressed'], 
+            bins=200, histtype='step', label='All Events', density=True)
+    plt.hist(d_above['regressed_target'] * d_above['TauJetsAuxDyn.ptCombined'] / d_above['TauJetsAuxDyn.truthPtVisDressed'], 
+            bins=200, histtype='step', label='$|\\frac{\\sigma}{\\mu}| > 1$', density=True)
+    plt.hist(d_below['regressed_target'] * d_below['TauJetsAuxDyn.ptCombined'] / d_below['TauJetsAuxDyn.truthPtVisDressed'], 
+            bins=200, histtype='step', label='$|\\frac{\\sigma}{\\mu}| < 1$', density=True)
 
 def eta_explore():
     return;
