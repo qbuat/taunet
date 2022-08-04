@@ -144,7 +144,7 @@ def testing_data(
         print('Saving data to cache')
     return _arrs, _arrs_above, _arrs_below
 
-KINEMATICS = ['TauJetsAuxDyn.mu', 'TauJetsAuxDyn.etaPanTauCellBased', 'TauJetsAuxDyn.phiPanTauCellBased']
+KINEMATICS = ['TauJetsAuxDyn.mu', 'TauJetsAuxDyn.etaPanTauCellBased', 'TauJetsAuxDyn.phiPanTauCellBased', 'TauJetsAuxDyn.etaDetectorAxis', 'TauJetsAuxDyn.etaIntermediateAxis']
 
 if not args.use_cache:
     import tensorflow as tf
@@ -311,6 +311,7 @@ def variable_explore(var, xtitle, varname, legloc=1, dens=True):
 # plot them thangs
 pT_explore(dens=False)
 variable_explore('TauJetsAuxDyn.etaPanTauCellBased', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
+variable_explore('TauJetsAuxDyn.etaDetectorAxis', '$\\eta (\\tau_{had-vis})$', 'eta_dectec', legloc=8)
 variable_explore('TauJetsAuxDyn.phiPanTauCellBased', '$\\phi (\\tau_{had-vis})$', 'phi', legloc=8)
 variable_explore('TauJetsAuxDyn.mu', '$\\mu (\\tau_{had-vis})$', 'mu')
 
