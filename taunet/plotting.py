@@ -67,10 +67,24 @@ def pt_lineshape(testing_data, plotSaveLoc):
                 'Final, $\\chi^2 = {}$'.format(round(chi_squared(counts_f, counts_t))), 
                 'This work, $\\chi^2 = {}$'.format(round(chi_squared(counts_ts, counts_t)))])
     
-    ax2.plot(bins_t[0:len(bins_t)-1], counts_b / counts_t, color='black')
-    ax2.plot(bins_t[0:len(bins_t)-1], counts_f / counts_t, color='red')
-    ax2.plot(bins_t[0:len(bins_t)-1], counts_ts / counts_t, color='purple')
-    ax2.set_ylabel('Ratio', loc='top')
+    def cn(vec, bins):
+        newvec = []
+        newbins = []
+        tempsum = 0
+        for i in range(len(bins)):
+            tempsum += vec[i]
+            if i % 10 == 0 and i != 0:
+                newvec.append(tempsum)
+                newbins.append(bins[i])
+                tempsum = 0
+        return (np.array(newvec), np.array(newbins))
+        
+    bins = bins_t[0:len(bins_t)-1]
+    ax2.plot(cn(counts_ts, bins)[1], cn(counts_ts, bins)[0] / cn(counts_t, bins)[0], color='purple', marker='+')
+    ax2.plot(cn(counts_ts, bins)[1], cn(counts_b, bins)[0] / cn(counts_t, bins)[0], color='black', marker='+')
+    ax2.plot(cn(counts_ts, bins)[1], cn(counts_f, bins)[0] / cn(counts_t, bins)[0], color='red', marker='+')
+    ax2.grid()
+    ax2.set_ylabel('Predicted/Truth', loc='top')
     ax2.set_xlabel('$p_{T}(\\tau_{had-vis})$ [GeV]', loc='right')
     
     plt.savefig(os.path.join(plotSaveLoc, 'plots/tes_pt_lineshape.pdf'))
