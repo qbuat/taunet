@@ -14,7 +14,9 @@ from taunet.computation import tf_mdn_loss, VARNORM
 from taunet.parser import plot_parser
 args = plot_parser.parse_args()
 
-regressor = tf.keras.models.load_model('launch_condor/fitpy_small2gaussnoreg_job0/gauss2_simple_mdn_noreg.h5', 
+#path = 'launch_condor/fitpy_small2gaussnoreg_job0/gauss2_simple_mdn_noreg.h5'
+path = 'cache/gauss2_simple_mdn.h5'
+regressor = tf.keras.models.load_model(path, 
                 custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
 
 from taunet.database import file_list, retrieve_arrays, debug_mode, select_norms
@@ -288,5 +290,7 @@ def eta_explore():
 def mu_explore():
     return;
 
-from taunet.utils import copy_plots_to_cernbox
-copy_plots_to_cernbox(location='debug_plots')
+plt.show()
+
+# from taunet.utils import copy_plots_to_cernbox
+# copy_plots_to_cernbox(location='debug_plots')
