@@ -1,5 +1,3 @@
-import tensorflow as tf
-import tensorflow_probability as tfp
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -13,11 +11,6 @@ from taunet.computation import tf_mdn_loss, VARNORM
 
 from taunet.parser import plot_parser
 args = plot_parser.parse_args()
-
-#path = 'launch_condor/fitpy_small2gaussnoreg_job0/gauss2_simple_mdn_noreg.h5'
-path = 'cache/gauss2_simple_mdn.h5'
-regressor = tf.keras.models.load_model(path, 
-                custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
 
 from taunet.database import file_list, retrieve_arrays, debug_mode, select_norms
 from taunet.computation import applySSNormalizeTest, getVarIndices
@@ -41,8 +34,8 @@ def get_cut_abovebelow_2gauss(regressor, arr):
         + probs[i][1]*stddevs[i][1]**2 
         + probs[i][0]*probs[i][1]*(means[i][0]-means[i][1])**2 
                         for i in range(len(means))]).flatten())
-    cutabove = (abs(globalstd/globalmean) < 1).flatten()
-    cutbelow = (abs(globalstd/globalmean) > 1).flatten()
+    cutabove = (abs(globalstd/globalmean) > 1).flatten()
+    cutbelow = (abs(globalstd/globalmean) < 1).flatten()
     return cutabove, cutbelow
 #%------------------------------------------------------------------
 # Function to retrieve data
@@ -154,15 +147,23 @@ def testing_data(
 KINEMATICS = ['TauJetsAuxDyn.mu', 'TauJetsAuxDyn.etaPanTauCellBased', 'TauJetsAuxDyn.phiPanTauCellBased']
 
 if not args.use_cache:
+    import tensorflow as tf
+    import tensorflow_probability as tfp
+    path = 'launch_condor/fitpy_small2gaussnoreg_job0/gauss2_simple_mdn_noreg.h5'
+    #path = 'cache/gauss2_simple_mdn.h5'
+    regressor = tf.keras.models.load_model(path, 
+                custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
     d, d_above, d_below = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES + KINEMATICS, regressor, nfiles=args.nfiles, debug=args.debug)
 
 if args.add_to_cache:
+    print('Saving data to cache')
     np.save(file='data/d', arr=d)
     np.save(file='data/d_above', arr=d_above)
     np.save(file='data/d_below', arr=d_below)
 
 if args.use_cache:
+    print('Getting data from cache')
     d = np.load('data/d.npy')
     d_above = np.load('data/d_above.npy')
     d_below = np.load('data/d_below.npy')
@@ -170,7 +171,7 @@ if args.use_cache:
 #%------------------------------------------------------------------
 # Plotting functions
 
-def plot_thang(d, d_below, d_above, save_loc, name):
+def plot_thang(d, d_above, d_below, save_loc, name):
 
     from taunet.utils import response_curve
 
@@ -274,23 +275,46 @@ plot_thang(d, d_above, d_below, 'debug_plots/plots', 'all')
 response_lineshape(d, d_above, 'debug_plots/plots', 'response_lineshape_above.pdf', txt='$|\\frac{\\sigma}{\\mu}| > 1$')
 response_lineshape(d, d_below, 'debug_plots/plots', 'response_lineshape_below.pdf', txt='$|\\frac{\\sigma}{\\mu}| < 1$')
 
+# ------------------------------------------------------------
 # explore the kinematics of these vars!
-def pT_explore(d, d_above, d_below):
-    plt.figure(figsize=(5,5), dpi = 100)
-    plt.hist(d['regressed_target'] * d['TauJetsAuxDyn.ptCombined'] / d['TauJetsAuxDyn.truthPtVisDressed'], 
-            bins=200, histtype='step', label='All Events', density=True)
-    plt.hist(d_above['regressed_target'] * d_above['TauJetsAuxDyn.ptCombined'] / d_above['TauJetsAuxDyn.truthPtVisDressed'], 
-            bins=200, histtype='step', label='$|\\frac{\\sigma}{\\mu}| > 1$', density=True)
-    plt.hist(d_below['regressed_target'] * d_below['TauJetsAuxDyn.ptCombined'] / d_below['TauJetsAuxDyn.truthPtVisDressed'], 
-            bins=200, histtype='step', label='$|\\frac{\\sigma}{\\mu}| < 1$', density=True)
 
-def eta_explore():
-    return;
+def pT_explore(dens=True):
+    fig = plt.figure(figsize=(5,5), dpi = 100)
+    plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3), useMathText=True)
+    plt.hist(d['regressed_target'] * d['TauJetsAuxDyn.ptCombined'] / 1000., 
+            bins=200, histtype='step', range=(0, 200), label='All Events', density=dens)
+    plt.hist(d_above['regressed_target'] * d_above['TauJetsAuxDyn.ptCombined'] / 1000., 
+            bins=200, histtype='step', range=(0, 200), label='$|\\frac{\\sigma}{\\mu}| > 1$', density=dens)
+    plt.hist(d_below['regressed_target'] * d_below['TauJetsAuxDyn.ptCombined'] / 1000., 
+            bins=200, histtype='step', range=(0, 200), label='$|\\frac{\\sigma}{\\mu}| < 1$', density=dens)
+    plt.xlabel('$p_T(\\tau_{had-vis})$', loc='right')
+    plt.ylabel('Number of $\\tau_{had-vis}$', loc='top')
+    plt.legend()
+    plt.savefig('debug_plots/plots/pT_explore.pdf', bbox_inches='tight')
+    plt.close(fig)
 
-def mu_explore():
-    return;
+def variable_explore(var, xtitle, varname, legloc=1, dens=True):
+    fig = plt.figure(figsize=(5,5), dpi = 100)
+    plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3), useMathText=True)
+    plt.hist(d[var], 
+            bins=200, histtype='step', label='All Events', density=dens)
+    plt.hist(d_above[var], 
+            bins=200, histtype='step', label='$|\\frac{\\sigma}{\\mu}| > 1$', density=dens)
+    plt.hist(d_below[var], 
+            bins=200, histtype='step', label='$|\\frac{\\sigma}{\\mu}| < 1$', density=dens)
+    plt.legend(loc=legloc)
+    plt.xlabel(xtitle, loc='right')
+    plt.ylabel('Number of $\\tau_{had-vis}$ / $\\int$ Number of $\\tau_{had-vis}$', loc='top')
+    plt.savefig('debug_plots/plots/{}_explore.pdf'.format(varname), bbox_inches='tight')
+    plt.close(fig)
 
-plt.show()
+# plot them thangs
+pT_explore(dens=False)
+variable_explore('TauJetsAuxDyn.etaPanTauCellBased', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
+variable_explore('TauJetsAuxDyn.phiPanTauCellBased', '$\\phi (\\tau_{had-vis})$', 'phi', legloc=8)
+variable_explore('TauJetsAuxDyn.mu', '$\\mu (\\tau_{had-vis})$', 'mu')
 
-# from taunet.utils import copy_plots_to_cernbox
-# copy_plots_to_cernbox(location='debug_plots')
+# ------------------------------------------------------------
+# Copy to cernbox!
+from taunet.utils import copy_plots_to_cernbox
+copy_plots_to_cernbox(location='debug_plots')
