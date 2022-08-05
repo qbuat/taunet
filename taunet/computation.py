@@ -170,18 +170,16 @@ def get_global_params(regressor, arr, mode=0):
     logits = dist.tensor_distribution.mixture_distribution.logits.numpy()
     probs = tf.nn.softmax(logits[0:,]).numpy() # convert logits to probabilities
     means = dist.tensor_distribution.components_distribution.tensor_distribution.mean().numpy()
-    if mode==0 or mode==1:
-        globalmean = np.array(
-            [probs[i][0]*means[i][0] + probs[i][1]*means[i][1] 
-                        for i in range(len(means))]).flatten()
+    globalmean = np.array(
+        [probs[i][0]*means[i][0] + probs[i][1]*means[i][1] 
+                    for i in range(len(means))]).flatten()
     if mode==0 or mode==2:
         stddevs = dist.tensor_distribution.components_distribution.tensor_distribution.stddev().numpy()
         #! This needs verification of working!!
         globalstd = np.sqrt(np.array(
             [probs[i][0]*(stddevs[i][0]**2 + means[i][0]**2)
             + probs[i][1]*(stddevs[i][1]**2 + means[i][1]**2) 
-            - (probs[i][0]*means[i][0] + probs[i][1]*means[i][1])**2 
-                    for i in range(len(means))]).flatten())
+            - globalmean[i]**2 for i in range(len(means))]).flatten())
 
     if mode==0:
         return globalmean, globalstd
