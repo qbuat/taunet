@@ -161,16 +161,16 @@ def get_global_params(regressor, arr, mode=0):
     arr : np.array
         array of events to be passed
     mode : int
-        if 0 returns mean and stddev
-        if 1 returns only mean
-        if 2 returns only stddev
+        if 0 returns mean and stddev,
+        if 1 returns only mean,
+        if 2 returns only stddev.
     """
 
     dist = regressor(arr)
     logits = dist.tensor_distribution.mixture_distribution.logits.numpy()
     probs = tf.nn.softmax(logits[0:,]).numpy() # convert logits to probabilities
+    means = dist.tensor_distribution.components_distribution.tensor_distribution.mean().numpy()
     if mode==0 or mode==1:
-        means = dist.tensor_distribution.components_distribution.tensor_distribution.mean().numpy()
         globalmean = np.array(
             [probs[i][0]*means[i][0] + probs[i][1]*means[i][1] 
                         for i in range(len(means))]).flatten()
@@ -178,10 +178,10 @@ def get_global_params(regressor, arr, mode=0):
         stddevs = dist.tensor_distribution.components_distribution.tensor_distribution.stddev().numpy()
         #! This needs verification of working!!
         globalstd = np.sqrt(np.array(
-            [probs[i][0]*stddevs[i][0]**2 
-            + probs[i][1]*stddevs[i][1]**2 
-            + probs[i][0]*probs[i][1]*(means[i][0]-means[i][1])**2 
-                            for i in range(len(means))]).flatten())
+            [probs[i][0]*(stddevs[i][0]**2 + means[i][0]**2)
+            + probs[i][1]*(stddevs[i][1]**2 + means[i][1]**2) 
+            - (probs[i][0]*means[i][0] + probs[i][1]*means[i][1])**2 
+                    for i in range(len(means))]).flatten())
 
     if mode==0:
         return globalmean, globalstd
@@ -201,11 +201,12 @@ def cut_above_below(globalmean, globalstd):
     Returns:
     -------
     cutabove : array of bools
-        abs(gloabalstd/globalmean) > 1
+        abs(gloabalstd/globalmean) >= 1
     cutbelow : array of bools
         abs(gloabalstd/globalmean) < 1
+
     """
-    cutabove = (abs(globalstd/globalmean) > 1).flatten()
+    cutabove = (abs(globalstd/globalmean) >= 1).flatten()
     cutbelow = (abs(globalstd/globalmean) < 1).flatten()
     return cutabove, cutbelow
 

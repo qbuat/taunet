@@ -13,7 +13,7 @@ from taunet.parser import plot_parser
 args = plot_parser.parse_args()
 
 from taunet.database import file_list, retrieve_arrays, debug_mode, select_norms
-from taunet.computation import applySSNormalizeTest, getVarIndices
+from taunet.computation import applySSNormalizeTest, getVarIndices, get_global_params, cut_above_below
 
 #%------------------------------------------------------------------
 # Cut above and below sigma/mu
@@ -103,8 +103,8 @@ def testing_data(
             if not no_normalize:
                 f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, varnom))
                 print('Normalizing input data to regressor')
-            regressed_target = regressor.predict(f.T)
-            cut1, cut2 = get_cut_abovebelow_2gauss(regressor, f.T)
+            regressed_target, stddev = get_global_params(regressor, f.T)
+            cut1, cut2 = cut_above_below(regressed_target, stddev)
             f1 = f.T[cut1]
             f2 = f.T[cut2]
             regressed_target1 = regressor.predict(f1)
@@ -311,7 +311,6 @@ def variable_explore(var, xtitle, varname, legloc=1, dens=True):
 # plot them thangs
 pT_explore(dens=False)
 variable_explore('TauJetsAuxDyn.etaPanTauCellBased', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
-variable_explore('TauJetsAuxDyn.etaDetectorAxis', '$\\eta (\\tau_{had-vis})$', 'eta_dectec', legloc=8)
 variable_explore('TauJetsAuxDyn.phiPanTauCellBased', '$\\phi (\\tau_{had-vis})$', 'phi', legloc=8)
 variable_explore('TauJetsAuxDyn.mu', '$\\mu (\\tau_{had-vis})$', 'mu')
 
