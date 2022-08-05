@@ -6,7 +6,7 @@ Database changes:
 import os
 from unittest.mock import DEFAULT
 
-from taunet.computation import StandardScalar, applySSNormalizeTest, getSSNormalize, applySSNormalizeTest, getVarIndices, select_norms, VARNORM, applySSNormalize
+from taunet.computation import StandardScalar, applySSNormalizeTest, getSSNormalize, applySSNormalizeTest, getVarIndices, select_norms, VARNORM, applySSNormalize, get_global_params
 from . import log; log = log.getChild(__name__)
 
 if '/Users/miles_cb' in os.getcwd():
@@ -34,7 +34,6 @@ def file_list(path, dataset):
             path, dataset, _f)]
     log.info('Found {} files'.format(len(_files)))
     return _files
-
 
 def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
     """
@@ -208,7 +207,7 @@ def testing_data(
             if not no_normalize:
                 f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, varnom))
                 log.info('Normalizing input data to regressor')
-            regressed_target = regressor.predict(f.T)
+            regressed_target = get_global_params(regressor, f.T, mode=1)
             if not no_norm_target:
                 # If target was normalized, revert to original
                 # Last element of variable "norms" contains mean (element 0) 
