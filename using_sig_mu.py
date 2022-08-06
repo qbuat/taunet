@@ -16,28 +16,6 @@ from taunet.database import file_list, retrieve_arrays, debug_mode, select_norms
 from taunet.computation import applySSNormalizeTest, getVarIndices, get_global_params, cut_above_below
 
 #%------------------------------------------------------------------
-# Cut above and below sigma/mu
-
-def get_cut_abovebelow_2gauss(regressor, arr):
-    dist = regressor(arr)
-    logits = dist.tensor_distribution.mixture_distribution.logits.numpy()
-    means = dist.tensor_distribution.components_distribution.tensor_distribution.mean().numpy()
-    stddevs = dist.tensor_distribution.components_distribution.tensor_distribution.stddev().numpy()
-    probs = tf.nn.softmax(logits[0:,]).numpy() # convert logits to probabilities
-    # get vector of global means
-    globalmean = np.array(
-        [probs[i][0]*means[i][0] + probs[i][1]*means[i][1] 
-                        for i in range(len(means))]).flatten()
-    # get vector of global stddevs
-    globalstd = np.sqrt(np.array(
-        [probs[i][0]*stddevs[i][0]**2 
-        + probs[i][1]*stddevs[i][1]**2 
-        + probs[i][0]*probs[i][1]*(means[i][0]-means[i][1])**2 
-                        for i in range(len(means))]).flatten())
-    cutabove = (abs(globalstd/globalmean) > 1).flatten()
-    cutbelow = (abs(globalstd/globalmean) < 1).flatten()
-    return cutabove, cutbelow
-#%------------------------------------------------------------------
 # Load data 
 
 def testing_data(
@@ -107,8 +85,8 @@ def testing_data(
             cut1, cut2 = cut_above_below(regressed_target, stddev)
             f1 = f.T[cut1]
             f2 = f.T[cut2]
-            regressed_target1 = regressor.predict(f1)
-            regressed_target2 = regressor.predict(f2)
+            regressed_target1 = get_global_params(regressor, f1, mode=1)
+            regressed_target2 = get_global_params(regressor, f2, mode=1)
             if not no_norm_target:
                 # If target was normalized, revert to original
                 # Last element of variable "norms" contains mean (element 0) 
@@ -144,7 +122,7 @@ def testing_data(
         print('Saving data to cache')
     return _arrs, _arrs_above, _arrs_below
 
-KINEMATICS = ['TauJetsAuxDyn.mu', 'TauJetsAuxDyn.etaPanTauCellBased', 'TauJetsAuxDyn.phiPanTauCellBased', 'TauJetsAuxDyn.etaDetectorAxis', 'TauJetsAuxDyn.etaIntermediateAxis']
+#KINEMATICS = ['TauJetsAuxDyn.mu', 'TauJetsAuxDyn.etaPanTauCellBased', 'TauJetsAuxDyn.phiPanTauCellBased', 'TauJetsAuxDyn.etaDetectorAxis', 'TauJetsAuxDyn.etaIntermediateAxis']
 
 if not args.use_cache:
     import tensorflow as tf
@@ -154,7 +132,7 @@ if not args.use_cache:
     regressor = tf.keras.models.load_model(path, 
                 custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
     d, d_above, d_below = testing_data(
-        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES + KINEMATICS, regressor, nfiles=args.nfiles, debug=args.debug)
+        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=args.nfiles, debug=args.debug)
 
 if args.add_to_cache:
     print('Saving data to cache')
@@ -310,9 +288,9 @@ def variable_explore(var, xtitle, varname, legloc=1, dens=True):
 
 # plot them thangs
 pT_explore(dens=False)
-variable_explore('TauJetsAuxDyn.etaPanTauCellBased', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
-variable_explore('TauJetsAuxDyn.phiPanTauCellBased', '$\\phi (\\tau_{had-vis})$', 'phi', legloc=8)
-variable_explore('TauJetsAuxDyn.mu', '$\\mu (\\tau_{had-vis})$', 'mu')
+# variable_explore('TauJetsAuxDyn.etaPanTauCellBased', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
+# variable_explore('TauJetsAuxDyn.phiPanTauCellBased', '$\\phi (\\tau_{had-vis})$', 'phi', legloc=8)
+# variable_explore('TauJetsAuxDyn.mu', '$\\mu (\\tau_{had-vis})$', 'mu')
 
 # ------------------------------------------------------------
 # Copy to cernbox!

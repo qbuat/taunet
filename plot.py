@@ -67,6 +67,7 @@ if __name__ == '__main__':
 
     from taunet.plotting import response_lineshape
     response_lineshape(d, path)
+    response_lineshape(d, path, plotSaveName='plots/tes_response_lineshape_zoomedin.pdf', Range=(0.9, 1.1), scale='linear', lineat1=True)
 
     from taunet.plotting import target_lineshape
     target_lineshape(d, plotSaveLoc=path)

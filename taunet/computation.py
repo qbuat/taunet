@@ -31,6 +31,7 @@ def StandardScalar(x, mean, std):
     """
     Standard Scalar function for pre-processing data 
     """
+    
     if std == 0:
         log.info("Standard deviation is zero! Returning nothing :(")
         return;
@@ -41,6 +42,7 @@ def getSSNormalize(data, target, savepath='data/normFactors'):
     """
     Pre-process data using the standard scalar function. 
     """
+
     norms = []
     for i in range(len(data[1,:])):
         dat = data[:,i]
@@ -175,7 +177,6 @@ def get_global_params(regressor, arr, mode=0):
                     for i in range(len(means))]).flatten()
     if mode==0 or mode==2:
         stddevs = dist.tensor_distribution.components_distribution.tensor_distribution.stddev().numpy()
-        #! This needs verification of working!!
         globalstd = np.sqrt(np.array(
             [probs[i][0]*(stddevs[i][0]**2 + means[i][0]**2)
             + probs[i][1]*(stddevs[i][1]**2 + means[i][1]**2) 
