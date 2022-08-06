@@ -19,10 +19,6 @@ def chi_squared(obs, exp):
             chi_squared += (obs[i] - exp[i]) ** 2 / exp[i]
     return chi_squared
 
-def logit2prob(logits):
-    odds = np.exp(logits)
-    probs = odds / (1 + odds)
-    return probs
 
 #%%-------------------------------------------------------------
 # Normalization functions
@@ -114,6 +110,9 @@ import tensorflow as tf
 
 # MDN loss function
 def tf_mdn_loss(y, model):
+    """Negative log-probability loss function for use with tensorflow. 
+    """
+
     return -model.log_prob(y)
 
 # Gaussian mixture loss function
