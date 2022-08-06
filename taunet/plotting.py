@@ -37,6 +37,8 @@ def pt_lineshape(testing_data, plotSaveLoc):
     log.info('Plotting the transverse momenta on the full dataset')
     fig, (ax1, ax2) = plt.subplots(nrows=2, gridspec_kw={'height_ratios': [3,1]}, figsize=(5,6), dpi=100)
     ax1.ticklabel_format(axis='y',style='sci',scilimits=(-3,3), useMathText=True)
+    ax1.sharex(ax2)
+    fig.subplots_adjust(hspace=0)
     counts_t, bins_t, bars_t = ax1.hist(
         testing_data['TauJetsAuxDyn.truthPtVisDressed'] / 1000.,
         bins=200,
@@ -80,44 +82,47 @@ def pt_lineshape(testing_data, plotSaveLoc):
         return (np.array(newvec), np.array(newbins))
         
     bins = bins_t[0:len(bins_t)-1]
-    ax2.plot(cn(counts_ts, bins)[1], cn(counts_ts, bins)[0] / cn(counts_t, bins)[0], color='purple', marker='+')
-    ax2.plot(cn(counts_ts, bins)[1], cn(counts_b, bins)[0] / cn(counts_t, bins)[0], color='black', marker='+')
-    ax2.plot(cn(counts_ts, bins)[1], cn(counts_f, bins)[0] / cn(counts_t, bins)[0], color='red', marker='+')
+    ax2.plot(cn(counts_ts, bins)[1], cn(counts_ts, bins)[0] / cn(counts_t, bins)[0], color='purple', marker='.')
+    ax2.plot(cn(counts_ts, bins)[1], cn(counts_b, bins)[0] / cn(counts_t, bins)[0], color='black', marker='.')
+    ax2.plot(cn(counts_ts, bins)[1], cn(counts_f, bins)[0] / cn(counts_t, bins)[0], color='red', marker='.')
     ax2.grid()
-    ax2.set_ylabel('Predicted/Truth', loc='top')
+    ax2.set_ylabel('ratio')
     ax2.set_xlabel('$p_{T}(\\tau_{had-vis})$ [GeV]', loc='right')
     
     plt.savefig(os.path.join(plotSaveLoc, 'plots/tes_pt_lineshape.pdf'))
     plt.close(fig)
 
 def response_lineshape(testing_data, plotSaveLoc, 
-            plotSaveName='plots/tes_response_lineshape.pdf'):
+            plotSaveName='plots/tes_response_lineshape.pdf', Range=(0,2), scale='log', nbins=200, lineat1=False):
     """
     """
     log.info('Plotting the response lineshape on the dataset')
     fig = plt.figure(figsize=(5,5), dpi = 300)
-    plt.yscale('log')
+    plt.yscale(scale)
     plt.hist(
         testing_data['regressed_target'] * testing_data['TauJetsAuxDyn.ptCombined'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
-        bins=200, 
-        range=(0, 2), 
+        bins=nbins, 
+        range=Range, 
         histtype='step', 
         color='purple', 
         label='This work')
     plt.hist(
         testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
-        bins=200, 
-        range=(0, 2), 
+        bins=nbins, 
+        range=Range, 
         histtype='step', 
         color='red', 
         label='Final')
     plt.hist(
         testing_data['TauJetsAuxDyn.ptCombined'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
-        bins=200, 
-        range=(0, 2), 
+        bins=nbins, 
+        range=Range, 
         histtype='step', 
         color='black', 
         label='Combined')
+    if lineat1:
+        xmin, xmax, ymin, ymax = plt.axis()
+        plt.plot([1.0, 1.0], [ymin, ymax], linestyle='dashed', color='grey')
     plt.ylabel('Number of $\\tau_{had-vis}$', loc = 'top')
     plt.xlabel('Predicted $p_{T}(\\tau_{had-vis})$ / True $p_{T}(\\tau_{had-vis})$', loc = 'right')
     plt.legend()
