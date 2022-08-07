@@ -185,7 +185,7 @@ def get_global_params(regressor, arr, mode=0):
         return globalmean, globalstd
     elif mode==1:
         return globalmean
-    elif mode==1:
+    elif mode==2:
         return globalstd
     else:
         raise ValueError("Mode specified is out of range")
