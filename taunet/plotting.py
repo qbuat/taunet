@@ -170,7 +170,7 @@ def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target
     plt.close(fig)
     
 
-def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbins=25):
+def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbins=25, pltText=''):
     """
     """
     log.info('plotting the response and resolution versus {}'.format(xvar))
@@ -186,6 +186,7 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
         bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(response_reg, truth, bins, cl=CL)
         bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(response_ref, truth, bins, cl=CL)
         bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(response_comb, truth, bins, cl=CL)
+        pltTextLoc = (125, 14)
     elif xvar=='eta':
         truth = testing_data['TauJetsAuxDyn.truthEtaVisDressed']
         bins = makeBins(-2.5, 2.5, nbins)
@@ -193,6 +194,7 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
         bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(response_reg, truth, bins, cl=CL)
         bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(response_ref, truth, bins, cl=CL)
         bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(response_comb, truth, bins, cl=CL)
+        pltTextLoc = (0, 14)
     elif xvar=='mu':
         truth = testing_data['TauJetsAuxDyn.mu']
         bins = makeBins(0, 80, nbins)
@@ -200,6 +202,7 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
         bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(response_reg, truth, bins, cl=CL)
         bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(response_ref, truth, bins, cl=CL)
         bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(response_comb, truth, bins, cl=CL)
+        pltTextLoc = (10, 54)
     else:
         raise ValueError('Possible variables are pt, eta, mu')
 
@@ -220,6 +223,8 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
     plt.plot(bins_ref, 100 * resol_ref, color='red', label='Final')
     plt.plot(bins_ref, 100 * resol_comb, color='black', label='Combined')
     plt.plot(bins_ref, 100 * resol_reg, color='purple', label='This work')
+    if pltText != '':
+        plt.text(pltTextLoc[0], pltTextLoc[1], pltText)
     plt.ylabel('$p_{T} (\\tau_{had-vis})$ resolution, '+str(round(CL*100))+'% CL [%]', loc = 'top')
     plt.xlabel(xlab, loc = 'right')
     plt.legend()

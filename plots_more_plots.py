@@ -45,9 +45,11 @@ if args.use_cache:
 from taunet.plotting import response_and_resol_vs_var
 from taunet.utils import copy_plots_to_cernbox
 
+pltText = ['1p0n', '1p1n', '1pXn', '3p0n', '3pXn']
 pltVars = ['pt', 'eta', 'mu']
 for i in range(5):
     dtemp = d[d['TauJetsAuxDyn.NNDecayMode'] == i]
     for j in range(len(pltVars)):
-        response_and_resol_vs_var(dtemp, 'perf_plots/DecayMode{}'.format(i), xvar=pltVars[j])
-        copy_plots_to_cernbox(location='perf_plots/DecayMode{}/plots'.format(i))
+        response_and_resol_vs_var(dtemp, 'perf_plots/DecayMode{}'.format(i), 
+            xvar=pltVars[j], pltText='Decay Mode: {}'.format(pltText[i]))
+        #copy_plots_to_cernbox(location='perf_plots/DecayMode{}'.format(i))
