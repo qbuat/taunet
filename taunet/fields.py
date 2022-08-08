@@ -30,15 +30,22 @@ FEATURES = [
     ]
 
 TRUTH_FIELDS = [
-    # 'TauJetsAuxDyn.truthPtVis'
     'TauJetsAuxDyn.truthPtVisDressed',
     'TauJetsAuxDyn.truthEtaVisDressed',
-    # 'TauJetsAuxDyn.truthPhiVisDressed',
+    'TauJetsAuxDyn.truthPhiVisDressed',
     ]
 
 OTHER_TES = [
     'TauJetsAuxDyn.ptCombined',
     'TauJetsAuxDyn.ptFinalCalib',
+    'TauJetsAuxDyn.mu',
+    'TauJetsAuxDyn.NNDecayMode', 
+    'TauJetsAuxDyn.nTracks', 
+    'TauJetsAuxDyn.NNDecayModeProb_1p0n',
+    'TauJetsAuxDyn.NNDecayModeProb_1p1n',
+    'TauJetsAuxDyn.NNDecayModeProb_1pXn',
+    'TauJetsAuxDyn.NNDecayModeProb_3p0n',
+    'TauJetsAuxDyn.NNDecayModeProb_3pXn',
 ]
 
 TARGET_FIELD = 'TauJetsAuxDyn.truthPtVisDressed/TauJetsAuxDyn.ptCombined'

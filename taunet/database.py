@@ -9,18 +9,35 @@ from unittest.mock import DEFAULT
 from taunet.computation import StandardScalar, applySSNormalizeTest, getSSNormalize, applySSNormalizeTest, getVarIndices, select_norms, VARNORM, applySSNormalize, get_global_params
 from . import log; log = log.getChild(__name__)
 
+# local location of data
 if '/Users/miles_cb' in os.getcwd():
     DEFAULT_PATH = '/Users/miles_cb/cernbox/TES_dataset'
     PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
     DATASET = 'group.perf-tau.MC20d_StreamTES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v3_output.root'
+# lxplus location of data
 else:
     DEFAULT_PATH = '/eos/atlas/atlascerngroupdisk/perf-tau/MxAODs/R22/Run2repro/TES/'
     PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
     DATASET = 'group.perf-tau.MC20d_StreamTES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v3_output.root'
 
 def file_list(path, dataset):
+    """Find files from simulated data. 
+
+    Parameters:
+    ----------
+
+    path : str
+        path to dataset
+    
+    dataset : str
+        dataset name
+
+    Returns:
+    -------
+
+    List of .root files where data is stored. 
     """
-    """
+
     log.info('Looking in folder {}'.format(path))
     if not os.path.exists(
             os.path.join(path, dataset)):
@@ -36,9 +53,21 @@ def file_list(path, dataset):
     return _files
 
 def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
+    """Get arrays of data from tree of root files
+
+    Parameters:
+    ----------
+
+    tree : selected tree from root file. 
+
+    fields : variables used in analysis. 
+
+    Returns:
+    -------
+
+    numpy array of data from root files. 
     """
-    """
-    #! Temporarrily removing nTracks from variable list
+
     if not 'TauJetsAuxDyn.nTracks' in fields:
         log.info("nTracks temporarrily added to variable list")
         fields = fields + ['TauJetsAuxDyn.nTracks']
@@ -58,7 +87,9 @@ def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
 
 # select only part of the data for debuging
 def debug_mode(tree, features, select_1p = False, select_3p = False, cut = None, stepsize=200000):
-    # features + vars for 
+    """
+    """
+
     feats_new = features + ['TauJetsAuxDyn.nTracks']
     log.info('Taking {} chunck with {} events from file'.format(1, stepsize))
     for arr in tree.iterate(feats_new, step_size=stepsize, cut=cut):
@@ -77,6 +108,7 @@ def debug_mode(tree, features, select_1p = False, select_3p = False, cut = None,
 def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False, normSavePath='data/normFactors', normIndices=range(9), debug=False):
     """
     """
+
     if use_cache:
         pass
 
@@ -153,6 +185,7 @@ def testing_data(
         no_normalize=False, no_norm_target=False, normIndices=range(9), debug=False):
     """
     """
+    
     import numpy as np
 
     if useCache:

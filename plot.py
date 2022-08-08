@@ -73,8 +73,8 @@ if __name__ == '__main__':
     target_lineshape(d, plotSaveLoc=path)
     target_lineshape(d, bins=100, range=(0.5, 1.5), basename='tes_target_lineshape_zoomedin', logy=False, plotSaveLoc=path)
 
-    from taunet.plotting import response_and_resol_vs_pt
-    response_and_resol_vs_pt(d, path)
+    from taunet.plotting import response_and_resol_vs_var
+    response_and_resol_vs_var(d, path)
 
     if args.copy_to_cernbox:
         from taunet.utils import copy_plots_to_cernbox

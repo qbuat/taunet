@@ -10,9 +10,8 @@ from . import log; log = log.getChild(__name__)
 
 # compute chi^2
 def chi_squared(obs, exp):
-    """
-    Compute chi squared of variable obs wrt exp (expectation)
-    """
+    """Compute chi squared of variable obs wrt exp (expectation)"""
+
     chi_squared = 0;
     for i in range(len(obs)):
         if exp[i] != 0:
@@ -24,9 +23,7 @@ def chi_squared(obs, exp):
 # Normalization functions
 
 def StandardScalar(x, mean, std):
-    """
-    Standard Scalar function for pre-processing data 
-    """
+    """Standard Scalar function for pre-processing data"""
     
     if std == 0:
         log.info("Standard deviation is zero! Returning nothing :(")
@@ -35,8 +32,25 @@ def StandardScalar(x, mean, std):
         return (x - mean) / std
 
 def getSSNormalize(data, target, savepath='data/normFactors'):
-    """
-    Pre-process data using the standard scalar function. 
+    """Pre-process data using the standard scalar function.
+    
+    Parameters:
+    ----------
+
+    data : array of dimension (FEATURES, nEntries)
+
+    target : array of length (nEntries)
+
+    savepath : str
+        optional path to save location of norms
+
+    Returns:
+    -------
+
+    norms : list of tuples
+        Mean and stddev of each variable collected in a tuple
+        of shape (mean, stddev). List is in order of FEATURES. 
+        Last element is of the target. 
     """
 
     norms = []
@@ -54,9 +68,10 @@ def getSSNormalize(data, target, savepath='data/normFactors'):
 
 def applySSNormalize(data, norms, vars=[]):
     """
-    Use alread found means and stds to re-shape data
+    Use alread found means and stds to re-shape data. 
     Optionally choose which variables to normalize
     """
+
     if vars == []:
         vars = range(len(data[0,:]))
     for i in vars:
@@ -67,6 +82,7 @@ def applySSNormalizeTest(data, norms, vars=[]):
     """
     Apply norms to testing data
     """
+
     if vars == []:
         vars = range(len(data[:,0]))
     for i in vars:
@@ -74,9 +90,8 @@ def applySSNormalizeTest(data, norms, vars=[]):
     return data; 
 
 def getVarIndices(features, vars=FEATURES):
-    """
-    Get indices of variable to apply normalization to
-    """
+    """Get indices of variable to apply normalization to"""
+
     i = 0
     indices = []
     for _feat in features:
@@ -110,44 +125,9 @@ import tensorflow as tf
 
 # MDN loss function
 def tf_mdn_loss(y, model):
-    """Negative log-probability loss function for use with tensorflow. 
-    """
+    """Negative log-probability loss function for use with tensorflow."""
 
     return -model.log_prob(y)
-
-# Gaussian mixture loss function
-def gaussian_nll(ytrue, ypreds):
-    """Keras implmementation of multivariate Gaussian negative loglikelihood loss function. 
-    This implementation implies diagonal covariance matrix.
-    
-    Parameters
-    ----------
-    ytrue: tf.tensor of shape [n_samples, n_dims]
-        ground truth values
-    ypreds: tf.tensor of shape [n_samples, n_dims*2]
-        predicted mu and logsigma values (e.g. by your neural network)
-        
-    Returns
-    -------
-    neg_log_likelihood: float
-        negative loglikelihood averaged over samples
-        
-    This loss can then be used as a target loss for any keras model, e.g.:
-        model.compile(loss=gaussian_nll, optimizer='Adam') 
-    
-    """
-    K = tf.keras.backend
-    n_dims = int(int(ypreds.shape[1])/2)
-    mu = ypreds[:, 0:n_dims]
-    logsigma = ypreds[:, n_dims:]
-    
-    mse = -0.5*K.sum(K.square((ytrue-mu)/K.exp(logsigma)),axis=1)
-    sigma_trace = -K.sum(logsigma, axis=1)
-    log2pi = -0.5*n_dims*np.log(2*np.pi)
-    
-    log_likelihood = mse+sigma_trace+log2pi
-
-    return K.mean(-log_likelihood)
 
 #%% ---------------------------------------------------------
 # Get global mean and stddev from mode
@@ -202,8 +182,8 @@ def cut_above_below(globalmean, globalstd):
         abs(gloabalstd/globalmean) >= 1
     cutbelow : array of bools
         abs(gloabalstd/globalmean) < 1
-
     """
+    
     cutabove = (abs(globalstd/globalmean) >= 1).flatten()
     cutbelow = (abs(globalstd/globalmean) < 1).flatten()
     return cutabove, cutbelow

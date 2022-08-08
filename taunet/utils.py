@@ -4,6 +4,13 @@ import subprocess
 
 from . import log; log = log.getChild(__name__)
 
+def makeBins(bmin, bmax, nbins):
+    returnBins = []
+    stepsize = (bmax - bmin) / nbins
+    for i in range(nbins):
+        returnBins.append((bmin + i*stepsize, bmin + (i+1)*stepsize))
+    return returnBins
+
 def get_quantile_width(arr, cl=0.68):
     """
     """
@@ -14,7 +21,7 @@ def get_quantile_width(arr, cl=0.68):
     return width
 
 
-def response_curve(res, var, bins):
+def response_curve(res, var, bins, cl=0.68):
     """
     """
     _bin_centers = []
@@ -29,7 +36,7 @@ def response_curve(res, var, bins):
             continue
         _means += [np.mean(a)]
         _mean_stat_err += [np.std(a, ddof=1) / np.sqrt(np.size(a))]
-        _resol += [get_quantile_width(a)]
+        _resol += [get_quantile_width(a, cl=cl)]
         _bin_centers += [_bin[0] + (_bin[1] - _bin[0]) / 2]
         _bin_errors += [(_bin[1] - _bin[0]) / 2]
     return np.array(_bin_centers), np.array(_bin_errors), np.array(_means), np.array(_mean_stat_err), np.array(_resol)
