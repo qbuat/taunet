@@ -20,7 +20,6 @@ def get_quantile_width(arr, cl=0.68):
     width = (y[1] - y[0]) / 2.
     return width
 
-
 def response_curve(res, var, bins, cl=0.68):
     """
     """

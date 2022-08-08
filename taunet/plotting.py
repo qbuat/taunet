@@ -8,6 +8,8 @@ plt.rcParams['text.usetex'] = True
 from . import log; log = log.getChild(__name__)
 from taunet.computation import chi_squared
 
+size = (4,4)
+
 def nn_history(file, plotSaveLoc):
     log.info('Plotting NN history info')
     #open pickle file stored from training
@@ -17,7 +19,7 @@ def nn_history(file, plotSaveLoc):
         if 'val' in k:
             continue
         metric = k
-        fig = plt.figure(figsize=(5,5), dpi = 300)
+        fig = plt.figure(figsize=size, dpi = 300)
         # try to do some scientific notation formatting
         # formatter = ticker.ScalarFormatter(useMathText=True)
         # formatter.set_scientific(True) 
@@ -27,7 +29,7 @@ def nn_history(file, plotSaveLoc):
         plt.xlabel('epoch', loc='right')
         plt.legend(['train', 'val'], loc='upper right')
         #fig.axes[0].set_yscale('log')
-        fig.savefig(os.path.join(plotSaveLoc, 'plots/nn_model_{}.pdf'.format(metric)))
+        fig.savefig(os.path.join(plotSaveLoc, 'plots/nn_model_{}.pdf'.format(metric)), bbox_inches='tight')
         plt.close(fig)
 
 
@@ -35,58 +37,55 @@ def pt_lineshape(testing_data, plotSaveLoc):
     """
     """
     log.info('Plotting the transverse momenta on the full dataset')
+    truth = testing_data['TauJetsAuxDyn.truthPtVisDressed'] / 1000.
+    combined = testing_data['TauJetsAuxDyn.truthPtVisDressed'] / 1000.
+    final = testing_data['TauJetsAuxDyn.ptFinalCalib'] / 1000.
+    regressed_target = testing_data['regressed_target'] * testing_data['TauJetsAuxDyn.ptCombined'] / 1000.
     fig, (ax1, ax2) = plt.subplots(nrows=2, gridspec_kw={'height_ratios': [3,1]}, figsize=(5,6), dpi=100)
     ax1.ticklabel_format(axis='y',style='sci',scilimits=(-3,3), useMathText=True)
     ax1.sharex(ax2)
     fig.subplots_adjust(hspace=0)
     counts_t, bins_t, bars_t = ax1.hist(
-        testing_data['TauJetsAuxDyn.truthPtVisDressed'] / 1000.,
+        truth,
         bins=200,
         range=(0, 200), 
         histtype='stepfilled',
         color='cyan')
     counts_b, bins_b, bars_b = ax1.hist(
-        testing_data['TauJetsAuxDyn.ptCombined'] / 1000.,
+        combined,
         bins=200,
         range=(0, 200), 
         histtype='step',
         color='black')
     counts_f, bins_f, bars_f = ax1.hist(
-        testing_data['TauJetsAuxDyn.ptFinalCalib'] / 1000.,
+        final,
         bins=200,
         range=(0, 200), 
         histtype='step',
         color='red')
     counts_ts, bins_ts, bars_ts = ax1.hist(
-        testing_data['regressed_target'] * testing_data['TauJetsAuxDyn.ptCombined'] / 1000.,
+        regressed_target,
         bins=200,
         range=(0, 200), 
         histtype='step',
         color='purple')
     ax1.set_ylabel('Number of $\\tau_{had-vis}$', loc='top')
     ax1.legend(['Truth', 
-                'Combined, $\\chi^2 = {}$'.format(round(chi_squared(counts_f, counts_b))), 
-                'Final, $\\chi^2 = {}$'.format(round(chi_squared(counts_f, counts_t))), 
-                'This work, $\\chi^2 = {}$'.format(round(chi_squared(counts_ts, counts_t)))])
-    
-    def cn(vec, bins):
-        newvec = []
-        newbins = []
-        tempsum = 0
-        for i in range(len(bins)):
-            tempsum += vec[i]
-            if i % 10 == 0 and i != 0:
-                newvec.append(tempsum)
-                newbins.append(bins[i])
-                tempsum = 0
-        return (np.array(newvec), np.array(newbins))
-        
-    bins = bins_t[0:len(bins_t)-1]
-    ax2.plot(cn(counts_ts, bins)[1], cn(counts_ts, bins)[0] / cn(counts_t, bins)[0], color='purple', marker='.')
-    ax2.plot(cn(counts_ts, bins)[1], cn(counts_b, bins)[0] / cn(counts_t, bins)[0], color='black', marker='.')
-    ax2.plot(cn(counts_ts, bins)[1], cn(counts_f, bins)[0] / cn(counts_t, bins)[0], color='red', marker='.')
+                'Combined, $\\chi^2 = ${}'.format(round(chi_squared(counts_f, counts_b))), 
+                'Final, $\\chi^2 = ${}'.format(round(chi_squared(counts_f, counts_t))), 
+                'This work, $\\chi^2 = ${}'.format(round(chi_squared(counts_ts, counts_t)))])
+
+    # make ratio plot
+    from .utils import makeBins, response_curve
+    bins = makeBins(0, 200, 25)
+    bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(regressed_target/truth, truth, bins)
+    bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(final/truth, truth, bins)
+    bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(combined/truth, truth, bins)
+    ax2.errorbar(bins_comb, means_comb, errs_comb, bin_errors_comb, fmt='.', color='black', label='Combined')
+    ax2.errorbar(bins_ref, means_ref, errs_ref, bin_errors_ref, fmt='.', color='red', label='Final')
+    ax2.errorbar(bins_reg, means_reg, errs_reg, bin_errors_reg, fmt='.', color='purple', label='This work')
     ax2.grid()
-    ax2.set_ylabel('ratio')
+    ax2.set_ylabel('Ratio')
     ax2.set_xlabel('$p_{T}(\\tau_{had-vis})$ [GeV]', loc='right')
     
     plt.savefig(os.path.join(plotSaveLoc, 'plots/tes_pt_lineshape.pdf'))
@@ -97,7 +96,7 @@ def response_lineshape(testing_data, plotSaveLoc,
     """
     """
     log.info('Plotting the response lineshape on the dataset')
-    fig = plt.figure(figsize=(5,5), dpi = 300)
+    fig = plt.figure(figsize=size, dpi = 300)
     plt.yscale(scale)
     plt.hist(
         testing_data['regressed_target'] * testing_data['TauJetsAuxDyn.ptCombined'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
@@ -126,7 +125,7 @@ def response_lineshape(testing_data, plotSaveLoc,
     plt.ylabel('Number of $\\tau_{had-vis}$', loc = 'top')
     plt.xlabel('Predicted $p_{T}(\\tau_{had-vis})$ / True $p_{T}(\\tau_{had-vis})$', loc = 'right')
     plt.legend()
-    plt.savefig(os.path.join(plotSaveLoc, plotSaveName))
+    plt.savefig(os.path.join(plotSaveLoc, plotSaveName), bbox_inches='tight')
     plt.yscale('linear')
     plt.close(fig)
     
@@ -135,7 +134,7 @@ def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target
     """
     """
     log.info('Plotting the regressed target lineshape on the dataset')
-    fig = plt.figure(figsize=(5,5), dpi = 300)
+    fig = plt.figure(figsize=size, dpi = 300)
     if logy:
         plt.yscale('log')
     if not logy:
@@ -166,7 +165,7 @@ def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target
     plt.legend(['Truth / Comb.',
                 'Final / Comb., $\\chi^2 = {}$'.format(round(chi_squared(counts_f, counts_t))), 
                 'This work, $\\chi^2 = {}$'.format(round(chi_squared(counts_m, counts_t)))])
-    plt.savefig(os.path.join(plotSaveLoc, 'plots/{}.pdf'.format(basename)))
+    plt.savefig(os.path.join(plotSaveLoc, 'plots/{}.pdf'.format(basename)), bbox_inches='tight')
     plt.yscale('linear')
     plt.close(fig)
     
@@ -204,7 +203,7 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
     else:
         raise ValueError('Possible variables are pt, eta, mu')
 
-    fig = plt.figure(figsize=(5,5), dpi = 300)
+    fig = plt.figure(figsize=size, dpi = 300)
     plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3))
     plt.errorbar(bins_comb, means_comb, errs_comb, bin_errors_comb, fmt='o', color='black', label='Combined')
     plt.errorbar(bins_ref, means_ref, errs_ref, bin_errors_ref, fmt='o', color='red', label='Final')
@@ -214,10 +213,10 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
     plt.xlabel(xlab, loc = 'right')
     plt.legend()
     plt.savefig(os.path.join(plotSaveLoc, 
-        'plots/tes_mdn_response_vs_truth_{}.pdf'.format(xvar)))
+        'plots/tes_mdn_response_vs_truth_{}.pdf'.format(xvar)), bbox_inches='tight')
     plt.close(fig) 
 
-    fig = plt.figure(figsize=(5,5), dpi = 300)
+    fig = plt.figure(figsize=size, dpi = 300)
     plt.plot(bins_ref, 100 * resol_ref, color='red', label='Final')
     plt.plot(bins_ref, 100 * resol_comb, color='black', label='Combined')
     plt.plot(bins_ref, 100 * resol_reg, color='purple', label='This work')
@@ -225,5 +224,5 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
     plt.xlabel(xlab, loc = 'right')
     plt.legend()
     plt.savefig(os.path.join(plotSaveLoc, 
-        'plots/tes_mdn_resolution_vs_truth_{}.pdf'.format(xvar)))
+        'plots/tes_mdn_resolution_vs_truth_{}.pdf'.format(xvar)), bbox_inches='tight')
     plt.close(fig)
