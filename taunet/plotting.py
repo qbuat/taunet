@@ -10,7 +10,10 @@ plt.rcParams['font.serif'] = ['Computer Modern Roman', 'Times']
 from . import log; log = log.getChild(__name__)
 from taunet.computation import chi_squared
 
+# global plotting parameters
 size = (4,4)
+#target_normalize_var = 'TauJetsAuxDyn.ptCombined'
+target_normalize_var = 'TauJetsAuxDyn.ptTauEnergyScale'
 
 def nn_history(file, plotSaveLoc):
     log.info('Plotting NN history info')
