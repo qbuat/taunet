@@ -12,44 +12,42 @@ from taunet.computation import tf_mdn_loss, VARNORM
 from taunet.parser import plot_parser
 args = plot_parser.parse_args()
 
-from taunet.database import file_list, retrieve_arrays, debug_mode, select_norms
-from taunet.computation import applySSNormalizeTest, getVarIndices, get_global_params, cut_above_below
-
 #---------------------------------------------------------------
 # Get data, etc. 
 
 if not args.use_cache:
     import tensorflow as tf
     import tensorflow_probability as tfp
-    #path = 'launch_condor/fitpy_small2gaussnoreg_job0/gauss2_simple_mdn_noreg.h5'
-    path = 'cache/gauss2_simple_mdn.h5'
-    regressor = tf.keras.models.load_model(path, 
+    path = 'launch_condor/fitpy_small2gaussnoreg_job0'
+    #path = 'cache/gauss2_simple_mdn.h5'
+    regressor = tf.keras.models.load_model(os.path.join(path, 'gauss2_simple_mdn_noreg.h5'), 
                 custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
     d = testing_data(
-        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=args.nfiles, debug=args.debug)
+        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=args.nfiles, 
+        optional_path=path, select_1p=args.oneProng, select_3p=args.threeProngs, normIndices=list(map(int, args.normIDs)),
+        no_normalize=args.no_normalize, no_norm_target=args.no_norm_target, debug=args.debug)
 
 if args.add_to_cache:
     print('Saving data to cache')
     np.save(file='data/d', arr=d)
-    np.save(file='data/d_above', arr=d_above)
-    np.save(file='data/d_below', arr=d_below)
 
 if args.use_cache:
     print('Getting data from cache')
     d = np.load('data/d.npy')
-    d_above = np.load('data/d_above.npy')
-    d_below = np.load('data/d_below.npy')
 
 #---------------------------------------------------------------
 # Make plots nstuff!
 from taunet.plotting import response_and_resol_vs_var
 from taunet.utils import copy_plots_to_cernbox
 
+response_and_resol_vs_var(d, 'perf_plots')
+copy_plots_to_cernbox(location='perf_plots')
+
 pltText = ['1p0n', '1p1n', '1pXn', '3p0n', '3pXn']
 pltVars = ['pt', 'eta', 'mu']
 for i in range(5):
-    dtemp = d[d['TauJetsAuxDyn.NNDecayMode'] == i]
+    dtemp = np.array(d[d['TauJetsAuxDyn.NNDecayMode'] == i])
     for j in range(len(pltVars)):
         response_and_resol_vs_var(dtemp, 'perf_plots/DecayMode{}'.format(i), 
             xvar=pltVars[j], pltText='Decay Mode: {}'.format(pltText[i]))
-        #copy_plots_to_cernbox(location='perf_plots/DecayMode{}'.format(i))
+        copy_plots_to_cernbox(location='perf_plots/DecayMode{}'.format(i))
