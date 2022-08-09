@@ -127,12 +127,12 @@ def testing_data(
 if not args.use_cache:
     import tensorflow as tf
     import tensorflow_probability as tfp
-    path = 'launch_condor/fitpy_small2gaussnoreg_job0/gauss2_simple_mdn_noreg.h5'
+    path = 'launch_condor/fitpy_small2gaussnoreg_job0'
     #path = 'cache/gauss2_simple_mdn.h5'
-    regressor = tf.keras.models.load_model(path, 
+    regressor = tf.keras.models.load_model(os.path.join(path, 'gauss2_simple_mdn_noreg.h5'), 
                 custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
     d, d_above, d_below = testing_data(
-        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=args.nfiles, debug=args.debug)
+        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=args.nfiles, debug=args.debug, optional_path=path)
 
 if args.add_to_cache:
     print('Saving data to cache')
@@ -288,7 +288,7 @@ def variable_explore(var, xtitle, varname, legloc=1, dens=True):
 
 # plot them thangs
 pT_explore(dens=False)
-# variable_explore('TauJetsAuxDyn.etaPanTauCellBased', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
+variable_explore('TauJetsAuxDyn.etaPanTauCellBased', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
 # variable_explore('TauJetsAuxDyn.phiPanTauCellBased', '$\\phi (\\tau_{had-vis})$', 'phi', legloc=8)
 # variable_explore('TauJetsAuxDyn.mu', '$\\mu (\\tau_{had-vis})$', 'mu')
 
