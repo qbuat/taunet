@@ -48,6 +48,5 @@ pltVars = ['pt', 'eta', 'mu']
 for i in range(5):
     dtemp = np.array(d[d['TauJetsAuxDyn.NNDecayMode'] == i])
     for j in range(len(pltVars)):
-        response_and_resol_vs_var(dtemp, 'perf_plots/DecayMode{}'.format(i), 
-            xvar=pltVars[j], pltText='Decay Mode: {}'.format(pltText[i]))
+        response_and_resol_vs_var(dtemp, 'perf_plots/DecayMode{}'.format(i), xvar=pltVars[j], nbins=15)
         copy_plots_to_cernbox(location='perf_plots/DecayMode{}'.format(i))
