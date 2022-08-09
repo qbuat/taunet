@@ -4,6 +4,8 @@ import numpy as np
 import os
 import pickle
 plt.rcParams['text.usetex'] = True
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['Computer Modern Roman', 'Times']
 
 from . import log; log = log.getChild(__name__)
 from taunet.computation import chi_squared
@@ -38,7 +40,7 @@ def pt_lineshape(testing_data, plotSaveLoc):
     """
     log.info('Plotting the transverse momenta on the full dataset')
     truth = testing_data['TauJetsAuxDyn.truthPtVisDressed'] / 1000.
-    combined = testing_data['TauJetsAuxDyn.truthPtVisDressed'] / 1000.
+    combined = testing_data['TauJetsAuxDyn.ptCombined'] / 1000.
     final = testing_data['TauJetsAuxDyn.ptFinalCalib'] / 1000.
     regressed_target = testing_data['regressed_target'] * testing_data['TauJetsAuxDyn.ptCombined'] / 1000.
     fig, (ax1, ax2) = plt.subplots(nrows=2, gridspec_kw={'height_ratios': [3,1]}, figsize=(5,6), dpi=100)
@@ -77,7 +79,7 @@ def pt_lineshape(testing_data, plotSaveLoc):
 
     # make ratio plot
     from .utils import makeBins, response_curve
-    bins = makeBins(0, 200, 25)
+    bins = makeBins(0, 200, 15)
     bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(regressed_target/truth, truth, bins)
     bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(final/truth, truth, bins)
     bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(combined/truth, truth, bins)
@@ -186,7 +188,7 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
         bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(response_reg, truth, bins, cl=CL)
         bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(response_ref, truth, bins, cl=CL)
         bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(response_comb, truth, bins, cl=CL)
-        pltTextLoc = (125, 14)
+        pltTextLoc = (125, 17)
     elif xvar=='eta':
         truth = testing_data['TauJetsAuxDyn.truthEtaVisDressed']
         bins = makeBins(-2.5, 2.5, nbins)
@@ -194,7 +196,7 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
         bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(response_reg, truth, bins, cl=CL)
         bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(response_ref, truth, bins, cl=CL)
         bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(response_comb, truth, bins, cl=CL)
-        pltTextLoc = (0, 14)
+        pltTextLoc = (-1, 14.5)
     elif xvar=='mu':
         truth = testing_data['TauJetsAuxDyn.mu']
         bins = makeBins(0, 80, nbins)
@@ -202,7 +204,7 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
         bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(response_reg, truth, bins, cl=CL)
         bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(response_ref, truth, bins, cl=CL)
         bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(response_comb, truth, bins, cl=CL)
-        pltTextLoc = (10, 54)
+        pltTextLoc = (2, 13.75)
     else:
         raise ValueError('Possible variables are pt, eta, mu')
 
@@ -220,12 +222,13 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
     plt.close(fig) 
 
     fig = plt.figure(figsize=size, dpi = 300)
+    ytitle = '$p_T (\\tau_{had-vis})$ resolution, '+str(round(CL*100))+'\% CL [\%]'
     plt.plot(bins_ref, 100 * resol_ref, color='red', label='Final')
     plt.plot(bins_ref, 100 * resol_comb, color='black', label='Combined')
     plt.plot(bins_ref, 100 * resol_reg, color='purple', label='This work')
     if pltText != '':
         plt.text(pltTextLoc[0], pltTextLoc[1], pltText)
-    plt.ylabel('$p_{T} (\\tau_{had-vis})$ resolution, '+str(round(CL*100))+'% CL [%]', loc = 'top')
+    plt.ylabel(ytitle, loc = 'top')
     plt.xlabel(xlab, loc = 'right')
     plt.legend()
     plt.savefig(os.path.join(plotSaveLoc, 
