@@ -144,8 +144,9 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
                         select_1p=select_1p,
                         select_3p=select_3p)
                 a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 25. ] # may not be necessary; must justify this cut
-                a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
-                a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ] 
+                if 'Combined' in target:
+                    a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
+                    a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ] 
                 f = np.stack(
                     [ak.flatten(a[__feat]).to_numpy() for __feat in features])
                 _train  += [f.T]
@@ -182,7 +183,7 @@ def testing_data(
         path, dataset, features, plotting_fields, regressor, 
         nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree',
         saveToCache=False, useCache=False, optional_path='', 
-        no_normalize=False, no_norm_target=False, normIndices=range(9), debug=False):
+        no_normalize=False, no_norm_target=False, normIndices=range(9), debug=False, noCombined=False):
     """
     """
     
@@ -231,8 +232,9 @@ def testing_data(
                     select_1p=select_1p,
                     select_3p=select_3p)
             a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 25. ] # may not be necessary; must justify this cut
-            a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
-            a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ]
+            if not noCombined:
+                a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
+                a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ]
             f = np.stack(
                 [ak.flatten(a[__feat]).to_numpy() for __feat in features])
             # print('Shape of f is {}'.format(np.shape(f)))

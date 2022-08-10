@@ -12,8 +12,6 @@ from taunet.computation import chi_squared
 
 # global plotting parameters
 size = (4,4)
-#target_normalize_var = 'TauJetsAuxDyn.ptCombined'
-target_normalize_var = 'TauJetsAuxDyn.ptTauEnergyScale'
 
 def nn_history(file, plotSaveLoc):
     log.info('Plotting NN history info')
@@ -38,14 +36,14 @@ def nn_history(file, plotSaveLoc):
         plt.close(fig)
 
 
-def pt_lineshape(testing_data, plotSaveLoc):
+def pt_lineshape(testing_data, plotSaveLoc, target_normalize_var='TauJetsAuxDyn.ptCombined'):
     """
     """
     log.info('Plotting the transverse momenta on the full dataset')
     truth = testing_data['TauJetsAuxDyn.truthPtVisDressed'] / 1000.
     combined = testing_data['TauJetsAuxDyn.ptCombined'] / 1000.
     final = testing_data['TauJetsAuxDyn.ptFinalCalib'] / 1000.
-    regressed_target = testing_data['regressed_target'] * testing_data['TauJetsAuxDyn.ptCombined'] / 1000.
+    regressed_target = testing_data['regressed_target'] * testing_data[target_normalize_var] / 1000.
     fig, (ax1, ax2) = plt.subplots(nrows=2, gridspec_kw={'height_ratios': [3,1]}, figsize=(5,6), dpi=100)
     ax1.ticklabel_format(axis='y',style='sci',scilimits=(-3,3), useMathText=True)
     ax1.sharex(ax2)
@@ -76,9 +74,9 @@ def pt_lineshape(testing_data, plotSaveLoc):
         color='purple')
     ax1.set_ylabel('Number of $\\tau_{had-vis}$', loc='top')
     ax1.legend(['Truth', 
-                'Combined, $\\chi^2 / dof = ${}'.format(round(chi_squared(counts_f, counts_b) / len(counts_t))), 
-                'Final, $\\chi^2 / dof = ${}'.format(round(chi_squared(counts_f, counts_t) / len(counts_t))), 
-                'This work, $\\chi^2 / dof = ${}'.format(round(chi_squared(counts_ts, counts_t) / len(counts_t)))])
+                'Combined, $\\chi^2$ / dof = {}'.format(round(chi_squared(counts_f, counts_b) / len(counts_t))), 
+                'Final, $\\chi^2$ / dof = {}'.format(round(chi_squared(counts_f, counts_t) / len(counts_t))), 
+                'This work, $\\chi^2$ / dof = {}'.format(round(chi_squared(counts_ts, counts_t) / len(counts_t)))])
 
     # make ratio plot
     from .utils import makeBins, response_curve
@@ -98,14 +96,15 @@ def pt_lineshape(testing_data, plotSaveLoc):
     plt.close(fig)
 
 def response_lineshape(testing_data, plotSaveLoc, 
-            plotSaveName='plots/tes_response_lineshape.pdf', Range=(0,2), scale='log', nbins=200, lineat1=False):
+            plotSaveName='plots/tes_response_lineshape.pdf', Range=(0,2), scale='log', 
+            nbins=200, lineat1=False, target_normalize_var='TauJetsAuxDyn.ptCombined'):
     """
     """
     log.info('Plotting the response lineshape on the dataset')
     fig = plt.figure(figsize=size, dpi = 300)
     plt.yscale(scale)
     plt.hist(
-        testing_data['regressed_target'] * testing_data['TauJetsAuxDyn.ptCombined'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
+        testing_data['regressed_target'] * testing_data[target_normalize_var] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
         bins=nbins, 
         range=Range, 
         histtype='step', 
@@ -136,7 +135,7 @@ def response_lineshape(testing_data, plotSaveLoc,
     plt.close(fig)
     
 
-def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target_lineshape', logy=True, plotSaveLoc=''):
+def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target_lineshape', logy=True, plotSaveLoc='', target_normalize_var='TauJetsAuxDyn.ptCombined'):
     """
     """
     log.info('Plotting the regressed target lineshape on the dataset')
@@ -146,14 +145,14 @@ def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target
     if not logy:
         plt.ticklabel_format(axis='y',style='sci',scilimits=(-3,3))
     counts_t, bins_t, bars_t = plt.hist(
-        testing_data['TauJetsAuxDyn.truthPtVisDressed'] / testing_data['TauJetsAuxDyn.ptCombined'],
+        testing_data['TauJetsAuxDyn.truthPtVisDressed'] / testing_data[target_normalize_var],
         bins=bins, 
         range=range, 
         histtype='stepfilled', 
         color='cyan')
         #label='Truth / Combined')
     counts_f, bins_f, bars_f = plt.hist(
-        testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data['TauJetsAuxDyn.ptCombined'],
+        testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data[target_normalize_var],
         bins=bins, 
         range=range, 
         histtype='step', 
@@ -168,21 +167,26 @@ def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target
         #label='This work')
     plt.ylabel('Number of $\\tau_{had-vis}$', loc = 'top')
     plt.xlabel('Regressed target', loc = 'right')
-    plt.legend(['Truth / Comb.',
-                'Final / Comb., $\\chi^2 = {}$'.format(round(chi_squared(counts_f, counts_t))), 
-                'This work, $\\chi^2 = {}$'.format(round(chi_squared(counts_m, counts_t)))])
+    if 'ptCombined' in target_normalize_var:
+        plt.legend(['Truth / Comb.',
+                    'Final / Comb., $\\chi^2$ / dof = {}'.format(round(chi_squared(counts_f, counts_t) / len(counts_f))), 
+                    'This work, $\\chi^2$ / dof = {}'.format(round(chi_squared(counts_m, counts_t) / len(counts_f)))])
+    else:
+        plt.legend(['Truth / $p_T  \\tau$ E.S.',
+            'Final / $p_T  \\tau$ E.S., $\\chi^2$ / dof = {}'.format(round(chi_squared(counts_f, counts_t) / len(counts_f))), 
+            'This work, $\\chi^2$ / dof = {}'.format(round(chi_squared(counts_m, counts_t) / len(counts_f)))])
     plt.savefig(os.path.join(plotSaveLoc, 'plots/{}.pdf'.format(basename)), bbox_inches='tight')
     plt.yscale('linear')
     plt.close(fig)
     
 
-def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbins=15, pltText=''):
+def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbins=15, pltText='', target_normalize_var='TauJetsAuxDyn.ptCombined'):
     """
     """
     log.info('plotting the response and resolution versus {}'.format(xvar))
     from .utils import response_curve, makeBins
 
-    response_reg = testing_data['regressed_target'] * testing_data['TauJetsAuxDyn.ptCombined'] / testing_data['TauJetsAuxDyn.truthPtVisDressed']
+    response_reg = testing_data['regressed_target'] * testing_data[target_normalize_var] / testing_data['TauJetsAuxDyn.truthPtVisDressed']
     response_ref = testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data['TauJetsAuxDyn.truthPtVisDressed']
     response_comb = testing_data['TauJetsAuxDyn.ptCombined'] / testing_data['TauJetsAuxDyn.truthPtVisDressed']
     if xvar=='pt':

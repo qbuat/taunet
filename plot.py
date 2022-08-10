@@ -21,13 +21,19 @@ from genericpath import exists
 import os
 
 from taunet.database import PATH, DATASET, testing_data
-from taunet.fields import FEATURES, TRUTH_FIELDS, OTHER_TES
+from taunet.fields import FEATURES, FEATURES_NEW, TRUTH_FIELDS, OTHER_TES
 if __name__ == '__main__':
     
     from taunet.parser import plot_parser
     # train_parser = argparse.ArgumentParser(parents=[common_parser])
     # train_parser.add_argument('--use-cache', action='store_true')
     args = plot_parser.parse_args()
+
+    if args.newTarget:
+        FEATURES = FEATURES_NEW
+        target_normalize_var = 'TauJetsAuxDyn.ptTauEnergyScale'
+    else: 
+        target_normalize_var = 'TauJetsAuxDyn.ptCombined'
 
     if args.debug:
         n_files = 3
@@ -57,7 +63,7 @@ if __name__ == '__main__':
     d = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files, 
         optional_path=path, select_1p=args.oneProng, select_3p=args.threeProngs, normIndices=list(map(int, args.normIDs)),
-        no_normalize=args.no_normalize, no_norm_target=args.no_norm_target, debug=args.debug)
+        no_normalize=args.no_normalize, no_norm_target=args.no_norm_target, debug=args.debug, noCombined=args.newTarget)
 
     from taunet.plotting import nn_history
     nn_history(os.path.join(path, 'history.p'), path)
@@ -75,6 +81,7 @@ if __name__ == '__main__':
 
     from taunet.plotting import response_and_resol_vs_var
     response_and_resol_vs_var(d, path)
+    response_and_resol_vs_var(d, path, xvar='eta')
 
     if args.copy_to_cernbox:
         from taunet.utils import copy_plots_to_cernbox
