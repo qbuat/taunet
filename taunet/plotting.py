@@ -76,16 +76,17 @@ def pt_lineshape(testing_data, plotSaveLoc):
         color='purple')
     ax1.set_ylabel('Number of $\\tau_{had-vis}$', loc='top')
     ax1.legend(['Truth', 
-                'Combined, $\\chi^2 = ${}'.format(round(chi_squared(counts_f, counts_b))), 
-                'Final, $\\chi^2 = ${}'.format(round(chi_squared(counts_f, counts_t))), 
-                'This work, $\\chi^2 = ${}'.format(round(chi_squared(counts_ts, counts_t)))])
+                'Combined, $\\chi^2 / dof = ${}'.format(round(chi_squared(counts_f, counts_b) / len(counts_t))), 
+                'Final, $\\chi^2 / dof = ${}'.format(round(chi_squared(counts_f, counts_t) / len(counts_t))), 
+                'This work, $\\chi^2 / dof = ${}'.format(round(chi_squared(counts_ts, counts_t) / len(counts_t)))])
 
     # make ratio plot
     from .utils import makeBins, response_curve
-    bins = makeBins(0, 200, 15)
-    bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(regressed_target/truth, truth, bins)
-    bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(final/truth, truth, bins)
-    bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(combined/truth, truth, bins)
+    bins = makeBins(0, 200, 20)
+    tempTruth = bins_t[0:len(bins_t)-1]
+    bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(counts_ts/counts_t, tempTruth, bins)
+    bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(counts_f/counts_t, tempTruth, bins)
+    bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(counts_b/counts_t, tempTruth, bins)
     ax2.errorbar(bins_comb, means_comb, errs_comb, bin_errors_comb, fmt='.', color='black', label='Combined')
     ax2.errorbar(bins_ref, means_ref, errs_ref, bin_errors_ref, fmt='.', color='red', label='Final')
     ax2.errorbar(bins_reg, means_reg, errs_reg, bin_errors_reg, fmt='.', color='purple', label='This work')
@@ -175,7 +176,7 @@ def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target
     plt.close(fig)
     
 
-def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbins=25, pltText=''):
+def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbins=15, pltText=''):
     """
     """
     log.info('plotting the response and resolution versus {}'.format(xvar))

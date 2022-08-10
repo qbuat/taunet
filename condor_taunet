@@ -101,6 +101,7 @@ jobScript += ['cp *.p '+jobPath]
 jobScript += ['cp cache/*.h5 '+jobPath]
 jobScript += ['cp data/*.p '+jobPath]
 jobScript += ['cp plots/*.pdf '+jobPath]
+jobScript += ['cp final_MDN/plots/*.pdf '+jobPath]
 jobScript += ['cd ..']
 jobScript += ['rm -rf '+jobName]
 

@@ -15,6 +15,10 @@ args = plot_parser.parse_args()
 from taunet.database import file_list, retrieve_arrays, debug_mode, select_norms
 from taunet.computation import applySSNormalizeTest, getVarIndices, get_global_params, cut_above_below
 
+plt.rcParams['text.usetex'] = True
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['Computer Modern Roman', 'Times']
+
 #%------------------------------------------------------------------
 # Load data 
 
@@ -122,12 +126,12 @@ def testing_data(
         print('Saving data to cache')
     return _arrs, _arrs_above, _arrs_below
 
-#KINEMATICS = ['TauJetsAuxDyn.mu', 'TauJetsAuxDyn.etaPanTauCellBased', 'TauJetsAuxDyn.phiPanTauCellBased', 'TauJetsAuxDyn.etaDetectorAxis', 'TauJetsAuxDyn.etaIntermediateAxis']
+KINEMATICS = ['TauJetsAuxDyn.mu', 'TauJetsAuxDyn.etaPanTauCellBased', 'TauJetsAuxDyn.phiPanTauCellBased', 'TauJetsAuxDyn.etaDetectorAxis', 'TauJetsAuxDyn.etaIntermediateAxis']
 
 if not args.use_cache:
     import tensorflow as tf
     import tensorflow_probability as tfp
-    path = 'launch_condor/fitpy_small2gaussnoreg_job0'
+    path = 'final_MDN'
     #path = 'cache/gauss2_simple_mdn.h5'
     regressor = tf.keras.models.load_model(os.path.join(path, 'gauss2_simple_mdn_noreg.h5'), 
                 custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
@@ -195,40 +199,24 @@ def plot_thang(d, d_above, d_below, save_loc, name):
     # plt.savefig(os.path.join(save_loc, 'response_vs_pt_{}.pdf'.format(name)))
     # plt.close(fig) 
 
-    fig = plt.figure(figsize=(5,5), dpi = 100)
-    plt.plot(bins_ref, 100 * resol_ref, color='red', label='Final')
+    fig = plt.figure(figsize=(4,4), dpi = 100)
     plt.plot(bins_ref, 100 * resol_comb, color='black', label='Combined')
+    plt.plot(bins_ref, 100 * resol_ref, color='red', label='Final')
     plt.plot(bins_ref, 100 * resol_reg, color='purple', label='This work')
     plt.plot(bins_ref, 100 * aresol_reg, '--', color = 'purple', label = '$|\\frac{\\sigma}{\\mu}| > 1$')
     plt.plot(bins_ref, 100 * bresol_reg, '-.', color = 'purple', label = '$|\\frac{\\sigma}{\\mu}| < 1$')
-    plt.ylabel('$p_{T}(\\tau_{had-vis})$ resolution, 68% CL [%]', loc = 'top')
+    plt.ylabel('$p_{T}(\\tau_{had-vis})$ resolution, 68\% CL [\%]', loc = 'top')
     plt.xlabel('True $p_{T}(\\tau_{had-vis})$ [GeV]', loc = 'right')
     plt.legend()
-    plt.savefig(os.path.join(save_loc, 'resolution_vs_truth_{}.pdf'.format(name)))
+    plt.savefig(os.path.join(save_loc, 'resolution_vs_truth_{}.pdf'.format(name)), bbox_inches='tight')
     plt.close(fig)
 
 def response_lineshape(testing_data, alt_data, plotSaveLoc, 
             plotSaveName='plots/tes_response_lineshape.pdf', txt=''):
     """
     """
-    fig = plt.figure(figsize=(5,5), dpi = 300)
+    fig = plt.figure(figsize=(4,4), dpi = 300)
     plt.yscale('log')
-    plt.hist(
-        alt_data['regressed_target'] * alt_data['TauJetsAuxDyn.ptCombined'] / alt_data['TauJetsAuxDyn.truthPtVisDressed'],
-        density=True,
-        bins=200, 
-        range=(0, 2), 
-        histtype='step', 
-        color='purple', 
-        label='This work')
-    plt.hist(
-        testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
-        density=True,
-        bins=200, 
-        range=(0, 2), 
-        histtype='step', 
-        color='red', 
-        label='Final')
     plt.hist(
         testing_data['TauJetsAuxDyn.ptCombined'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
         density=True,
@@ -236,9 +224,25 @@ def response_lineshape(testing_data, alt_data, plotSaveLoc,
         range=(0, 2), 
         histtype='step', 
         color='black', 
-        label='Combined')
+        label='Combined', zorder=1)
+    plt.hist(
+        testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
+        density=True,
+        bins=200, 
+        range=(0, 2), 
+        histtype='step', 
+        color='red', 
+        label='Final', zorder=5)
+    plt.hist(
+        alt_data['regressed_target'] * alt_data['TauJetsAuxDyn.ptCombined'] / alt_data['TauJetsAuxDyn.truthPtVisDressed'],
+        density=True,
+        bins=200, 
+        range=(0, 2), 
+        histtype='step', 
+        color='purple', 
+        label='This work', zorder=10)
     xmin, xmax, ymin, ymax = plt.axis()
-    plt.plot([1.0, 1.0], [ymin, ymax], linestyle='dashed', color='grey')
+    plt.plot([1.0, 1.0], [ymin, ymax], linestyle='dashed', color='grey', zorder=20)
     if txt!='':
         plt.text(1.5, 4e-1, txt, fontsize=15)
     plt.ylabel('Number of $\\tau_{had-vis}$ / $\\int$ Number of $\\tau_{had-vis}$', loc = 'top')
@@ -257,7 +261,7 @@ response_lineshape(d, d_below, 'debug_plots/plots', 'response_lineshape_below.pd
 # explore the kinematics of these vars!
 
 def pT_explore(dens=True):
-    fig = plt.figure(figsize=(5,5), dpi = 100)
+    fig = plt.figure(figsize=(4,4), dpi = 100)
     plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3), useMathText=True)
     plt.hist(d['regressed_target'] * d['TauJetsAuxDyn.ptCombined'] / 1000., 
             bins=200, histtype='step', range=(0, 200), label='All Events', density=dens)
@@ -272,7 +276,7 @@ def pT_explore(dens=True):
     plt.close(fig)
 
 def variable_explore(var, xtitle, varname, legloc=1, dens=True):
-    fig = plt.figure(figsize=(5,5), dpi = 100)
+    fig = plt.figure(figsize=(4,4), dpi = 100)
     plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3), useMathText=True)
     plt.hist(d[var], 
             bins=200, histtype='step', label='All Events', density=dens)
@@ -288,7 +292,7 @@ def variable_explore(var, xtitle, varname, legloc=1, dens=True):
 
 # plot them thangs
 pT_explore(dens=False)
-variable_explore('TauJetsAuxDyn.etaPanTauCellBased', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
+variable_explore('TauJetsAuxDyn.truthEtaVisDressed', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
 # variable_explore('TauJetsAuxDyn.phiPanTauCellBased', '$\\phi (\\tau_{had-vis})$', 'phi', legloc=8)
 # variable_explore('TauJetsAuxDyn.mu', '$\\mu (\\tau_{had-vis})$', 'mu')
 
