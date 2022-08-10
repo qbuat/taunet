@@ -143,10 +143,12 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
                         cut = 'EventInfoAuxDyn.eventNumber%3 != 0',
                         select_1p=select_1p,
                         select_3p=select_3p)
-                a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 25. ] # may not be necessary; must justify this cut
+                a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 25. ]
                 if 'Combined' in target:
                     a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
                     a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ] 
+                if 'Combined' not in target:
+                    a = a[ a['TauJetsAuxDyn.ClustersMeanPresamplerFrac'] > -1.]
                 f = np.stack(
                     [ak.flatten(a[__feat]).to_numpy() for __feat in features])
                 _train  += [f.T]
@@ -177,7 +179,7 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total validation input {}'.format(len(X_val)))
 
 
-    return X_train, X_val, y_train, y_val
+    return X_train, X_val, y_train, y_val, old_train, _train
 
 def testing_data(
         path, dataset, features, plotting_fields, regressor, 
