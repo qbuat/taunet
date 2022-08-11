@@ -148,7 +148,9 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
                     a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
                     a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ] 
                 if 'Combined' not in target:
-                    a = a[ a['TauJetsAuxDyn.ClustersMeanPresamplerFrac'] > -1.]
+                    a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptTauEnergyScale'] < 25. ] 
+                    a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptTauEnergyScale'] < 25. ] 
+                    a = a[ a['TauJetsAuxDyn.ClustersMeanPresamplerFrac'] > -1.] #! may not be necessary
                 f = np.stack(
                     [ak.flatten(a[__feat]).to_numpy() for __feat in features])
                 _train  += [f.T]
@@ -179,7 +181,7 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         log.info('Total validation input {}'.format(len(X_val)))
 
 
-    return X_train, X_val, y_train, y_val, old_train, _train
+    return X_train, X_val, y_train, y_val
 
 def testing_data(
         path, dataset, features, plotting_fields, regressor, 
@@ -237,6 +239,10 @@ def testing_data(
             if not noCombined:
                 a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
                 a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ]
+            if noCombined:
+                a = a[ a['TauJetsAuxDyn.ClustersMeanPresamplerFrac'] > -1.]
+                a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptTauEnergyScale'] < 25. ] 
+                a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptTauEnergyScale'] < 25. ] 
             f = np.stack(
                 [ak.flatten(a[__feat]).to_numpy() for __feat in features])
             # print('Shape of f is {}'.format(np.shape(f)))

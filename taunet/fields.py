@@ -59,7 +59,9 @@ FEATURES_NEW = [
     'TauJetsAuxDyn.ClustersMeanSecondLambda',
     'TauJetsAuxDyn.ClustersMeanPresamplerFrac',
     'TauJetsAuxDyn.ClustersMeanEMProbability',
-    'TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis', # Terry doesn't use
+    'TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis',
+    'TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptTauEnergyScale',
+    'TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptTauEnergyScale',
     'TauJetsAuxDyn.etaPanTauCellBased',
     'TauJetsAuxDyn.PFOEngRelDiff',
     'TauJetsAuxDyn.ptTauEnergyScale',
