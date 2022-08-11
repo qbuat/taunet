@@ -66,7 +66,7 @@ if __name__ == '__main__':
         no_normalize=args.no_normalize, no_norm_target=args.no_norm_target, debug=args.debug, noCombined=args.newTarget)
 
     from taunet.plotting import nn_history
-    nn_history(os.path.join(path, 'history.p'), path, target_normalize_var=target_normalize_var)
+    nn_history(os.path.join(path, 'history.p'), path)
 
     from taunet.plotting import pt_lineshape
     pt_lineshape(d, path, target_normalize_var=target_normalize_var)
