@@ -66,22 +66,24 @@ if __name__ == '__main__':
         no_normalize=args.no_normalize, no_norm_target=args.no_norm_target, debug=args.debug, noCombined=args.newTarget)
 
     from taunet.plotting import nn_history
-    nn_history(os.path.join(path, 'history.p'), path)
+    nn_history(os.path.join(path, 'history.p'), path, target_normalize_var=target_normalize_var)
 
     from taunet.plotting import pt_lineshape
-    pt_lineshape(d, path)
+    pt_lineshape(d, path, target_normalize_var=target_normalize_var)
 
     from taunet.plotting import response_lineshape
     response_lineshape(d, path)
-    response_lineshape(d, path, plotSaveName='plots/tes_response_lineshape_zoomedin.pdf', Range=(0.9, 1.1), scale='linear', lineat1=True)
+    response_lineshape(d, path, plotSaveName='plots/tes_response_lineshape_zoomedin.pdf', 
+        Range=(0.9, 1.1), scale='linear', lineat1=True, target_normalize_var=target_normalize_var)
 
     from taunet.plotting import target_lineshape
-    target_lineshape(d, plotSaveLoc=path)
-    target_lineshape(d, bins=100, range=(0.5, 1.5), basename='tes_target_lineshape_zoomedin', logy=False, plotSaveLoc=path)
+    target_lineshape(d, plotSaveLoc=path, target_normalize_var=target_normalize_var)
+    target_lineshape(d, bins=100, range=(0.5, 1.5), basename='tes_target_lineshape_zoomedin', 
+        logy=False, plotSaveLoc=path, target_normalize_var=target_normalize_var)
 
     from taunet.plotting import response_and_resol_vs_var
-    response_and_resol_vs_var(d, path)
-    response_and_resol_vs_var(d, path, xvar='eta')
+    response_and_resol_vs_var(d, path, target_normalize_var=target_normalize_var)
+    response_and_resol_vs_var(d, path, xvar='eta', target_normalize_var=target_normalize_var)
 
     if args.copy_to_cernbox:
         from taunet.utils import copy_plots_to_cernbox
