@@ -37,6 +37,7 @@ TRUTH_FIELDS = [
 
 OTHER_TES = [
     'TauJetsAuxDyn.ptCombined',
+    'TauJetsAuxDyn.ptTauEnergyScale',
     'TauJetsAuxDyn.ptFinalCalib',
     'TauJetsAuxDyn.mu',
     'TauJetsAuxDyn.NNDecayMode', 
