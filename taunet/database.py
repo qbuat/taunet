@@ -62,6 +62,15 @@ def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
 
     fields : variables used in analysis. 
 
+    cut : str
+        Cut to be applied to whole dataset
+
+    select_1p : bool
+        Select 1-prong events
+
+    select_3p : bool
+        Select 3-prong events
+
     Returns:
     -------
 
@@ -87,7 +96,10 @@ def retrieve_arrays(tree, fields, cut=None, select_1p=False, select_3p=False):
 
 # select only part of the data for debuging
 def debug_mode(tree, features, select_1p = False, select_3p = False, cut = None, stepsize=200000):
-    """
+    """Get arrays of data from tree of root files in chunks of `stepsize`
+
+    Same function as `retrieve_arrays` but with optional parameter
+    `stepsize` to select size of chunks taken from tree
     """
 
     feats_new = features + ['TauJetsAuxDyn.nTracks']
@@ -105,17 +117,90 @@ def debug_mode(tree, features, select_1p = False, select_3p = False, cut = None,
 
         return arr
       
-def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, use_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False, normSavePath='data/normFactors', normIndices=range(9), debug=False):
-    """
+def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, 
+    use_cache=False, save_to_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False, 
+    normSavePath='data/normFactors', normIndices=range(9), debug=False):
+    """Optain properly-formatted training and validation data from given dataset
+
+    Parameters:
+    ----------
+
+    path : str
+        Path to directory where dataset is held
+
+    dataset : str
+        Directory where .root files from dataset are held
+
+    features : list of str
+        List of variables to pass to network
+
+    target : str
+        Regression target of network
+
+    nfiles=-1 : int
+        Number of files to use in obtaining training data
+
+    debug=False : bool
+        Use only a portion of the data from `dataset`
+
+    select_1p=False : bool
+        Select one prong events
+
+    select_3p=False : bool
+        Select three prong events
+
+    use_cache=False : bool
+        Use previously formatted data saved in `data` directory in .npy files
+
+    add_to_cache=False : bool
+        Save formatted data in .npy files
+
+    tree_name='CollectionTree' : str
+        Tree of .root file from which to get data
+
+    no_normalize=False : bool
+        Optionally apply standard scalar normalization to selected variables
+
+    no_norm_target=False : bool
+        Optionally apply standard scalar normalization to target variable
+
+    normSavePath='data/normFactors' : str
+        Path to where means and stddevs of each variable in `features` are stored. 
+        Saved in .npy file format
+
+    normIndices=range(9) : vector of ints
+        Indices of variables to apply standard scalar normalization
+
+    Returns:
+    -------
+
+    X_train : np.array
+        Multi-dimensional array of training data. Columns contain training
+        variables and each row represents one event (80% of total sample given)
+
+    X_val : np.array
+        Same as X_train (20% of total sample)
+
+    y_train : np.array
+        Vector of training data (80% of total sample)
+
+    y_val : np.array
+        Same as y_train (20% or total sample)
     """
 
+    import numpy as np
+
     if use_cache:
-        pass
+        info.cache('Using cache')
+        X_train = np.load('data/X_train.npy')
+        X_val = np.load('data/X_val.npy')
+        y_train = np.load('data/y_train.npy')
+        y_val = np.load('data/y_val.npy')
+        return X_train, X_val, y_train, y_val
 
     else:
         import uproot
         import awkward as ak
-        import numpy as np
         _train  = []
         _target = []
         _files = file_list(path, dataset)
@@ -180,8 +265,14 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
             _train, _target, test_size=0.2, random_state=42)
         log.info('Total validation input {}'.format(len(X_val)))
 
+        if save_to_cache:
+            log.info('Saving to cache')
+            np.save(file='data/X_train.npy', arr=X_train)
+            np.save(file='data/X_val', arr=X_val)
+            np.save(file='data/y_train', arr=y_train)
+            np.save(file='data/y_val', arr=y_val)
 
-    return X_train, X_val, y_train, y_val
+    return X_train, X_val, y_train, y_val, old_train, _train
 
 def testing_data(
         path, dataset, features, plotting_fields, regressor, 

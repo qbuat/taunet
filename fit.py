@@ -38,7 +38,7 @@ if __name__ == '__main__':
         y_train = np.load('data/y_train.npy')
         y_val = np.load('data/y_val.npy')
     else:
-        X_train, X_val, y_train, y_val = training_data(
+        X_train, X_val, y_train, y_val, old_train, _train = training_data(
             PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files, 
             select_1p=args.oneProng, select_3p=args.threeProngs, normIndices=list(map(int, args.normIDs)),
             no_normalize=args.no_normalize, no_norm_target=args.no_norm_target, debug=args.debug)
