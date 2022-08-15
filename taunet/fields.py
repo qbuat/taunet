@@ -51,25 +51,25 @@ OTHER_TES = [
 
 TARGET_FIELD = 'TauJetsAuxDyn.truthPtVisDressed/TauJetsAuxDyn.ptCombined'
 
-FEATURES_NEW = [
-    'TauJetsAuxDyn.mu', # average of two following effects:
-    'TauJetsAuxDyn.nVtxPU', #number of vertices (tracking effects), Terry doesn't use
-    'TauJetsAuxDyn.rho', #ambient transverse energy density (pileup), Terry doesn't use
-    'TauJetsAuxDyn.ClustersMeanCenterLambda',
-    'TauJetsAuxDyn.ClustersMeanFirstEngDens',
-    'TauJetsAuxDyn.ClustersMeanSecondLambda',
-    'TauJetsAuxDyn.ClustersMeanPresamplerFrac',
-    'TauJetsAuxDyn.ClustersMeanEMProbability',
-    'TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis',
-    'TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptTauEnergyScale',
-    'TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptTauEnergyScale',
-    'TauJetsAuxDyn.etaPanTauCellBased',
-    'TauJetsAuxDyn.PFOEngRelDiff',
-    'TauJetsAuxDyn.ptTauEnergyScale',
-    'TauJetsAuxDyn.NNDecayModeProb_1p0n',
-    'TauJetsAuxDyn.NNDecayModeProb_1p1n',
-    'TauJetsAuxDyn.NNDecayModeProb_1pXn',
-    'TauJetsAuxDyn.NNDecayModeProb_3p0n',
-    'TauJetsAuxDyn.NNDecayModeProb_3pXn',
-    ]
-TARGET_FIELD_NEW = 'TauJetsAuxDyn.truthPtVisDressed/TauJetsAuxDyn.ptTauEnergyScale'
+# FEATURES_NEW = [
+#     'TauJetsAuxDyn.mu', # average of two following effects:
+#     'TauJetsAuxDyn.nVtxPU', #number of vertices (tracking effects), Terry doesn't use
+#     'TauJetsAuxDyn.rho', #ambient transverse energy density (pileup), Terry doesn't use
+#     'TauJetsAuxDyn.ClustersMeanCenterLambda',
+#     'TauJetsAuxDyn.ClustersMeanFirstEngDens',
+#     'TauJetsAuxDyn.ClustersMeanSecondLambda',
+#     'TauJetsAuxDyn.ClustersMeanPresamplerFrac',
+#     'TauJetsAuxDyn.ClustersMeanEMProbability',
+#     'TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis',
+#     'TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptTauEnergyScale',
+#     'TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptTauEnergyScale',
+#     'TauJetsAuxDyn.etaPanTauCellBased',
+#     'TauJetsAuxDyn.PFOEngRelDiff',
+#     'TauJetsAuxDyn.ptTauEnergyScale',
+#     'TauJetsAuxDyn.NNDecayModeProb_1p0n',
+#     'TauJetsAuxDyn.NNDecayModeProb_1p1n',
+#     'TauJetsAuxDyn.NNDecayModeProb_1pXn',
+#     'TauJetsAuxDyn.NNDecayModeProb_3p0n',
+#     'TauJetsAuxDyn.NNDecayModeProb_3pXn',
+#     ]
+# TARGET_FIELD_NEW = 'TauJetsAuxDyn.truthPtVisDressed/TauJetsAuxDyn.ptTauEnergyScale'

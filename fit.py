@@ -22,9 +22,9 @@ if __name__ == '__main__':
     from taunet.parser import train_parser
     args = train_parser.parse_args()
 
-    if args.newTarget:
-        TARGET_FIELD = TARGET_FIELD_NEW
-        FEATURES = FEATURES_NEW
+    # if args.newTarget:
+    #     TARGET_FIELD = TARGET_FIELD_NEW
+    #     FEATURES = FEATURES_NEW
 
     if args.debug:
         n_files = 3 #set limit on files for testing / debugging

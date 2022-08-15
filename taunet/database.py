@@ -228,14 +228,13 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
                         cut = 'EventInfoAuxDyn.eventNumber%3 != 0',
                         select_1p=select_1p,
                         select_3p=select_3p)
-                a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 25. ]
+                a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 15. ]
                 if 'Combined' in target:
                     a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
                     a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ] 
                 if 'Combined' not in target:
                     a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptTauEnergyScale'] < 25. ] 
                     a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptTauEnergyScale'] < 25. ] 
-                    a = a[ a['TauJetsAuxDyn.ClustersMeanPresamplerFrac'] > -1.] #! may not be necessary
                 f = np.stack(
                     [ak.flatten(a[__feat]).to_numpy() for __feat in features])
                 _train  += [f.T]
@@ -331,7 +330,6 @@ def testing_data(
                 a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
                 a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ]
             if noCombined:
-                a = a[ a['TauJetsAuxDyn.ClustersMeanPresamplerFrac'] > -1.]
                 a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptTauEnergyScale'] < 25. ] 
                 a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptTauEnergyScale'] < 25. ] 
             f = np.stack(
