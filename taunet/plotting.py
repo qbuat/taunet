@@ -80,15 +80,15 @@ def pt_lineshape(testing_data, plotSaveLoc, target_normalize_var='TauJetsAuxDyn.
 
     # make ratio plot
     from .utils import makeBins, response_curve
-    bins = makeBins(0, 200, 20)
-    tempTruth = bins_t[0:len(bins_t)-1]
-    bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(counts_ts/counts_t, tempTruth, bins)
-    bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(counts_f/counts_t, tempTruth, bins)
-    bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(counts_b/counts_t, tempTruth, bins)
+    bins = makeBins(0, 200, 200)
+    bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(regressed_target/truth, truth, bins)
+    bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(final/truth, truth, bins)
+    bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(combined/truth, truth, bins)
     ax2.errorbar(bins_comb, means_comb, errs_comb, bin_errors_comb, fmt='.', color='black', label='Combined')
     ax2.errorbar(bins_ref, means_ref, errs_ref, bin_errors_ref, fmt='.', color='red', label='Final')
     ax2.errorbar(bins_reg, means_reg, errs_reg, bin_errors_reg, fmt='.', color='purple', label='This work')
     ax2.grid()
+    ax2.set_ylim([0.88, 1.12])
     ax2.set_ylabel('Ratio')
     ax2.set_xlabel('$p_{T}(\\tau_{had-vis})$ [GeV]', loc='right')
     
@@ -150,21 +150,18 @@ def target_lineshape(testing_data, bins=100, range=(0, 10), basename='tes_target
         range=range, 
         histtype='stepfilled', 
         color='cyan')
-        #label='Truth / Combined')
     counts_f, bins_f, bars_f = plt.hist(
         testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data[target_normalize_var],
         bins=bins, 
         range=range, 
         histtype='step', 
         color='red')
-        #label='Final / Combined')
     counts_m, bins_m, bars_m = plt.hist(
         testing_data['regressed_target'],
         bins=bins, 
         range=range, 
         histtype='step', 
         color='purple')
-        #label='This work')
     plt.ylabel('Number of $\\tau_{had-vis}$', loc = 'top')
     plt.xlabel('Regressed target', loc = 'right')
     if 'ptCombined' in target_normalize_var:

@@ -21,7 +21,7 @@ from genericpath import exists
 import os
 
 from taunet.database import PATH, DATASET, testing_data
-from taunet.fields import FEATURES, FEATURES_NEW, TRUTH_FIELDS, OTHER_TES
+from taunet.fields import FEATURES, TRUTH_FIELDS, OTHER_TES, FEATURES_NEW
 if __name__ == '__main__':
     
     from taunet.parser import plot_parser

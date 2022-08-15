@@ -16,15 +16,15 @@ import tensorflow as tf
 import numpy as np
 
 from taunet.database import PATH, DATASET, training_data
-from taunet.fields import FEATURES, FEATURES_NEW, TARGET_FIELD, TARGET_FIELD_NEW
+from taunet.fields import FEATURES, TARGET_FIELD, TARGET_FIELD_NEW, FEATURES_NEW
 if __name__ == '__main__':
     
     from taunet.parser import train_parser
     args = train_parser.parse_args()
 
-    # if args.newTarget:
-    #     TARGET_FIELD = TARGET_FIELD_NEW
-    #     FEATURES = FEATURES_NEW
+    if args.newTarget:
+        TARGET_FIELD = TARGET_FIELD_NEW
+        FEATURES = FEATURES_NEW
 
     if args.debug:
         n_files = 3 #set limit on files for testing / debugging
