@@ -86,6 +86,7 @@ def testing_data(
                 f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, varnom))
                 print('Normalizing input data to regressor')
             regressed_target, stddev = get_global_params(regressor, f.T)
+            print(sum(regressed_target < 0))
             cut1, cut2 = cut_above_below(regressed_target, stddev)
             f1 = f.T[cut1]
             f2 = f.T[cut2]
@@ -149,6 +150,8 @@ if args.use_cache:
     d = np.load('data/d.npy')
     d_above = np.load('data/d_above.npy')
     d_below = np.load('data/d_below.npy')
+
+print(sum(d['regressed_target'] < 0))
 
 #%------------------------------------------------------------------
 # Plotting functions
