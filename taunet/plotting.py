@@ -36,39 +36,39 @@ def nn_history(file, plotSaveLoc):
         plt.close(fig)
 
 
-def pt_lineshape(testing_data, plotSaveLoc, target_normalize_var='TauJetsAuxDyn.ptCombined'):
+def pt_lineshape(testing_data, plotSaveLoc, target_normalize_var='TauJetsAuxDyn.ptCombined', nbins=200):
     """
     """
     log.info('Plotting the transverse momenta on the full dataset')
     truth = testing_data['TauJetsAuxDyn.truthPtVisDressed'] / 1000.
     combined = testing_data['TauJetsAuxDyn.ptCombined'] / 1000.
     final = testing_data['TauJetsAuxDyn.ptFinalCalib'] / 1000.
-    regressed_target = testing_data['regressed_target'] * testing_data[target_normalize_var] / 1000.
+    regressed_target = testing_data['regressed_target'] * testing_data['TauJetsAuxDyn.ptCombined'] / 1000.
     fig, (ax1, ax2) = plt.subplots(nrows=2, gridspec_kw={'height_ratios': [3,1]}, figsize=(5,6), dpi=100)
     ax1.ticklabel_format(axis='y',style='sci',scilimits=(-3,3), useMathText=True)
     ax1.sharex(ax2)
     fig.subplots_adjust(hspace=0)
     counts_t, bins_t, bars_t = ax1.hist(
         truth,
-        bins=200,
+        bins=nbins,
         range=(0, 200), 
         histtype='stepfilled',
         color='cyan')
     counts_b, bins_b, bars_b = ax1.hist(
         combined,
-        bins=200,
+        bins=nbins,
         range=(0, 200), 
         histtype='step',
         color='black')
     counts_f, bins_f, bars_f = ax1.hist(
         final,
-        bins=200,
+        bins=nbins,
         range=(0, 200), 
         histtype='step',
         color='red')
     counts_ts, bins_ts, bars_ts = ax1.hist(
         regressed_target,
-        bins=200,
+        bins=nbins,
         range=(0, 200), 
         histtype='step',
         color='purple')

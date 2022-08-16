@@ -39,7 +39,6 @@ np.save(file='/eos/user/m/mcochran/TES_dataset/np_arrays_testing/testing_data_al
 
 #---------------------------------------------------------------
 # Make plots nstuff!
-<<<<<<< HEAD
 # from taunet.plotting import response_and_resol_vs_var
 # from taunet.utils import copy_plots_to_cernbox
 
@@ -54,19 +53,3 @@ np.save(file='/eos/user/m/mcochran/TES_dataset/np_arrays_testing/testing_data_al
     # for j in range(len(pltVars)):
     #     response_and_resol_vs_var(dtemp, 'perf_plots/DecayMode{}'.format(i), xvar=pltVars[j], nbins=15)
     #     copy_plots_to_cernbox(location='perf_plots/DecayMode{}'.format(i))
-=======
-from taunet.plotting import response_and_resol_vs_var
-from taunet.utils import copy_plots_to_cernbox
-
-response_and_resol_vs_var(d, 'perf_plots')
-copy_plots_to_cernbox(location='perf_plots')
-
-pltText = ['1p0n', '1p1n', '1pXn', '3p0n', '3pXn']
-pltVars = ['pt', 'eta', 'mu']
-for i in range(5):
-    dtemp = np.array(d[d['TauJetsAuxDyn.NNDecayMode'] == i])
-    dtemp = dtemp
-    for j in range(len(pltVars)):
-        response_and_resol_vs_var(dtemp, 'perf_plots/DecayMode{}'.format(i), xvar=pltVars[j], nbins=15)
-        copy_plots_to_cernbox(location='perf_plots/DecayMode{}'.format(i))
->>>>>>> 240b4557b1c1cd3aac702aa893d9c77fbb8df319

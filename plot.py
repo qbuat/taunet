@@ -3,7 +3,7 @@ Authors: Quentin Buat and Miles Cochran-Branson
 Date: 6/24/22
 
 Create plots of performance of machine learning analysis in comparison
-to standard methods currently in place. 
+to standard methods currently in place for TES calibration at ATLAS. 
 
 Optional command-line arguments:
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     nn_history(os.path.join(path, 'history.p'), path)
 
     from taunet.plotting import pt_lineshape
-    pt_lineshape(d, path, target_normalize_var=target_normalize_var)
+    pt_lineshape(d, path, target_normalize_var=target_normalize_var, nbins=100)
 
     from taunet.plotting import response_lineshape
     response_lineshape(d, path)
@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     from taunet.plotting import response_and_resol_vs_var
     response_and_resol_vs_var(d, path, target_normalize_var=target_normalize_var)
-    response_and_resol_vs_var(d, path, xvar='eta', target_normalize_var=target_normalize_var)
+    response_and_resol_vs_var(d, path, xvar='eta', target_normalize_var=target_normalize_var, nbins=35)
 
     if args.copy_to_cernbox:
         from taunet.utils import copy_plots_to_cernbox

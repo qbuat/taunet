@@ -144,7 +144,9 @@ def get_global_params(regressor, arr, mode=0):
     mode : int
         if 0 returns mean and stddev,
         if 1 returns only mean,
-        if 2 returns only stddev.
+        if 2 returns only stddev, 
+        if 3 returns probs, means, and stddevs for each component
+            distribution. 
     """
 
     dist = regressor(arr)
@@ -154,7 +156,7 @@ def get_global_params(regressor, arr, mode=0):
     globalmean = np.array(
         [probs[i][0]*means[i][0] + probs[i][1]*means[i][1] 
                     for i in range(len(means))]).flatten()
-    if mode==0 or mode==2:
+    if mode==0 or mode==2 or mode==3:
         stddevs = dist.tensor_distribution.components_distribution.tensor_distribution.stddev().numpy()
         globalstd = np.sqrt(np.array(
             [probs[i][0]*(stddevs[i][0]**2 + means[i][0]**2)
@@ -167,6 +169,8 @@ def get_global_params(regressor, arr, mode=0):
         return globalmean
     elif mode==2:
         return globalstd
+    elif mode==3:
+        return probs[0], means[0], stddevs[0], probs[1], means[1], stddevs[1]
     else:
         raise ValueError("Mode specified is out of range")
 

@@ -54,6 +54,7 @@ def testing_data(
     _arrs = []
     _arrs_above = []
     _arrs_below = []
+    _output_arrs = []
     varnom = select_norms(VARNORM, normIndices) # variables to normalize
     for i_f, _file in enumerate(_files):
         if nfiles > 0 and i_f > nfiles:
@@ -67,7 +68,7 @@ def testing_data(
                     _fields_to_lookup, 
                     cut = 'EventInfoAuxDyn.eventNumber%3 == 0',
                     select_1p=select_1p,
-                    select_3p=select_3p)
+                    select_3p=select_3p, stepsize=100)
             else:
                 a = retrieve_arrays(
                     tree,
@@ -86,12 +87,14 @@ def testing_data(
                 f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, varnom))
                 print('Normalizing input data to regressor')
             regressed_target, stddev = get_global_params(regressor, f.T)
-            print(sum(regressed_target < 0))
             cut1, cut2 = cut_above_below(regressed_target, stddev)
             f1 = f.T[cut1]
             f2 = f.T[cut2]
             regressed_target1 = get_global_params(regressor, f1, mode=1)
             regressed_target2 = get_global_params(regressor, f2, mode=1)
+            # get all the components of the distribution
+            pi1, mu1, sig1, pi2, mu2, sig2 = get_global_params(regressor, f.T, mode=3)
+            print(len(mu1))
             if not no_norm_target:
                 # If target was normalized, revert to original
                 # Last element of variable "norms" contains mean (element 0) 
@@ -117,15 +120,22 @@ def testing_data(
             _arrs_above += [_arr_above]
             _arrs_below += [_arr_below]
 
+            pi1 = pi1.reshape((pi1.shape[0], ))
+            mu1 = mu1.reshape((mu1.shape[0], ))
+            _output_arr = np.stack([pi1, mu1], axis=1)
+            _output_arr = np.core.records.fromarrays(_output_arr.transpose(), names=['pi1', 'mu1'])
+            _output_arrs += [_output_arr]
+
     print("Variables normalized: {}".format(list(features[i] for i in getVarIndices(features, VARNORM))))
     _arrs = np.concatenate(_arrs)
     _arrs_above = np.concatenate(_arrs_above)
     _arrs_below = np.concatenate(_arrs_below)
+    _output_arrs = np.concatenate(_output_arrs)
     print('Total testing input = {}'.format(_arrs.shape))
     if saveToCache:
         np.save('data/testingData_temp', _arrs)
         print('Saving data to cache')
-    return _arrs, _arrs_above, _arrs_below
+    return _arrs, _arrs_above, _arrs_below, _output_arrs
 
 KINEMATICS = ['TauJetsAuxDyn.mu', 'TauJetsAuxDyn.etaPanTauCellBased', 'TauJetsAuxDyn.phiPanTauCellBased', 'TauJetsAuxDyn.etaDetectorAxis', 'TauJetsAuxDyn.etaIntermediateAxis']
 
@@ -136,7 +146,7 @@ if not args.use_cache:
     #path = 'cache/gauss2_simple_mdn.h5'
     regressor = tf.keras.models.load_model(os.path.join(path, 'gauss2_simple_mdn_noreg.h5'), 
                 custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
-    d, d_above, d_below = testing_data(
+    d, d_above, d_below, d_components = testing_data(
         PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=args.nfiles, debug=args.debug, optional_path=path)
 
 if args.add_to_cache:
@@ -144,17 +154,33 @@ if args.add_to_cache:
     np.save(file='data/d', arr=d)
     np.save(file='data/d_above', arr=d_above)
     np.save(file='data/d_below', arr=d_below)
+    np.save(files='data/d_components', arr=d_components)
 
 if args.use_cache:
     print('Getting data from cache')
     d = np.load('data/d.npy')
     d_above = np.load('data/d_above.npy')
     d_below = np.load('data/d_below.npy')
+    d_components = np.load('data/d_components')
 
 print(sum(d['regressed_target'] < 0))
 
 #%------------------------------------------------------------------
-# Plotting functions
+# Plot components
+print(d_components['mu1'])
+print(len(d_components['mu1']))
+
+def plot_component_param(xdata, ydata, xlabel='True p_T ($\\tau_{had-vis}$)', ylabel='Var'):
+    plt.figure(figsize=(4,4), dpi = 100)
+    plt.scatter(xdata, ydata)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.savefig('debug_plots/plots/{}.pdf'.format(ylabel))
+
+plot_component_param(d['TauJetsAuxDyn.truthPtVisDressed'], d_components['mu1'], ylabel='\\mu_1')
+
+#%------------------------------------------------------------------
+# Plot results
 
 def plot_thang(d, d_above, d_below, save_loc, name):
 
@@ -256,9 +282,9 @@ def response_lineshape(testing_data, alt_data, plotSaveLoc,
     plt.close(fig)
 
 #plot distributions
-plot_thang(d, d_above, d_below, 'debug_plots/plots', 'all')
-response_lineshape(d, d_above, 'debug_plots/plots', 'response_lineshape_above.pdf', txt='$|\\frac{\\sigma}{\\mu}| > 1$')
-response_lineshape(d, d_below, 'debug_plots/plots', 'response_lineshape_below.pdf', txt='$|\\frac{\\sigma}{\\mu}| < 1$')
+# plot_thang(d, d_above, d_below, 'debug_plots/plots', 'all')
+# response_lineshape(d, d_above, 'debug_plots/plots', 'response_lineshape_above.pdf', txt='$|\\frac{\\sigma}{\\mu}| > 1$')
+# response_lineshape(d, d_below, 'debug_plots/plots', 'response_lineshape_below.pdf', txt='$|\\frac{\\sigma}{\\mu}| < 1$')
 
 # ------------------------------------------------------------
 # explore the kinematics of these vars!
@@ -294,8 +320,8 @@ def variable_explore(var, xtitle, varname, legloc=1, dens=True):
     plt.close(fig)
 
 # plot them thangs
-pT_explore(dens=False)
-variable_explore('TauJetsAuxDyn.truthEtaVisDressed', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
+# pT_explore(dens=False)
+# variable_explore('TauJetsAuxDyn.truthEtaVisDressed', '$\\eta (\\tau_{had-vis})$', 'eta', legloc=8)
 # variable_explore('TauJetsAuxDyn.phiPanTauCellBased', '$\\phi (\\tau_{had-vis})$', 'phi', legloc=8)
 # variable_explore('TauJetsAuxDyn.mu', '$\\mu (\\tau_{had-vis})$', 'mu')
 

@@ -334,12 +334,11 @@ def testing_data(
                 a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptTauEnergyScale'] < 25. ] 
             f = np.stack(
                 [ak.flatten(a[__feat]).to_numpy() for __feat in features])
-            # print('Shape of f is {}'.format(np.shape(f)))
             # Optionally normalize data if done in the training
             if not no_normalize:
                 f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, varnom))
                 log.info('Normalizing input data to regressor')
-            regressed_target = get_global_params(regressor, f.T, mode=1)
+            regressed_target, regressed_target_sigma = get_global_params(regressor, f.T, mode=0)
             if not no_norm_target:
                 # If target was normalized, revert to original
                 # Last element of variable "norms" contains mean (element 0) 
@@ -347,12 +346,12 @@ def testing_data(
                 regressed_target = norms[len(norms)-1][1] * regressed_target + norms[len(norms)-1][0]
                 log.info('Returning data to orginal format for plotting')
             regressed_target = regressed_target.reshape((regressed_target.shape[0], ))
+            regressed_target_sigma = regressed_target_sigma.reshape((regressed_target_sigma.shape[0], ))
             _arr = np.stack(
-                [ak.flatten(a[_var]).to_numpy() for _var in plotting_fields] + [regressed_target], axis=1)
+                [ak.flatten(a[_var]).to_numpy() for _var in plotting_fields] + [regressed_target] + [regressed_target_sigma], axis=1)
             _arr = np.core.records.fromarrays(
                 _arr.transpose(), 
-                names=[_var for _var in plotting_fields] + ['regressed_target'])
-            # append_fields(_arr, 'regressed_target', regressed_target, usemask=False)
+                names=[_var for _var in plotting_fields] + ['regressed_target'] + ['regressed_target_sigma'])
             _arrs += [_arr]
 
     log.info("Variables normalized: {}".format(
