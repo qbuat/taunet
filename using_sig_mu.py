@@ -68,7 +68,7 @@ def testing_data(
                     _fields_to_lookup, 
                     cut = 'EventInfoAuxDyn.eventNumber%3 == 0',
                     select_1p=select_1p,
-                    select_3p=select_3p, stepsize=100)
+                    select_3p=select_3p)
             else:
                 a = retrieve_arrays(
                     tree,
@@ -94,7 +94,6 @@ def testing_data(
             regressed_target2 = get_global_params(regressor, f2, mode=1)
             # get all the components of the distribution
             pi1, mu1, sig1, pi2, mu2, sig2 = get_global_params(regressor, f.T, mode=3)
-            print(len(mu1))
             if not no_norm_target:
                 # If target was normalized, revert to original
                 # Last element of variable "norms" contains mean (element 0) 
@@ -121,9 +120,14 @@ def testing_data(
             _arrs_below += [_arr_below]
 
             pi1 = pi1.reshape((pi1.shape[0], ))
+            pi2 = pi2.reshape((pi2.shape[0], ))
             mu1 = mu1.reshape((mu1.shape[0], ))
-            _output_arr = np.stack([pi1, mu1], axis=1)
-            _output_arr = np.core.records.fromarrays(_output_arr.transpose(), names=['pi1', 'mu1'])
+            mu2 = mu2.reshape((mu2.shape[0], ))
+            sig1 = sig1.reshape((sig1.shape[0], ))
+            sig2 = sig2.reshape((sig2.shape[0], ))
+            # np.stack([ak.flatten(pi1).to_numpy(), ak.flatten(pi2).to_numpy(), ak.flatten(mu1).to_numpy(), ak.flatten(mu2).to_numpy()], axis=1)
+            _output_arr = np.stack([pi1, pi2, mu1, mu2, sig1, sig2], axis=1)
+            _output_arr = np.core.records.fromarrays(_output_arr.transpose(), names=['pi1', 'pi2', 'mu1', 'mu2', 'sig1', 'sig2'])
             _output_arrs += [_output_arr]
 
     print("Variables normalized: {}".format(list(features[i] for i in getVarIndices(features, VARNORM))))
@@ -163,21 +167,24 @@ if args.use_cache:
     d_below = np.load('data/d_below.npy')
     d_components = np.load('data/d_components')
 
-print(sum(d['regressed_target'] < 0))
-
 #%------------------------------------------------------------------
 # Plot components
-print(d_components['mu1'])
-print(len(d_components['mu1']))
 
-def plot_component_param(xdata, ydata, xlabel='True p_T ($\\tau_{had-vis}$)', ylabel='Var'):
+def plot_component_param(xdata, ydata, xtitle='True $p_T$', ytitle='Var', savevar='var'):
     plt.figure(figsize=(4,4), dpi = 100)
-    plt.scatter(xdata, ydata)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.savefig('debug_plots/plots/{}.pdf'.format(ylabel))
+    plt.scatter(xdata, ydata, marker='.')
+    plt.xlabel(xtitle)
+    plt.ylabel(ytitle)
+    plt.savefig('debug_plots/plots/{}.pdf'.format(savevar))
 
-plot_component_param(d['TauJetsAuxDyn.truthPtVisDressed'], d_components['mu1'], ylabel='\\mu_1')
+plot_component_param(d['TauJetsAuxDyn.truthPtVisDressed'], d_components['pi1'], ytitle='$\\pi_1$', savevar='pi1')
+plot_component_param(d['TauJetsAuxDyn.truthPtVisDressed'], d_components['pi2'], ytitle='$\\pi_2$', savevar='pi2')
+plot_component_param(d['TauJetsAuxDyn.truthPtVisDressed'], d_components['mu1'], ytitle='$\\mu_1$', savevar='mu1')
+plot_component_param(d['TauJetsAuxDyn.truthPtVisDressed'], d_components['mu2'], ytitle='$\\mu_2$', savevar='mu2')
+plot_component_param(d['TauJetsAuxDyn.truthPtVisDressed'], d_components['sig1'], ytitle='$\\sigma_1$', savevar='sig1')
+plot_component_param(d['TauJetsAuxDyn.truthPtVisDressed'], d_components['sig2'], ytitle='$\\sigma_2$', savevar='sig2')
+plot_component_param(d['TauJetsAuxDyn.truthPtVisDressed'], d_components['mu1']-d_components['mu2'], ytitle='$\\mu_1 - \\mu_2$', savevar='mu1_minus_mu2')
+plot_component_param(d['TauJetsAuxDyn.truthPtVisDressed'], d_components['sig1']-d_components['sig2'], ytitle='$\\sigma_1 - \\sigma_2$', savevar='sig1_minus_sig2')
 
 #%------------------------------------------------------------------
 # Plot results

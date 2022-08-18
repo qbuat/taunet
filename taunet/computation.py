@@ -170,7 +170,7 @@ def get_global_params(regressor, arr, mode=0):
     elif mode==2:
         return globalstd
     elif mode==3:
-        return probs[0], means[0], stddevs[0], probs[1], means[1], stddevs[1]
+        return np.array([probs[i][0] for i in range(len(means))]), np.array([means[i][0] for i  in range(len(means))]), np.array([stddevs[i][0] for i  in range(len(means))]), np.array([probs[i][1] for i  in range(len(means))]), np.array([means[i][1] for i  in range(len(means))]), np.array([stddevs[i][1] for i  in range(len(means))])
     else:
         raise ValueError("Mode specified is out of range")
 
