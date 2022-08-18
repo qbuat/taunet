@@ -6,7 +6,8 @@ Database changes:
 import os
 from unittest.mock import DEFAULT
 
-from taunet.computation import StandardScalar, applySSNormalizeTest, getSSNormalize, applySSNormalizeTest, getVarIndices, select_norms, VARNORM, applySSNormalize, get_global_params
+from taunet.utils import StandardScalar, applySSNormalizeTest, getSSNormalize, applySSNormalizeTest, getVarIndices, applySSNormalize, get_global_params
+from taunet.fields import VARNORM
 from . import log; log = log.getChild(__name__)
 
 # local location of data
@@ -247,12 +248,11 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
 
         #normalize here!
         old_train = np.array(_train)
-        varnom = select_norms(VARNORM, normIndices)
         if not no_normalize:
             log.info('Normalizing training data')
             norms = getSSNormalize(_train, _target, savepath=normSavePath)
             _train = applySSNormalize(_train, norms, 
-                        vars=getVarIndices(features, varnom))
+                        vars=getVarIndices(features, VARNORM))
             log.info("Variables to be normalized: {}".format(
                 list(features[i] for i in getVarIndices(features, VARNORM))))
             if not no_norm_target:
@@ -304,7 +304,6 @@ def testing_data(
             norms = np.load(os.path.join(optional_path, 'normFactors.npy'))
     
     _arrs = []
-    varnom = select_norms(VARNORM, normIndices) # variables to normalize
     for i_f, _file in enumerate(_files):
         if nfiles > 0 and i_f > nfiles:
             break
@@ -336,7 +335,7 @@ def testing_data(
                 [ak.flatten(a[__feat]).to_numpy() for __feat in features])
             # Optionally normalize data if done in the training
             if not no_normalize:
-                f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, varnom))
+                f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, VARNORM))
                 log.info('Normalizing input data to regressor')
             regressed_target, regressed_target_sigma = get_global_params(regressor, f.T, mode=0)
             if not no_norm_target:

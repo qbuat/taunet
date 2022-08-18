@@ -15,9 +15,6 @@ FEATURES = [
     'TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined',
     'TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined',
     'TauJetsAuxDyn.etaPanTauCellBased',
-    # 'TauJetsAuxDyn.PanTau_BDTValue_1p0n_vs_1p1n',
-    # 'TauJetsAuxDyn.PanTau_BDTValue_1p1n_vs_1pXn',
-    # 'TauJetsAuxDyn.PanTau_BDTValue_3p0n_vs_3pXn',
     # 'TauJetsAuxDyn.nTracks',
     'TauJetsAuxDyn.PFOEngRelDiff', #upsilon; quantifies polar
     'TauJetsAuxDyn.ptTauEnergyScale',
@@ -27,7 +24,20 @@ FEATURES = [
     'TauJetsAuxDyn.NNDecayModeProb_1pXn',
     'TauJetsAuxDyn.NNDecayModeProb_3p0n',
     'TauJetsAuxDyn.NNDecayModeProb_3pXn',
-    ]
+]
+
+# variables to normalize
+VARNORM = [
+    'TauJetsAuxDyn.mu', 
+    'TauJetsAuxDyn.nVtxPU',
+    'TauJetsAuxDyn.rho',
+    'TauJetsAuxDyn.ClustersMeanCenterLambda',
+    'TauJetsAuxDyn.ClustersMeanFirstEngDens',
+    'TauJetsAuxDyn.ClustersMeanSecondLambda',
+    'TauJetsAuxDyn.ptCombined',
+    'TauJetsAuxDyn.etaPanTauCellBased',
+    'TauJetsAuxDyn.ptTauEnergyScale'
+]
 
 TRUTH_FIELDS = [
     'TauJetsAuxDyn.truthPtVisDressed',

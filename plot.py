@@ -1,21 +1,11 @@
 """
 Authors: Quentin Buat and Miles Cochran-Branson
-Date: 6/24/22
+Date: Summer 2022
 
 Create plots of performance of machine learning analysis in comparison
 to standard methods currently in place for TES calibration at ATLAS. 
-
-Optional command-line arguments:
-
-    --debug : run with only three files
-    --copy-to-cernbox : copy plots to cernbox
-    --path : specify path where plots are saved. If used, training *.h5 file
-             may also be located in this folder without needing to specify a location 
-             as in --model below. 
-    --model : specify path to training model
-    --use-cache : use data from cache for plotting
 """
-#from asyncio import subprocess
+
 import subprocess
 from genericpath import exists
 import os

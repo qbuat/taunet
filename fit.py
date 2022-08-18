@@ -1,15 +1,12 @@
-"""
-Authors: Quinten Buat and Miles Cochran-Branson
-Date: 6/24/22
+"""Master script to perform machine learning in order to 
+calibrate the tau energy scale. Command line arguments may be
+used to specify target, learning rate, batch size, and model. 
+Options are also availible for training over part of the dataset. 
 
-Top-level file to perform machine learning training in order to better
-detect tau leptons at the ATLAS detector. 
-
-Command-line options:
-    --debug : run with only two files
-    --rate : specify sample rate for learning; defualt is 0.001
-    --batch-size : specify batch size for learning; default is 64
+Authors: Miles Cochran-Branson and Quentin Buat
+Date: Summer 2022
 """
+
 import os
 import pickle
 import tensorflow as tf
@@ -27,7 +24,7 @@ if __name__ == '__main__':
         FEATURES = FEATURES_NEW
 
     if args.debug:
-        n_files = 3 #set limit on files for testing / debugging
+        n_files = 3
     else:
         n_files = args.nfiles
     
@@ -65,9 +62,7 @@ if __name__ == '__main__':
     try:
         rate = args.rate #default rate 1e-7
         batch_size = args.batch_size #default size 64
-        # optimized as a stochastic gradient descent (i.e. Adam)
         adam = tf.keras.optimizers.get('Adam')
-        #? why is this printed twice
         print (adam.learning_rate)
         adam.learning_rate = rate
         print (adam.learning_rate)
@@ -75,16 +70,14 @@ if __name__ == '__main__':
         regressor.compile(
             loss=tf_mdn_loss, 
             optimizer=adam, 
-            metrics=['mse', 'mae']) #metrics=['mse', 'mae']
+            metrics=['mse', 'mae'])
         history = regressor.fit(
-            X_train, # input data
-            y_train, # target data
+            X_train, 
+            y_train, 
             epochs=_epochs,
-            batch_size=batch_size, #number of samples per gradient update
+            batch_size=batch_size,
             shuffle=True,
-            verbose=2, # reports on progress
-            #sample_weight=None,
-            ## validation_split=0.1,
+            verbose=2, 
             validation_data=(X_val, y_val),
             callbacks=[
                 tf.keras.callbacks.EarlyStopping(verbose=True, patience=20, monitor='val_loss'),
@@ -95,7 +88,7 @@ if __name__ == '__main__':
                     save_best_only=True)])
         # save only best run
         regressor.save(_model_file) # save results of training
-        #Now save history in a pickle file for future use
+        # save history in a pickle file for future use
         pickle.dump(history.history, open("history.p", "wb"))
     # Allow to keyboard interupt to not go over all epochs
     except KeyboardInterrupt:
