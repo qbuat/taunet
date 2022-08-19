@@ -1,6 +1,6 @@
 # Tau Energy Scale Calibration using Neural Networks
 
-The scripts in this repo are desgined to calibrate the tau energy scale (pt spectrum) at the ATLAS detector. 
+The scripts in this repo are desgined to calibrate the tau energy scale (pt spectrum) at the ATLAS detector using Mixture Density Networks (MDN). 
 
 ## Running the Code
 
