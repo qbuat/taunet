@@ -8,14 +8,14 @@ This code runs out of the box on a lxplus node with a cern computing account. If
 
 To run the code, first create a python envirnoment with the provided `requirements.txt` file as follows:
 
-```
+````
 python3 -m venv tesenv
 source tesenv/bin/activate
 python -m pip install requirements.txt
-```
+````
 
 Once you have the environment set up you can run the file `fit.py` to learn a good network. Running `plot.py` will then create plots from this network. One good network is already in the folder `final_MDN`. To get plots for this run 
 
-```
+````
 python plot.py --path final_MDN
-```
+````
