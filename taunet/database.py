@@ -374,7 +374,7 @@ def testing_data(
                 _arr_below = _arr[cut2]
             temp_len = len(_arr[0])
             _arr = np.insert(_arr, temp_len, regressed_target, axis=1)
-            _arr = np.insert(_arr, temp_len, regressed_target_sigma, axis=1)
+            _arr = np.insert(_arr, temp_len+1, regressed_target_sigma, axis=1)
             _arr = np.core.records.fromarrays(
                 _arr.transpose(), 
                 names=[_var for _var in plotting_fields] + ['regressed_target'] + ['regressed_target_sigma'])
