@@ -14,8 +14,8 @@ source tesenv/bin/activate
 python -m pip install requirements.txt
 ````
 
-Once you have the environment set up you can run the file `fit.py` to learn a good network. Running `plot.py` will then create plots from this network. One good network is already in the folder `final_MDN`. To get plots for this run 
+Once you have the environment set up you can run the file `fit.py` to learn a good network. Running `plot.py` will then create plots from this network. One good network is already in the folder `final_MDN`. To get plots for this using data from part of the dataset run 
 
 ````
-python plot.py --path final_MDN
+python plot.py --path final_MDN --debug --nfiles 1
 ````
