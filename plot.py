@@ -90,9 +90,15 @@ if __name__ == '__main__':
     if args.get_GMM_components:
         from taunet.plotting import visualize_GMM_vars
         truth_pt = d['TauJetsAuxDyn.truthPtVisDressed']
-        visualize_GMM_vars(truth_pt, abs(d_GMM_output['mu1']-d_GMM_output['mu2']), path, 
-            plotSaveName='plots/mu1_minus_mu2_vs_pt.pdf')
-        visualize_GMM_vars(truth_pt, abs(d_GMM_output['sig1']-d_GMM_output['sig2']), path, 
+        visualize_GMM_vars(truth_pt/1000, d_GMM_output['mu1'], path, ytitle='$\\mu_1$', plotSaveName='plots/mu1.pdf')
+        visualize_GMM_vars(truth_pt/1000, d_GMM_output['mu2'], path, ytitle='$\\mu_2$', plotSaveName='plots/mu2.pdf')
+        visualize_GMM_vars(truth_pt/1000, d_GMM_output['sig1'], path, ytitle='$\\sigma_1$', plotSaveName='plots/sig1.pdf')
+        visualize_GMM_vars(truth_pt/1000, d_GMM_output['sig2'], path, ytitle='$\\sigma_2$', plotSaveName='plots/sig2.pdf')
+        visualize_GMM_vars(truth_pt/1000, d_GMM_output['pi1'], path, ytitle='$\\pi_1$', plotSaveName='plots/pi1.pdf')
+        visualize_GMM_vars(truth_pt/1000, d_GMM_output['pi2'], path, ytitle='$\\pi_1$', plotSaveName='plots/pi2.pdf')
+        visualize_GMM_vars(truth_pt/1000, abs(d_GMM_output['mu1']-d_GMM_output['mu2']), path, 
+            ytitle='$|\\mu_1 - \\mu_2|$', plotSaveName='plots/mu1_minus_mu2_vs_pt.pdf')
+        visualize_GMM_vars(truth_pt/1000, abs(d_GMM_output['sig1']-d_GMM_output['sig2']), path, 
             ytitle='$|\\sigma_1 - \\sigma_2|$', plotSaveName='plots/sig1_minus_sig2_vs_pt.pdf')
 
     if args.copy_to_cernbox:

@@ -48,7 +48,6 @@ def nn_history(file, plotSaveLoc):
         fig.savefig(os.path.join(plotSaveLoc, 'plots/nn_model_{}.pdf'.format(metric)), bbox_inches='tight')
         plt.close(fig)
 
-
 def pt_lineshape(testing_data, plotSaveLoc, nbins=200, target_normalize_var='TauJetsAuxDyn.ptCombined'):
     """Plot lineshape with respect to truth, network result, combined, and final
 
@@ -373,25 +372,64 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
 
 def visualize_GMM_vars(x, y, plotSaveLoc, xtitle='True $p_T$ [GeV]', ytitle='$|\\mu_1 - \\mu_2|$ [A.U.]', plotSaveName='plots/params_vs_pt.pdf'):
     """Visualize components of GMM
+
+    x : vector of floats
+
+    y : vector of floats
+
+    plotSaveLoc : str
+        Location to save plot
+
+    xtitle : str
+        Optionally give x title for plot
+
+    ytitle : str
+        Optionally give y title for plot
+
+    plotSaveName : str
+        Name of saved plot
     """
+
+    log.info("Plotting GMM variables")
 
     fig = plt.figure(dpi=100, figsize=(4,4))
     x_bins = np.linspace(np.min(x), 200, 15)
     y_bins = np.linspace(np.min(y), np.max(y), 15)
-    plt.hist2d(x/1000, y, bins=[x_bins, y_bins])
+    plt.hist2d(x, y, bins=[x_bins, y_bins])
     plt.xlabel(xtitle, loc='right')
     plt.ylabel(ytitle, loc='top')
     cbar = plt.colorbar()
     cbar.set_label('Number of $\\tau_{had-vis}$')
     cbar.formatter.set_powerlimits((0, 0))
     cbar.formatter.set_useMathText(True)
-    plt.savefig(os.path.join(plotSaveLoc, plotSaveName))
+    plt.savefig(os.path.join(plotSaveLoc, plotSaveName), bbox_inches='tight')
     plt.close(fig)
 
 #% ----------------------------------------------------------
 # Plots to show power of using sigma and mu from MDN
 
 def response_above_below(d, d_above, d_below, save_loc, name):
+    """Plots response on better and worse events. 
+
+    Better events are those with |stddev/mean| < 1. 
+
+    Parameters:
+    ----------
+
+    d : array of arrays
+
+    d_above : array of arrays of better events
+
+    d_below : array of arrays of worse events
+
+    save_loc : str
+        Location to save plot
+
+    name : str
+        Plot save name
+    """
+
+    log.info('Plotting response of better and worse events')
 
     from taunet.utils import response_curve
 
@@ -461,6 +499,8 @@ def response_lineshape_above_below(testing_data, alt_data, plotSaveLoc,
         Optionally put txt on canvas to specify cut given on data
     """
 
+    log.info("Plotting the response lineshape above and below")
+
     fig = plt.figure(figsize=(4,4), dpi = 300)
     plt.yscale('log')
     plt.hist(
@@ -499,6 +539,24 @@ def response_lineshape_above_below(testing_data, alt_data, plotSaveLoc,
     plt.close(fig) 
 
 def pT_explore_above_below(d, d_above, d_below, dens=True, target_normalize_var='TauJetsAuxDyn.ptCombined'):
+    """Explore where performance by network is better as a function of pt
+
+    Note that better events are classified using MDN |stddev/mean| < 1
+
+    Parameters:
+    -----------
+
+    d : array of all events
+
+    d_above : array of worse events
+
+    d_below : array of better events
+
+    dens=True : Normalize histogram
+    """
+
+    log.info("Plotting where network performs better or worse as a function of pt")
+
     fig = plt.figure(figsize=(4,4), dpi = 100)
     plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3), useMathText=True)
     plt.hist(d['regressed_target'] * d[target_normalize_var] / 1000., 
@@ -514,6 +572,34 @@ def pT_explore_above_below(d, d_above, d_below, dens=True, target_normalize_var=
     plt.close(fig)
 
 def variable_explore_above_below(d, d_above, d_below, var, xtitle, varname, legloc=1, dens=True):
+    """Explore where performance of network is better as a funtion of a given variable
+
+    Parameters:
+    ----------
+
+    d : array of all events
+
+    d_above : array of worse events
+
+    d_below : array of better events
+
+    var : str
+        Variable to plot against
+
+    xtitle : str
+        Title of x axis 
+
+    varname : str
+        Name for plotting purposes
+
+    legloc=1 : int
+        Location of legend as specified by matplotlib
+
+    dens=True : Normalize histogram
+    """
+
+    log.info("Plotting where network performs better or worse as a function of {}".format(var))
+
     fig = plt.figure(figsize=(4,4), dpi = 100)
     plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3), useMathText=True)
     plt.hist(d[var], 
