@@ -53,6 +53,9 @@ if __name__ == '__main__':
         d, d_GMM_output = testing_data(PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, getGMMcomponents=True,
             nfiles=n_files, optional_path=path, select_1p=args.oneProng, select_3p=args.threeProngs, no_normalize=args.no_normalize, 
             no_norm_target=args.no_norm_target, debug=args.debug, noCombined=args.newTarget)
+        import numpy as np
+        np.save(file='/eos/user/m/mcochran/temp_data_files/d', arr=d)
+        np.save(file='/eos/user/m/mcochran/temp_data_files/GMM_output', arr=d_GMM_output)
     else:
         d = testing_data(PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, 
             nfiles=n_files, optional_path=path, select_1p=args.oneProng, select_3p=args.threeProngs, no_normalize=args.no_normalize, 
