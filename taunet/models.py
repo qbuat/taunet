@@ -16,7 +16,7 @@ def keras_model_main(n_variables, name='simple_dnn'):
     output   = tf.keras.layers.Dense(1, activation='linear')(hidden_7)
     return tf.keras.Model(inputs=x_1, outputs=output, name=name)
 
-def keras_model_terry(n_variables, name='more_simple_dnn'):
+def keras_model_terry(n_variables, name='main_dnn'):
     x_1 = tf.keras.Input(shape=n_variables)
     """
     Potentially the NN network used in:

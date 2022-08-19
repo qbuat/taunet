@@ -9,6 +9,7 @@ Date: Summer 2022
 
 import os
 import pickle
+from taunet.models import keras_model_terry_regular
 import tensorflow as tf
 import numpy as np
 

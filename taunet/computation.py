@@ -18,7 +18,6 @@ def chi_squared(obs, exp):
             chi_squared += (obs[i] - exp[i]) ** 2 / exp[i]
     return chi_squared
 
-
 #%%-------------------------------------------------------------
 # Normalization functions
 
@@ -79,10 +78,8 @@ def applySSNormalize(data, norms, vars=[]):
     return data
 
 def applySSNormalizeTest(data, norms, vars=[]):
-    """
-    Apply norms to testing data
-    """
-
+    """Apply norms to testing data"""
+    
     if vars == []:
         vars = range(len(data[:,0]))
     for i in vars:
@@ -99,13 +96,6 @@ def getVarIndices(features, vars=FEATURES):
             indices += [i]
         i = i + 1
     return indices
-
-# sketch function for condor things 
-def select_norms(norms, vec):
-    tempNorms = []
-    for i in vec:
-        tempNorms += [norms[i]]
-    return tempNorms
 
 # variables to normalize
 VARNORM = [

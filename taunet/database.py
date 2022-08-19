@@ -246,6 +246,10 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         _target = _target.reshape(_target.shape[0], 1)
         log.info('Total training input = {}'.format(_train.shape))
 
+        #! added for testing
+        og_train = np.array(_train)
+        old_target = np.array(_target)
+
         #normalize here!
         old_train = np.array(_train)
         if not no_normalize:
