@@ -38,7 +38,7 @@ if __name__ == '__main__':
     else:
         X_train, X_val, y_train, y_val, old_train, _train = training_data(
             PATH, DATASET, FEATURES, TARGET_FIELD, nfiles=n_files, 
-            select_1p=args.oneProng, select_3p=args.threeProngs, normIndices=list(map(int, args.normIDs)),
+            select_1p=args.oneProng, select_3p=args.threeProngs,
             no_normalize=args.no_normalize, no_norm_target=args.no_norm_target, debug=args.debug)
 
     if args.add_to_cache:
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     # import model
     from taunet.models import keras_model_2gauss_mdn_small, keras_model_2gauss_mdn_small_noreg, keras_model_1gauss_mdn_small, keras_model_big_mdn
-    from taunet.computation import tf_mdn_loss
+    from taunet.utils import tf_mdn_loss
     # choose model 
     if args.small_1gauss:
         regressor = keras_model_1gauss_mdn_small((len(FEATURES),))

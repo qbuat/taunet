@@ -15,8 +15,6 @@ from taunet.fields import FEATURES, TRUTH_FIELDS, OTHER_TES, FEATURES_NEW
 if __name__ == '__main__':
     
     from taunet.parser import plot_parser
-    # train_parser = argparse.ArgumentParser(parents=[common_parser])
-    # train_parser.add_argument('--use-cache', action='store_true')
     args = plot_parser.parse_args()
 
     if args.newTarget:
@@ -25,35 +23,40 @@ if __name__ == '__main__':
     else: 
         target_normalize_var = 'TauJetsAuxDyn.ptCombined'
 
-    if args.debug:
-        n_files = 3
-    else:
-        n_files = args.nfiles
+    n_files = args.nfiles
 
     path = args.path # path to where training is stored
-    # make plot folder if it doesn't already exist
+    # make plot folder for plots if it doesn't already exist
     if not os.path.exists(os.path.join(path, 'plots')):
         cmd = 'mkdir -p {}'.format(os.path.join(path, 'plots'))
         subprocess.run(cmd, shell=True)
-    # load potentially required packages
+
+    # if not using cache load these packages
     if not args.use_cache:
         import tensorflow as tf
         import tensorflow_probability as tfp
-    # loads result of training to make plots 
-    #! I did some weird things here... be careful when running with different 
-    #! models, etc
-    from taunet.computation import tf_mdn_loss
+        from taunet.utils import tf_mdn_loss
     if path != '' and not args.use_cache:
-        regressor = tf.keras.models.load_model(os.path.join(path, args.model), custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
+        regressor = tf.keras.models.load_model(os.path.join(path, args.model), 
+            custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
     elif not args.use_cache:
-        regressor = tf.keras.models.load_model(os.path.join('cache', args.model), custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
+        regressor = tf.keras.models.load_model(os.path.join('cache', args.model), 
+            custom_objects={'MixtureNormal': tfp.layers.MixtureNormal, 'tf_mdn_loss': tf_mdn_loss})
     else:
         regressor = ''
 
-    d = testing_data(
-        PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, nfiles=n_files, 
-        optional_path=path, select_1p=args.oneProng, select_3p=args.threeProngs, normIndices=list(map(int, args.normIDs)),
-        no_normalize=args.no_normalize, no_norm_target=args.no_norm_target, debug=args.debug, noCombined=args.newTarget)
+    if args.get_above_below:
+        d, d_above, d_below = testing_data(PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, getAboveBelow=True,
+            nfiles=n_files, optional_path=path, select_1p=args.oneProng, select_3p=args.threeProngs, no_normalize=args.no_normalize, 
+            no_norm_target=args.no_norm_target, debug=args.debug, noCombined=args.newTarget)
+    elif args.get_GMM_components:
+        d, d_GMM_output = testing_data(PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, getGMMcomponents=True,
+            nfiles=n_files, optional_path=path, select_1p=args.oneProng, select_3p=args.threeProngs, no_normalize=args.no_normalize, 
+            no_norm_target=args.no_norm_target, debug=args.debug, noCombined=args.newTarget)
+    else:
+        d = testing_data(PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, 
+            nfiles=n_files, optional_path=path, select_1p=args.oneProng, select_3p=args.threeProngs, no_normalize=args.no_normalize, 
+            no_norm_target=args.no_norm_target, debug=args.debug, noCombined=args.newTarget)
 
     from taunet.plotting import nn_history
     nn_history(os.path.join(path, 'history.p'), path)
@@ -74,6 +77,12 @@ if __name__ == '__main__':
     from taunet.plotting import response_and_resol_vs_var
     response_and_resol_vs_var(d, path, target_normalize_var=target_normalize_var)
     response_and_resol_vs_var(d, path, xvar='eta', target_normalize_var=target_normalize_var, nbins=35)
+
+    if args.get_above_below:
+        from taunet.plotting import response_lineshape_above_below, response_above_below
+        response_above_below(d, d_above, d_below, path, 'all')
+        response_lineshape_above_below(d, d_above, path, 'plots/response_lineshape_above.pdf', txt='$|\\frac{\\sigma}{\\mu}| > 1$')
+        response_lineshape_above_below(d, d_below, path, 'plots/response_lineshape_below.pdf', txt='$|\\frac{\\sigma}{\\mu}| < 1$')
 
     if args.copy_to_cernbox:
         from taunet.utils import copy_plots_to_cernbox

@@ -15,7 +15,7 @@ plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.serif'] = ['Computer Modern Roman', 'Times']
 
 from . import log; log = log.getChild(__name__)
-from taunet.computation import chi_squared
+from taunet.utils import chi_squared
 
 # set size of figure for all plots
 size = (4,4)
@@ -366,4 +366,147 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
     plt.legend()
     plt.savefig(os.path.join(plotSaveLoc, 
         'plots/tes_mdn_resolution_vs_truth_{}.pdf'.format(xvar)), bbox_inches='tight')
+    plt.close(fig)
+
+#% ----------------------------------------------------------
+# Plots to visualized parameters from GMM
+
+#% ----------------------------------------------------------
+# Plots to show power of using sigma and mu from MDN
+
+def response_above_below(d, d_above, d_below, save_loc, name):
+
+    from taunet.utils import response_curve
+
+    response_reg = d['regressed_target'] * d['TauJetsAuxDyn.ptCombined'] / d['TauJetsAuxDyn.truthPtVisDressed']
+    response_reg_above = d_above['regressed_target'] * d_above['TauJetsAuxDyn.ptCombined'] / d_above['TauJetsAuxDyn.truthPtVisDressed']
+    response_reg_below = d_below['regressed_target'] * d_below['TauJetsAuxDyn.ptCombined'] / d_below['TauJetsAuxDyn.truthPtVisDressed']
+    response_ref = d['TauJetsAuxDyn.ptFinalCalib'] / d['TauJetsAuxDyn.truthPtVisDressed']
+    response_comb = d['TauJetsAuxDyn.ptCombined'] / d['TauJetsAuxDyn.truthPtVisDressed']
+    truth_pt = d['TauJetsAuxDyn.truthPtVisDressed'] / 1000.
+    truth_pt_above = d_above['TauJetsAuxDyn.truthPtVisDressed'] / 1000.
+    truth_pt_below = d_below['TauJetsAuxDyn.truthPtVisDressed'] / 1000.
+
+    bins = [
+        # (0, 10),
+        (10, 20),
+        (20, 30),
+        (30, 40),
+        (40, 50),
+        (50, 60),
+        (60, 70),
+        (70, 80),
+        (80, 90),
+        (90, 100),
+        (100, 150),
+        (150, 200),
+    ]
+
+    bins_reg, bin_errors_reg, means_reg, errs_reg, resol_reg = response_curve(response_reg, truth_pt, bins)
+    abins_reg, abin_errors_reg, ameans_reg, aerrs_reg, aresol_reg = response_curve(response_reg_above, truth_pt_above, bins)
+    bbins_reg, bbin_errors_reg, bmeans_reg, berrs_reg, bresol_reg = response_curve(response_reg_below, truth_pt_below, bins)
+    bins_ref, bin_errors_ref, means_ref, errs_ref, resol_ref = response_curve(response_ref, truth_pt, bins)
+    bins_comb, bin_errors_comb, means_comb, errs_comb, resol_comb = response_curve(response_comb, truth_pt, bins)
+
+    fig = plt.figure(figsize=(4,4), dpi = 100)
+    plt.plot(bins_ref, 100 * resol_comb, color='black', label='Combined')
+    plt.plot(bins_ref, 100 * resol_ref, color='red', label='Final')
+    plt.plot(bins_ref, 100 * resol_reg, color='purple', label='This work')
+    plt.plot(bins_ref, 100 * aresol_reg, '--', color = 'purple', label = '$|\\frac{\\sigma}{\\mu}| > 1$')
+    plt.plot(bins_ref, 100 * bresol_reg, '-.', color = 'purple', label = '$|\\frac{\\sigma}{\\mu}| < 1$')
+    plt.ylabel('$p_{T}(\\tau_{had-vis})$ resolution, 68\% CL [\%]', loc = 'top')
+    plt.xlabel('True $p_{T}(\\tau_{had-vis})$ [GeV]', loc = 'right')
+    plt.legend()
+    plt.savefig(os.path.join(save_loc, 'plots/resolution_vs_truth_{}.pdf'.format(name)), bbox_inches='tight')
+    plt.close(fig)
+
+def response_lineshape_above_below(testing_data, alt_data, plotSaveLoc, 
+            plotSaveName='plots/tes_response_lineshape.pdf', txt=''):
+    """Plot the regressed target lineshape with subset of data in regressed target.
+
+    Parameters:
+    ----------
+
+    testing_data : numpy array of arrays
+        Must contain at least variables truthPtVisDressed, ptCombined,
+        ptFinalCalib, regressed_target
+
+    alt_data : numpy array of arrays
+        Data post-cut to show better or worse events
+
+    plotSaveLoc='' : str
+        Path to where plots should be saved  
+
+    plotSaveName='plots/tes_target_lineshape.pdf' : str
+        Base name for plot saving
+
+    txt='' : str
+        Optionally put txt on canvas to specify cut given on data
+    """
+
+    fig = plt.figure(figsize=(4,4), dpi = 300)
+    plt.yscale('log')
+    plt.hist(
+        testing_data['TauJetsAuxDyn.ptCombined'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
+        density=True,
+        bins=200, 
+        range=(0, 2), 
+        histtype='step', 
+        color='black', 
+        label='Combined', zorder=1)
+    plt.hist(
+        testing_data['TauJetsAuxDyn.ptFinalCalib'] / testing_data['TauJetsAuxDyn.truthPtVisDressed'],
+        density=True,
+        bins=200, 
+        range=(0, 2), 
+        histtype='step', 
+        color='red', 
+        label='Final', zorder=5)
+    plt.hist(
+        alt_data['regressed_target'] * alt_data['TauJetsAuxDyn.ptCombined'] / alt_data['TauJetsAuxDyn.truthPtVisDressed'],
+        density=True,
+        bins=200, 
+        range=(0, 2), 
+        histtype='step', 
+        color='purple', 
+        label='This work', zorder=10)
+    xmin, xmax, ymin, ymax = plt.axis()
+    plt.plot([1.0, 1.0], [ymin, ymax], linestyle='dashed', color='grey', zorder=20)
+    if txt!='':
+        plt.text(1.5, 4e-1, txt, fontsize=15)
+    plt.ylabel('Number of $\\tau_{had-vis}$ / $\\int$ Number of $\\tau_{had-vis}$', loc = 'top')
+    plt.xlabel('Predicted $p_{T}(\\tau_{had-vis})$ / True $p_{T}(\\tau_{had-vis})$', loc = 'right')
+    plt.legend()
+    plt.savefig(os.path.join(plotSaveLoc, plotSaveName), bbox_inches='tight')
+    plt.yscale('linear')
+    plt.close(fig) 
+
+def pT_explore_above_below(d, d_above, d_below, dens=True, target_normalize_var='TauJetsAuxDyn.ptCombined'):
+    fig = plt.figure(figsize=(4,4), dpi = 100)
+    plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3), useMathText=True)
+    plt.hist(d['regressed_target'] * d[target_normalize_var] / 1000., 
+            bins=200, histtype='step', range=(0, 200), label='All Events', density=dens)
+    plt.hist(d_above['regressed_target'] * d_above[target_normalize_var] / 1000., 
+            bins=200, histtype='step', range=(0, 200), label='$|\\frac{\\sigma}{\\mu}| > 1$', density=dens)
+    plt.hist(d_below['regressed_target'] * d_below[target_normalize_var] / 1000., 
+            bins=200, histtype='step', range=(0, 200), label='$|\\frac{\\sigma}{\\mu}| < 1$', density=dens)
+    plt.xlabel('$p_T(\\tau_{had-vis})$', loc='right')
+    plt.ylabel('Number of $\\tau_{had-vis}$', loc='top')
+    plt.legend()
+    plt.savefig('debug_plots/plots/pT_explore.pdf', bbox_inches='tight')
+    plt.close(fig)
+
+def variable_explore_above_below(d, d_above, d_below, var, xtitle, varname, legloc=1, dens=True):
+    fig = plt.figure(figsize=(4,4), dpi = 100)
+    plt.ticklabel_format(axis='y',style='sci', scilimits=(-3,3), useMathText=True)
+    plt.hist(d[var], 
+            bins=200, histtype='step', label='All Events', density=dens)
+    plt.hist(d_above[var], 
+            bins=200, histtype='step', label='$|\\frac{\\sigma}{\\mu}| > 1$', density=dens)
+    plt.hist(d_below[var], 
+            bins=200, histtype='step', label='$|\\frac{\\sigma}{\\mu}| < 1$', density=dens)
+    plt.legend(loc=legloc)
+    plt.xlabel(xtitle, loc='right')
+    plt.ylabel('Number of $\\tau_{had-vis}$ / $\\int$ Number of $\\tau_{had-vis}$', loc='top')
+    plt.savefig('debug_plots/plots/{}_explore.pdf'.format(varname), bbox_inches='tight')
     plt.close(fig)

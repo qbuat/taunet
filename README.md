@@ -11,7 +11,13 @@ To run the code, first create a python envirnoment with the provided `requiremen
 ````
 python3 -m venv tesenv
 source tesenv/bin/activate
-python -m pip install requirements.txt
+pip install -r requirements.txt
+````
+
+Note: the version of `pip` on the lxplus nodes is old and may not be able to find the desired version of `tensorflow`. Before installing requirements from the `txt` file consider running
+
+````
+pip install --upgrade pip
 ````
 
 Once you have the environment set up you can run the file `fit.py` to learn a good network. Running `plot.py` will then create plots from this network. One good network is already in the folder `final_MDN`. To get plots for this using data from part of the dataset run 

@@ -6,7 +6,7 @@ Database changes:
 import os
 from unittest.mock import DEFAULT
 
-from taunet.utils import StandardScalar, applySSNormalizeTest, getSSNormalize, applySSNormalizeTest, getVarIndices, applySSNormalize, get_global_params
+from taunet.utils import StandardScalar, applySSNormalizeTest, getSSNormalize, applySSNormalizeTest, getVarIndices, applySSNormalize, get_global_params, cut_above_below
 from taunet.fields import VARNORM
 from . import log; log = log.getChild(__name__)
 
@@ -120,7 +120,7 @@ def debug_mode(tree, features, select_1p = False, select_3p = False, cut = None,
       
 def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, select_3p=False, 
     use_cache=False, save_to_cache=False, tree_name='CollectionTree', no_normalize=False, no_norm_target=False, 
-    normSavePath='data/normFactors', normIndices=range(9), debug=False):
+    normSavePath='data/normFactors', debug=False):
     """Optain properly-formatted training and validation data from given dataset
 
     Parameters:
@@ -168,9 +168,6 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
     normSavePath='data/normFactors' : str
         Path to where means and stddevs of each variable in `features` are stored. 
         Saved in .npy file format
-
-    normIndices=range(9) : vector of ints
-        Indices of variables to apply standard scalar normalization
 
     Returns:
     -------
@@ -278,18 +275,25 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
     return X_train, X_val, y_train, y_val, old_train, _train
 
 def testing_data(
-        path, dataset, features, plotting_fields, regressor, 
-        nfiles=-1, select_1p=False, select_3p=False, tree_name='CollectionTree',
-        saveToCache=False, useCache=False, optional_path='', 
-        no_normalize=False, no_norm_target=False, normIndices=range(9), debug=False, noCombined=False):
+        path, dataset, features, plotting_fields, regressor, nfiles=-1, select_1p=False, select_3p=False, 
+        tree_name='CollectionTree', saveToCache=False, useCache=False, optional_path='', getAboveBelow=False, 
+        getGMMcomponents=False, no_normalize=False, no_norm_target=False, debug=False, noCombined=False):
     """
     """
+
+    if getAboveBelow and getGMMcomponents:
+        raise ValueError("Change code to make this possible dawg!")
     
     import numpy as np
 
     if useCache:
         log.info('Using cache')
-        return np.load('data/testingData_temp.npy')
+        if getAboveBelow:
+            return np.load('data/d.npy'), np.load('data/d_above.npy'), np.load('data/d_below.npy')
+        elif getGMMcomponents:
+            return np.load('data/d.npy'), np.load('data/GMMcomp.npy')
+        else:
+            return np.load('data/d.npy')
 
     import uproot
     import awkward as ak
@@ -308,6 +312,11 @@ def testing_data(
             norms = np.load(os.path.join(optional_path, 'normFactors.npy'))
     
     _arrs = []
+    if getAboveBelow:
+        _arrs_above = []
+        _arrs_below = []
+    if getGMMcomponents:
+        _output_arrs = []
     for i_f, _file in enumerate(_files):
         if nfiles > 0 and i_f > nfiles:
             break
@@ -328,7 +337,7 @@ def testing_data(
                     cut = 'EventInfoAuxDyn.eventNumber%3 == 0',
                     select_1p=select_1p,
                     select_3p=select_3p)
-            a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 25. ] # may not be necessary; must justify this cut
+            a = a[ a['TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis'] < 25. ]
             if not noCombined:
                 a = a[ a['TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined'] < 25. ] 
                 a = a[ a['TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined'] < 25. ]
@@ -342,26 +351,82 @@ def testing_data(
                 f = applySSNormalizeTest(f, norms, vars=getVarIndices(features, VARNORM))
                 log.info('Normalizing input data to regressor')
             regressed_target, regressed_target_sigma = get_global_params(regressor, f.T, mode=0)
+            if getAboveBelow:
+                cut1, cut2 = cut_above_below(regressed_target, regressed_target_sigma)
+                f1 = f.T[cut1]
+                f2 = f.T[cut2]
+                regressed_target1 = get_global_params(regressor, f1, mode=1)
+                regressed_target2 = get_global_params(regressor, f2, mode=1)
             if not no_norm_target:
-                # If target was normalized, revert to original
+                # If target was normalized, revert to original. 
                 # Last element of variable "norms" contains mean (element 0) 
                 # and std (element 1) of target. 
-                regressed_target = norms[len(norms)-1][1] * regressed_target + norms[len(norms)-1][0]
                 log.info('Returning data to orginal format for plotting')
+                regressed_target = norms[len(norms)-1][1] * regressed_target + norms[len(norms)-1][0]
+                if getAboveBelow:
+                    regressed_target1 = norms[len(norms)-1][1] * regressed_target1 + norms[len(norms)-1][0]
+                    regressed_target2 = norms[len(norms)-1][1] * regressed_target2 + norms[len(norms)-1][0]
             regressed_target = regressed_target.reshape((regressed_target.shape[0], ))
             regressed_target_sigma = regressed_target_sigma.reshape((regressed_target_sigma.shape[0], ))
-            _arr = np.stack(
-                [ak.flatten(a[_var]).to_numpy() for _var in plotting_fields] + [regressed_target] + [regressed_target_sigma], axis=1)
+            _arr = np.stack([ak.flatten(a[_var]).to_numpy() for _var in plotting_fields], axis=1)
+            if getAboveBelow:
+                _arr_above = _arr[cut1]
+                _arr_below = _arr[cut2]
+            temp_len = len(_arr[0])
+            _arr = np.insert(_arr, temp_len, regressed_target, axis=1)
+            _arr = np.insert(_arr, temp_len, regressed_target_sigma, axis=1)
             _arr = np.core.records.fromarrays(
                 _arr.transpose(), 
                 names=[_var for _var in plotting_fields] + ['regressed_target'] + ['regressed_target_sigma'])
             _arrs += [_arr]
+            if getAboveBelow:
+                _arr_above = np.insert(_arr_above, temp_len, regressed_target1, axis=1)
+                _arr_below = np.insert(_arr_below, temp_len, regressed_target2, axis=1)
+                _arr_above = np.core.records.fromarrays(_arr_above.transpose(), 
+                                names=[_var for _var in plotting_fields] + ['regressed_target'])
+                _arr_below = np.core.records.fromarrays(_arr_below.transpose(), 
+                                names=[_var for _var in plotting_fields] + ['regressed_target'])
+                _arrs_above += [_arr_above]
+                _arrs_below += [_arr_below]
+
+            if getGMMcomponents:
+                pi1, mu1, sig1, pi2, mu2, sig2 = get_global_params(regressor, f.T, mode=3)
+                pi1 = pi1.reshape((pi1.shape[0], ))
+                pi2 = pi2.reshape((pi2.shape[0], ))
+                mu1 = mu1.reshape((mu1.shape[0], ))
+                mu2 = mu2.reshape((mu2.shape[0], ))
+                sig1 = sig1.reshape((sig1.shape[0], ))
+                sig2 = sig2.reshape((sig2.shape[0], ))
+                _output_arr = np.stack([pi1, pi2, mu1, mu2, sig1, sig2], axis=1)
+                _output_arr = np.core.records.fromarrays(_output_arr.transpose(), names=['pi1', 'pi2', 'mu1', 'mu2', 'sig1', 'sig2'])
+                _output_arrs += [_output_arr]
+
 
     log.info("Variables normalized: {}".format(
                 list(features[i] for i in getVarIndices(features, VARNORM))))
     _arrs = np.concatenate(_arrs)
+    if getAboveBelow:
+        _arrs_above = np.concatenate(_arrs_above)
+        _arrs_below = np.concatenate(_arrs_below)
+    if getGMMcomponents:
+        _output_arrs = np.concatenate(_output_arrs)
     log.info('Total testing input = {}'.format(_arrs.shape))
     if saveToCache:
-        np.save('data/testingData_temp', _arrs)
         log.info('Saving data to cache')
-    return _arrs
+        if getAboveBelow:
+            np.save(file='data/d', arr=_arrs)
+            np.save(file='data/d_above', arr=_arrs_above)
+            np.save(file='data/d_below', arr=_arrs_below)
+        elif getGMMcomponents:
+            np.save(file='data/d', arr=_arrs)
+            np.save(file='data/GMMcomp', arr=_output_arrs)
+        else:
+            np.save(file='data/d', arr=_arrs)
+    
+    # output based on user preference
+    if getAboveBelow:
+        return _arrs, _arrs_above, _arrs_below
+    elif getGMMcomponents:
+        return _arrs, _output_arrs
+    else:
+        return _arrs
