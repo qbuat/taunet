@@ -84,6 +84,14 @@ if __name__ == '__main__':
         response_lineshape_above_below(d, d_above, path, 'plots/response_lineshape_above.pdf', txt='$|\\frac{\\sigma}{\\mu}| > 1$')
         response_lineshape_above_below(d, d_below, path, 'plots/response_lineshape_below.pdf', txt='$|\\frac{\\sigma}{\\mu}| < 1$')
 
+    if args.get_GMM_components:
+        from taunet.plotting import visualize_GMM_vars
+        truth_pt = d['TauJetsAuxDyn.truthPtVisDressed']
+        visualize_GMM_vars(truth_pt, abs(d_GMM_output['mu1']-d_GMM_output['mu2']), path, 
+            plotSaveName='plots/mu1_minus_mu2_vs_pt.pdf')
+        visualize_GMM_vars(truth_pt, abs(d_GMM_output['sig1']-d_GMM_output['sig2']), path, 
+            ytitle='$|\\sigma_1 - \\sigma_2|$', plotSaveName='plots/sig1_minus_sig2_vs_pt.pdf')
+
     if args.copy_to_cernbox:
         from taunet.utils import copy_plots_to_cernbox
         if path != '':

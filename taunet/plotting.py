@@ -371,6 +371,23 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
 #% ----------------------------------------------------------
 # Plots to visualized parameters from GMM
 
+def visualize_GMM_vars(x, y, plotSaveLoc, xtitle='True $p_T$ [GeV]', ytitle='$|\\mu_1 - \\mu_2|$ [A.U.]', plotSaveName='plots/params_vs_pt.pdf'):
+    """Visualize components of GMM
+    """
+
+    fig = plt.figure(dpi=100, figsize=(4,4))
+    x_bins = np.linspace(np.min(x), 200, 15)
+    y_bins = np.linspace(np.min(y), np.max(y), 15)
+    plt.hist2d(x/1000, y, bins=[x_bins, y_bins])
+    plt.xlabel(xtitle, loc='right')
+    plt.ylabel(ytitle, loc='top')
+    cbar = plt.colorbar()
+    cbar.set_label('Number of $\\tau_{had-vis}$')
+    cbar.formatter.set_powerlimits((0, 0))
+    cbar.formatter.set_useMathText(True)
+    plt.savefig(os.path.join(plotSaveLoc, plotSaveName))
+    plt.close(fig)
+
 #% ----------------------------------------------------------
 # Plots to show power of using sigma and mu from MDN
 
