@@ -65,7 +65,7 @@ if __name__ == '__main__':
         regressor = keras_model_2gauss_mdn_small_noreg((len(FEATURES),))
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:
-        rate = args.rate #default rate 1e-7
+        rate = args.rate #default rate 1e-5
         batch_size = args.batch_size #default size 64
         adam = tf.keras.optimizers.get('Adam')
         print (adam.learning_rate)
@@ -91,10 +91,9 @@ if __name__ == '__main__':
                     monitor='val_loss',
                     verbose=True, 
                     save_best_only=True)])
-        # save only best run
-        regressor.save(_model_file) # save results of training
+        regressor.save(_model_file) 
         # save history in a pickle file for future use
         pickle.dump(history.history, open("history.p", "wb"))
-    # Allow to keyboard interupt to not go over all epochs
+    # Allow keyboard interupt to not go over all epochs
     except KeyboardInterrupt:
         print('Ended early...')

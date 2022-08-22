@@ -1,3 +1,5 @@
+"""Command line arguments for fitting and plotting"""
+
 import argparse
 from tokenize import Double
 
