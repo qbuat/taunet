@@ -8,8 +8,6 @@ from . import log; log = log.getChild(__name__)
 
 
 #%%----------------------------------------------------------
-import tensorflow as tf
-
 # MDN loss function
 def tf_mdn_loss(y, model):
     """Negative log-probability loss function for use with tensorflow."""
@@ -19,7 +17,17 @@ def tf_mdn_loss(y, model):
 #%%----------------------------------------------------------
 # compute chi^2
 def chi_squared(obs, exp):
-    """Compute chi squared of variable obs wrt exp (expectation)"""
+    """Compute chi squared of variable obs wrt exp (expectation)
+    
+    Paramaters:
+    ----------
+
+    obs : vector{float}
+        Vector of observastions
+
+    exp : vector{float}
+        Vector of expected data
+    """
 
     chi_squared = 0;
     for i in range(len(obs)):
@@ -31,7 +39,25 @@ def chi_squared(obs, exp):
 # Functions for applying standardarization
 
 def StandardScalar(x, mean, std):
-    """Standard Scalar function for pre-processing data"""
+    """Standard Scalar function for pre-processing data
+    
+    Parameters:
+    ----------
+
+    x : vector 
+        Data to be transformed
+
+    mean : float
+        Mean of data
+
+    std : float
+        Standard deviation of data
+
+    Returns:
+    -------
+
+    (x - mean) / std
+    """
     
     if std == 0:
         log.info("Standard deviation is zero! Returning nothing :(")
@@ -78,6 +104,15 @@ def applySSNormalize(data, norms, vars=[]):
     """
     Use alread found means and stds to re-shape data. 
     Optionally choose which variables to normalize
+
+    Parameters:
+    ----------
+
+    data : ntuple 
+        All testing data for plotting
+
+    norms : 
+        Means and standard deviations found from `getSSNormalize`
     """
 
     if vars == []:
@@ -87,9 +122,7 @@ def applySSNormalize(data, norms, vars=[]):
     return data
 
 def applySSNormalizeTest(data, norms, vars=[]):
-    """
-    Apply norms to testing data
-    """
+    """Apply norms to testing data. See `applySSNormalize` for more information."""
 
     if vars == []:
         vars = range(len(data[:,0]))
@@ -98,7 +131,14 @@ def applySSNormalizeTest(data, norms, vars=[]):
     return data; 
 
 def getVarIndices(features, vars=FEATURES):
-    """Get indices of variable to apply normalization to"""
+    """Get indices of variable to apply normalization to
+    
+    features : list of str
+        All variable names used 
+
+    vars : list of str
+        Variables to be normalized
+    """
 
     i = 0
     indices = []
@@ -112,6 +152,9 @@ def getVarIndices(features, vars=FEATURES):
 # Functions for response on resolution curves 
 
 def makeBins(bmin, bmax, nbins):
+    """
+    """
+
     returnBins = []
     stepsize = (bmax - bmin) / nbins
     for i in range(nbins):
@@ -171,15 +214,17 @@ def get_global_params(regressor, arr, mode=0):
     logits = dist.tensor_distribution.mixture_distribution.logits.numpy()
     probs = tf.nn.softmax(logits[0:,]).numpy() # convert logits to probabilities
     means = dist.tensor_distribution.components_distribution.tensor_distribution.mean().numpy()
-    globalmean = np.array(
-        [probs[i][0]*means[i][0] + probs[i][1]*means[i][1] 
-                    for i in range(len(means))]).flatten()
+    means = np.reshape(means, (len(means), len(means[0])))
+    globalmean = 0
+    for i in range(len(means[0])):
+        globalmean += np.multiply(probs[:,i], means[:,i])
     if mode==0 or mode==2 or mode==3:
         stddevs = dist.tensor_distribution.components_distribution.tensor_distribution.stddev().numpy()
-        globalstd = np.sqrt(np.array(
-            [probs[i][0]*(stddevs[i][0]**2 + means[i][0]**2)
-            + probs[i][1]*(stddevs[i][1]**2 + means[i][1]**2) 
-            - globalmean[i]**2 for i in range(len(means))]).flatten())
+        stddevs = np.reshape(stddevs, (len(stddevs), len(means[0])))
+        globalvartemp = 0
+        for i in range(len(stddevs[0])):
+            globalvartemp += np.multiply(probs[:,i], (stddevs[:,i]**2 + means[:,i]**2))
+        globalstd = np.sqrt(globalvartemp - globalmean**2)
 
     if mode==0:
         return globalmean, globalstd
@@ -188,9 +233,7 @@ def get_global_params(regressor, arr, mode=0):
     elif mode==2:
         return globalstd
     elif mode==3:
-        return np.array([probs[i][0] for i in range(len(means))]), np.array([means[i][0] for i  in range(len(means))]), \
-               np.array([stddevs[i][0] for i  in range(len(means))]), np.array([probs[i][1] for i  in range(len(means))]), \
-               np.array([means[i][1] for i  in range(len(means))]), np.array([stddevs[i][1] for i  in range(len(means))])
+        return probs[:,0], means[:,0], stddevs[:,0], probs[:,1], means[:,1], stddevs[:,1]
     else:
         raise ValueError("Mode specified is out of range")
 

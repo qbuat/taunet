@@ -9,12 +9,12 @@ Date: Summer 2022
 
 import os
 import pickle
-from taunet.models import keras_model_terry_regular
 import tensorflow as tf
 import numpy as np
 
 from taunet.database import PATH, DATASET, training_data
 from taunet.fields import FEATURES, TARGET_FIELD, TARGET_FIELD_NEW, FEATURES_NEW
+from taunet.utils import tf_mdn_loss
 if __name__ == '__main__':
     
     from taunet.parser import train_parser
@@ -47,17 +47,21 @@ if __name__ == '__main__':
         np.save(file='data/y_train', arr=y_train)
         np.save(file='data/y_val', arr=y_val)
 
-    # import model
-    from taunet.models import keras_model_2gauss_mdn_small, keras_model_2gauss_mdn_small_noreg, keras_model_1gauss_mdn_small, keras_model_big_mdn
-    from taunet.utils import tf_mdn_loss
     # choose model 
     if args.small_1gauss:
+        from taunet.models import keras_model_1gauss_mdn_small
         regressor = keras_model_1gauss_mdn_small((len(FEATURES),))
     elif args.small_2gauss:
+        from taunet.models import keras_model_2gauss_mdn_small
         regressor = keras_model_2gauss_mdn_small((len(FEATURES),))
     elif args.big_2gauss:
+        from taunet.models import keras_model_big_mdn
         regressor = keras_model_big_mdn((len(FEATURES),))
+    elif args.gauss3:
+        from taunet.models import keras_model_3gauss_mdn_small_noreg
+        regressor = keras_model_3gauss_mdn_small_noreg((len(FEATURES), ))
     else:
+        from taunet.models import keras_model_2gauss_mdn_small_noreg
         regressor = keras_model_2gauss_mdn_small_noreg((len(FEATURES),))
     _model_file = os.path.join('cache', regressor.name+'.h5')
     try:

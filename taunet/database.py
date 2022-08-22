@@ -1,7 +1,7 @@
-"""
-Database changes:
-    - added ability to normalize input / output data
-    - removed nTracks from vairiable list and cuts
+"""Pre-process data from learning and plotting
+
+Authors: Miles Cochran-Branson and Quentin Buat
+Date: Summer 2022
 """
 import os
 from unittest.mock import DEFAULT

@@ -1,9 +1,10 @@
-"""
-Authors: Quentin Buat and Miles Cochran-Branson
-Date: Summer 2022
+"""Master script to plot machine learning results in order to 
+evaluate TES calibration. Command line arguments may be
+used to specify target, learning rate, batch size, and model. 
+Options are also availible for plotting over part of the dataset. 
 
-Create plots of performance of machine learning analysis in comparison
-to standard methods currently in place for TES calibration at ATLAS. 
+Authors: Miles Cochran-Branson and Quentin Buat
+Date: Summer 2022
 """
 
 import subprocess
