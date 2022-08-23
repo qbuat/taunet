@@ -2,6 +2,8 @@ import numpy as np
 import os
 import subprocess
 
+import tensorflow as tf
+
 from taunet.fields import FEATURES
 
 from . import log; log = log.getChild(__name__)
