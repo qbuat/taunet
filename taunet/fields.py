@@ -1,24 +1,22 @@
+"""Lists of variables used in fitting and plotting
 """
-"""
-#? What are these? 
+
 FEATURES = [
-    'TauJetsAuxDyn.mu', # average of two following effects:
-    'TauJetsAuxDyn.nVtxPU', #number of vertices (tracking effects), Terry doesn't use
-    'TauJetsAuxDyn.rho', #ambient transverse energy density (pileup), Terry doesn't use
+    'TauJetsAuxDyn.mu',
+    'TauJetsAuxDyn.nVtxPU', 
+    'TauJetsAuxDyn.rho', 
     'TauJetsAuxDyn.ClustersMeanCenterLambda',
     'TauJetsAuxDyn.ClustersMeanFirstEngDens',
     'TauJetsAuxDyn.ClustersMeanSecondLambda',
     'TauJetsAuxDyn.ClustersMeanPresamplerFrac',
     'TauJetsAuxDyn.ClustersMeanEMProbability',
-    'TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis', # Terry doesn't use
+    'TauJetsAuxDyn.ptIntermediateAxisEM/TauJetsAuxDyn.ptIntermediateAxis', 
     'TauJetsAuxDyn.ptCombined',
     'TauJetsAuxDyn.ptPanTauCellBased/TauJetsAuxDyn.ptCombined',
     'TauJetsAuxDyn.ptIntermediateAxis/TauJetsAuxDyn.ptCombined',
     'TauJetsAuxDyn.etaPanTauCellBased',
-    # 'TauJetsAuxDyn.nTracks',
-    'TauJetsAuxDyn.PFOEngRelDiff', #upsilon; quantifies polar
+    'TauJetsAuxDyn.PFOEngRelDiff', 
     'TauJetsAuxDyn.ptTauEnergyScale',
-    # 'TauJetsAuxDyn.NNDecayMode',
     'TauJetsAuxDyn.NNDecayModeProb_1p0n',
     'TauJetsAuxDyn.NNDecayModeProb_1p1n',
     'TauJetsAuxDyn.NNDecayModeProb_1pXn',
@@ -26,24 +24,13 @@ FEATURES = [
     'TauJetsAuxDyn.NNDecayModeProb_3pXn',
 ]
 
-# variables to normalize
-VARNORM = [
-    'TauJetsAuxDyn.mu', 
-    'TauJetsAuxDyn.nVtxPU',
-    'TauJetsAuxDyn.rho',
-    'TauJetsAuxDyn.ClustersMeanCenterLambda',
-    'TauJetsAuxDyn.ClustersMeanFirstEngDens',
-    'TauJetsAuxDyn.ClustersMeanSecondLambda',
-    'TauJetsAuxDyn.ptCombined',
-    'TauJetsAuxDyn.etaPanTauCellBased',
-    'TauJetsAuxDyn.ptTauEnergyScale'
-]
+
 
 TRUTH_FIELDS = [
     'TauJetsAuxDyn.truthPtVisDressed',
     'TauJetsAuxDyn.truthEtaVisDressed',
     'TauJetsAuxDyn.truthPhiVisDressed',
-    ]
+]
 
 OTHER_TES = [
     'TauJetsAuxDyn.ptCombined',
@@ -60,12 +47,29 @@ OTHER_TES = [
     'TauJetsAuxDyn.NNDecayModeProb_3pXn',
 ]
 
+#%----------------------------------------------------------------------
+# variables to normalize
+VARNORM = [
+    'TauJetsAuxDyn.mu', 
+    'TauJetsAuxDyn.nVtxPU',
+    'TauJetsAuxDyn.rho',
+    'TauJetsAuxDyn.ClustersMeanCenterLambda',
+    'TauJetsAuxDyn.ClustersMeanFirstEngDens',
+    'TauJetsAuxDyn.ClustersMeanSecondLambda',
+    'TauJetsAuxDyn.ptCombined',
+    'TauJetsAuxDyn.etaPanTauCellBased',
+    'TauJetsAuxDyn.ptTauEnergyScale'
+]
+
+#%----------------------------------------------------------------------
+# Train and plot without combined variables
+
 TARGET_FIELD = 'TauJetsAuxDyn.truthPtVisDressed/TauJetsAuxDyn.ptCombined'
 
 FEATURES_NEW = [
-    'TauJetsAuxDyn.mu', # average of two following effects:
-    'TauJetsAuxDyn.nVtxPU', #number of vertices (tracking effects), Terry doesn't use
-    'TauJetsAuxDyn.rho', #ambient transverse energy density (pileup), Terry doesn't use
+    'TauJetsAuxDyn.mu', 
+    'TauJetsAuxDyn.nVtxPU',
+    'TauJetsAuxDyn.rho', 
     'TauJetsAuxDyn.ClustersMeanCenterLambda',
     'TauJetsAuxDyn.ClustersMeanFirstEngDens',
     'TauJetsAuxDyn.ClustersMeanSecondLambda',

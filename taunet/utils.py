@@ -1,3 +1,12 @@
+"""Utility funtions to be used in both fitting and plotting. 
+
+Contains function for loss, chi^2 calculation, standardization, 
+global mean and stddev calculation, and copying plots to cernbox. 
+
+Authors : Miles Cochran-Branson, Quentin Buat
+Date : Summer 2022
+"""
+
 import numpy as np
 import os
 import subprocess
@@ -154,7 +163,24 @@ def getVarIndices(features, vars=FEATURES):
 # Functions for response on resolution curves 
 
 def makeBins(bmin, bmax, nbins):
-    """
+    """Make tuples to extract data between bins. 
+
+    Parameters:
+    ----------
+
+    bmin : float
+        Smallest value of bin
+
+    bmax : float
+        Largest value of bins
+
+    nbins : int
+        Number of desired bins
+
+    Returns: 
+    -------
+
+    List of tuples containing bins
     """
 
     returnBins = []
@@ -164,8 +190,8 @@ def makeBins(bmin, bmax, nbins):
     return returnBins
 
 def get_quantile_width(arr, cl=0.68):
-    """
-    """
+    """Get width of `arr` at `cl`%. Default is 68% CL"""
+
     q1 = (1. - cl) / 2.
     q2 = 1. - q1
     y = np.quantile(arr, [q1, q2])
@@ -173,8 +199,37 @@ def get_quantile_width(arr, cl=0.68):
     return width
 
 def response_curve(res, var, bins, cl=0.68):
+    """Prepare data fot plotting the response and resolution curve
+
+    Parameters:
+    ----------
+
+    res : vector
+        Data to be prepared
+
+    var : vector of floats
+        Variable to be plotted against
+
+    bins : int
+        Number of bins to be used in computation
+
+    cl=0.68 : float
+        Confidence level to be used. Default is 68%
+
+    Returns: 
+    -------
+
+    - bin centers : center value of each bin
+
+    - bin errors : distance to nearest bin edge
+
+    - means : mean of distribution within each bin
+
+    - means statistical error : stat error of distribution within each bin
+
+    - resolution : quantile width at cl% of distribution
     """
-    """
+
     _bin_centers = []
     _bin_errors = []
     _means = []
@@ -217,12 +272,14 @@ def get_global_params(regressor, arr, mode=0):
     probs = tf.nn.softmax(logits[0:,]).numpy() # convert logits to probabilities
     means = dist.tensor_distribution.components_distribution.tensor_distribution.mean().numpy()
     means = np.reshape(means, (len(means), len(means[0])))
+    # compute global mean: \mu_g = \sum_{i=1}^k \pi_i \sigma_i
     globalmean = 0
     for i in range(len(means[0])):
         globalmean += np.multiply(probs[:,i], means[:,i])
     if mode==0 or mode==2 or mode==3:
         stddevs = dist.tensor_distribution.components_distribution.tensor_distribution.stddev().numpy()
         stddevs = np.reshape(stddevs, (len(stddevs), len(means[0])))
+        # compute global variance: \sigma_g^2 = \sum_{i=1}^k \pi_1 (\sigma_i^2 + \mu_i^2) - \mu_g^2
         globalvartemp = 0
         for i in range(len(stddevs[0])):
             globalvartemp += np.multiply(probs[:,i], (stddevs[:,i]**2 + means[:,i]**2))
@@ -261,8 +318,8 @@ def cut_above_below(globalmean, globalstd):
 # Miscellaneous functions
 
 def copy_plots_to_cernbox(fmt='pdf', location='taunet_plots'):
-    """
-    """
+    """Copy plots of format `fmt` to given `location`"""
+
     _cernbox = os.path.join(
         '/eos/user/',
         os.getenv('USER')[0],
@@ -293,8 +350,7 @@ def copy_plots_to_cernbox(fmt='pdf', location='taunet_plots'):
                 subprocess.run(cmd, shell=True)
 
 def find_num_entries(path, dataset, nfiles=-1):
-    """Find total numbet of entries in dataset
-    """
+    """Find total numbet of entries in dataset"""
 
     from taunet.database import file_list
     import uproot

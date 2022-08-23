@@ -10,16 +10,10 @@ from taunet.utils import StandardScalar, applySSNormalizeTest, getSSNormalize, a
 from taunet.fields import VARNORM
 from . import log; log = log.getChild(__name__)
 
-# local location of data
-if '/Users/miles_cb' in os.getcwd():
-    DEFAULT_PATH = '/Users/miles_cb/cernbox/TES_dataset'
-    PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
-    DATASET = 'group.perf-tau.MC20d_StreamTES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v3_output.root'
-# lxplus location of data
-else:
-    DEFAULT_PATH = '/eos/atlas/atlascerngroupdisk/perf-tau/MxAODs/R22/Run2repro/TES/'
-    PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
-    DATASET = 'group.perf-tau.MC20d_StreamTES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v3_output.root'
+# get data
+DEFAULT_PATH = '/eos/atlas/atlascerngroupdisk/perf-tau/MxAODs/R22/Run2repro/TES/'
+PATH = os.getenv("TAUNET_PATH", DEFAULT_PATH)
+DATASET = 'group.perf-tau.MC20d_StreamTES.425200.Pythia8EvtGen_A14NNPDF23LO_Gammatautau_MassWeight_v3_output.root'
 
 def file_list(path, dataset):
     """Find files from simulated data. 
@@ -278,7 +272,69 @@ def testing_data(
         path, dataset, features, plotting_fields, regressor, nfiles=-1, select_1p=False, select_3p=False, 
         tree_name='CollectionTree', saveToCache=False, useCache=False, optional_path='', getAboveBelow=False, 
         getGMMcomponents=False, no_normalize=False, no_norm_target=False, debug=False, noCombined=False):
-    """
+    """Optain properly-formatted training and validation data from given dataset
+
+    Parameters:
+    ----------
+
+    path : str
+        Path to directory where dataset is held
+
+    dataset : str
+        Directory where .root files from dataset are held
+
+    plotting_fields : list of str
+        List of variables to pass to network
+
+    regressor : tf.keras.model
+        Previously trained network
+
+    optional_path='' : str
+        Optional path to where regessor, norm factors, and history is saved. 
+        Save plots in a subfolder called `plots` in this same location. 
+
+    nfiles=-1 : int
+        Number of files to use in obtaining training data
+
+    debug=False : bool
+        Use only a portion of the data from `dataset`
+
+    select_1p=False : bool
+        Select one prong events
+
+    select_3p=False : bool
+        Select three prong events
+
+    use_cache=False : bool
+        Use previously formatted data saved in `data` directory in .npy files
+
+    add_to_cache=False : bool
+        Save formatted data in .npy files
+
+    tree_name='CollectionTree' : str
+        Tree of .root file from which to get data
+
+    no_normalize=False : bool
+        Optionally apply standard scalar normalization to selected variables
+
+    no_norm_target=False : bool
+        Optionally apply standard scalar normalization to target variable
+
+    noCombined=False : bool
+        If trained with no combined variables, plot without these as well
+
+    getAboveBelow=False : bool
+        Get better and worse events based on |sigma/mean| < 1
+
+    getGMMcomponents=False : bool
+        Get pi, mean, stddev from components of gaussian mixture model
+
+    Returns:
+    -------
+
+    Array of dimension (num plotting fields, num testing events). 
+    - If getAboveBelow, returns array of all events, array of worse events, array of better events. 
+    - If getGMMcompoenets returns array of all events, pi1, mu1, sigma1, pi2, mu2, sigma2. 
     """
 
     if getAboveBelow and getGMMcomponents:
