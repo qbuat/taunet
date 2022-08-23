@@ -1,0 +1,4 @@
+This MDN was trained using target pt_truth / pt_combined. 
+All variables in VARNORM were used for normalizing. Target was normalized. 
+Learning rate was 1e-5 with batch size 64. 
+Model used was keras_model_2gauss_mdn_small_noreg from taunet.models. 
