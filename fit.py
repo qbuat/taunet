@@ -24,10 +24,7 @@ if __name__ == '__main__':
         TARGET_FIELD = TARGET_FIELD_NEW
         FEATURES = FEATURES_NEW
 
-    if args.debug:
-        n_files = 3
-    else:
-        n_files = args.nfiles
+    n_files = args.nfiles
     
     # get training data
     if args.use_cache:

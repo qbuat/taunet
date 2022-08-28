@@ -445,18 +445,17 @@ def testing_data(
                 _arrs_above += [_arr_above]
                 _arrs_below += [_arr_below]
 
+            #! Generalize to more than two components
             if getGMMcomponents:
-                pi1, mu1, sig1, pi2, mu2, sig2 = get_global_params(regressor, f.T, mode=3)
-                pi1 = pi1.reshape((pi1.shape[0], ))
-                pi2 = pi2.reshape((pi2.shape[0], ))
-                mu1 = mu1.reshape((mu1.shape[0], ))
-                mu2 = mu2.reshape((mu2.shape[0], ))
-                sig1 = sig1.reshape((sig1.shape[0], ))
-                sig2 = sig2.reshape((sig2.shape[0], ))
-                _output_arr = np.stack([pi1, pi2, mu1, mu2, sig1, sig2], axis=1)
-                _output_arr = np.core.records.fromarrays(_output_arr.transpose(), names=['pi1', 'pi2', 'mu1', 'mu2', 'sig1', 'sig2'])
+                compos = get_global_params(regressor, f.T, mode=3)
+                templist = []
+                for i in range(len(compos)):
+                    temp = np.array(compos[i])
+                    templist += [temp.reshape((temp.shape[0], ))]
+                _output_arr = np.array(np.stack([templist[i] for i in range(len(templist))], axis=1))
+                names = list(np.array([['pi{}'.format(i+1), 'mu{}'.format(i+1), 'sig{}'.format(i+1)] for i in range(int(len(templist)/3))]).flatten())
+                _output_arr = np.core.records.fromarrays(_output_arr.transpose(), names=names)
                 _output_arrs += [_output_arr]
-
 
     log.info("Variables normalized: {}".format(
                 list(features[i] for i in getVarIndices(features, VARNORM))))

@@ -292,7 +292,12 @@ def get_global_params(regressor, arr, mode=0):
     elif mode==2:
         return globalstd
     elif mode==3:
-        return probs[:,0], means[:,0], stddevs[:,0], probs[:,1], means[:,1], stddevs[:,1]
+        components = []
+        for i in range(len(probs[0])):
+            components += [probs[:,i]]
+            components += [means[:,i]]
+            components += [stddevs[:,i]]
+        return components
     else:
         raise ValueError("Mode specified is out of range")
 

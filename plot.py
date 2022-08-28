@@ -54,9 +54,6 @@ if __name__ == '__main__':
         d, d_GMM_output = testing_data(PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, getGMMcomponents=True,
             nfiles=n_files, optional_path=path, select_1p=args.oneProng, select_3p=args.threeProngs, no_normalize=args.no_normalize, 
             no_norm_target=args.no_norm_target, debug=args.debug, noCombined=args.newTarget)
-        import numpy as np
-        np.save(file='/eos/user/m/mcochran/temp_data_files/d', arr=d)
-        np.save(file='/eos/user/m/mcochran/temp_data_files/GMM_output', arr=d_GMM_output)
     else:
         d = testing_data(PATH, DATASET, FEATURES, TRUTH_FIELDS + OTHER_TES, regressor, 
             nfiles=n_files, optional_path=path, select_1p=args.oneProng, select_3p=args.threeProngs, no_normalize=args.no_normalize, 
@@ -91,16 +88,18 @@ if __name__ == '__main__':
     if args.get_GMM_components:
         from taunet.plotting import visualize_GMM_vars
         truth_pt = d['TauJetsAuxDyn.truthPtVisDressed']
-        visualize_GMM_vars(truth_pt/1000, d_GMM_output['mu1'], path, ytitle='$\\mu_1$', plotSaveName='plots/mu1.pdf')
-        visualize_GMM_vars(truth_pt/1000, d_GMM_output['mu2'], path, ytitle='$\\mu_2$', plotSaveName='plots/mu2.pdf')
-        visualize_GMM_vars(truth_pt/1000, d_GMM_output['sig1'], path, ytitle='$\\sigma_1$', plotSaveName='plots/sig1.pdf')
-        visualize_GMM_vars(truth_pt/1000, d_GMM_output['sig2'], path, ytitle='$\\sigma_2$', plotSaveName='plots/sig2.pdf')
-        visualize_GMM_vars(truth_pt/1000, d_GMM_output['pi1'], path, ytitle='$\\pi_1$', plotSaveName='plots/pi1.pdf')
-        visualize_GMM_vars(truth_pt/1000, d_GMM_output['pi2'], path, ytitle='$\\pi_1$', plotSaveName='plots/pi2.pdf')
-        visualize_GMM_vars(truth_pt/1000, abs(d_GMM_output['mu1']-d_GMM_output['mu2']), path, 
-            ytitle='$|\\mu_1 - \\mu_2|$', plotSaveName='plots/mu1_minus_mu2_vs_pt.pdf')
-        visualize_GMM_vars(truth_pt/1000, abs(d_GMM_output['sig1']-d_GMM_output['sig2']), path, 
-            ytitle='$|\\sigma_1 - \\sigma_2|$', plotSaveName='plots/sig1_minus_sig2_vs_pt.pdf')
+        for i in range(int(len(d_GMM_output[0])/3)):
+            visualize_GMM_vars(truth_pt/1000, d_GMM_output['mu{}'.format(i+1)], 
+                path, ytitle='$\\mu_{}$'.format(i+1), plotSaveName='plots/mu{}.pdf'.format(i+1))
+            visualize_GMM_vars(truth_pt/1000, d_GMM_output['sig{}'.format(i+1)], 
+                path, ytitle='$\\sigma_{}$'.format(i+1), plotSaveName='plots/sig{}.pdf'.format(i+1))
+            visualize_GMM_vars(truth_pt/1000, d_GMM_output['pi{}'.format(i+1)], 
+                path, ytitle='$\\pi_{}$'.format(i+1), plotSaveName='plots/pi{}.pdf'.format(i+1))
+        if len(d_GMM_output[0]) > 3:
+            visualize_GMM_vars(truth_pt/1000, abs(d_GMM_output['mu1']-d_GMM_output['mu2']), path, 
+                ytitle='$|\\mu_1 - \\mu_2|$', plotSaveName='plots/mu1_minus_mu2_vs_pt.pdf')
+            visualize_GMM_vars(truth_pt/1000, abs(d_GMM_output['sig1']-d_GMM_output['sig2']), path, 
+                ytitle='$|\\sigma_1 - \\sigma_2|$', plotSaveName='plots/sig1_minus_sig2_vs_pt.pdf')
 
     if args.copy_to_cernbox:
         from taunet.utils import copy_plots_to_cernbox
