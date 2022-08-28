@@ -77,7 +77,10 @@ if __name__ == '__main__':
 
     from taunet.plotting import response_and_resol_vs_var
     response_and_resol_vs_var(d, path, target_normalize_var=target_normalize_var)
-    response_and_resol_vs_var(d, path, xvar='eta', target_normalize_var=target_normalize_var, nbins=35)
+    response_and_resol_vs_var(d[d['TauJetsAuxDyn.truthPtVisDressed']/1000 > 10], path, 
+        xvar='eta', target_normalize_var=target_normalize_var, nbins=35)
+    response_and_resol_vs_var(d[d['TauJetsAuxDyn.truthPtVisDressed']/1000 > 10], path, 
+        xvar='mu', target_normalize_var=target_normalize_var, nbins=35)
 
     if args.get_above_below:
         from taunet.plotting import response_lineshape_above_below, response_above_below

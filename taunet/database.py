@@ -445,7 +445,6 @@ def testing_data(
                 _arrs_above += [_arr_above]
                 _arrs_below += [_arr_below]
 
-            #! Generalize to more than two components
             if getGMMcomponents:
                 compos = get_global_params(regressor, f.T, mode=3)
                 templist = []
