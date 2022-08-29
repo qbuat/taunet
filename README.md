@@ -9,11 +9,10 @@ This code runs out of the box on a lxplus node with a cern computing account. If
 To run the code, first create a python envirnoment with the provided `requirements.txt` file as follows:
 
 ````
-git clone git@github.com:qbuat/taunet.git
 cd taunet
 python3 -m venv tesenv
 source tesenv/bin/activate
-pip install -r taunet/requirements.txt
+pip install -r requirements.txt
 ````
 
 Note: the version of `pip` on the lxplus nodes is old and may not be able to find the desired version of `tensorflow`. Before installing requirements from the `txt` file consider running
