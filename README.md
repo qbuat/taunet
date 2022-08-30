@@ -9,10 +9,10 @@ This code runs out of the box on a lxplus node with a cern computing account. If
 To run the code, first create a python envirnoment with the provided `requirements.txt` file as follows:
 
 ````
-cd taunet
+git clone git@github.com:qbuat/taunet.git
 python3 -m venv tesenv
 source tesenv/bin/activate
-pip install -r requirements.txt
+pip install -r taunet/requirements.txt
 ````
 
 Note: the version of `pip` on the lxplus nodes is old and may not be able to find the desired version of `tensorflow`. Before installing requirements from the `txt` file consider running
@@ -45,4 +45,4 @@ To learn a bit more about the current state of this work, see the following pres
 - Specifics of the learning used were presented for the [EPE-ML group at the University of Washington](https://indico.cern.ch/event/1112960/contributions/4927575/attachments/2496439/4287590/TES_calibration_with_NNs_EPE_ML_meeting.pdf).
 - A general overview of the project was [presented to the University of Washington REU program](https://archive.int.washington.edu/REU/2022/Cochran-Branson_talk.pdf).
 
-Finally, a paper written for the UW REU program giving a full description of the project can be found on the UW REU 2022 page. 
+Finally, a paper written for the UW REU program giving a full description of the project can be [found on the UW REU 2022 page](https://archive.int.washington.edu/REU/2022/Cochran-Branson_paper.pdf). 
