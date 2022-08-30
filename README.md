@@ -1,12 +1,12 @@
 # Tau Energy Scale Calibration using Neural Networks
 
-The scripts in this repo are desgined to calibrate the tau energy scale (pt spectrum) at the ATLAS detector using Mixture Density Networks (MDN). 
+The scripts in this repo are designed to calibrate the tau energy scale (pt spectrum) at the ATLAS detector using Mixture Density Networks (MDN). 
 
 ## Running the Code
 
 This code runs out of the box on a lxplus node with a cern computing account. If the user does not have access to these, the dataset will have to be downloaded. 
 
-To run the code, first create a python envirnoment with the provided `requirements.txt` file as follows:
+To run the code, first create a python environment with the provided `requirements.txt` file as follows:
 
 ````
 git clone git@github.com:qbuat/taunet.git
