@@ -370,7 +370,7 @@ def response_and_resol_vs_var(testing_data, plotSaveLoc, xvar='pt', CL=0.68, nbi
 #% ----------------------------------------------------------
 # Plots to visualized parameters from GMM
 
-def visualize_GMM_vars(x, y, plotSaveLoc, xtitle='True $p_T$ [GeV]', ytitle='$|\\mu_1 - \\mu_2|$ [A.U.]', plotSaveName='plots/params_vs_pt.pdf'):
+def visualize_GMM_vars(x, y, plotSaveLoc, xlims=(0, 200), ylims=(0, 1), nbins=25, xtitle='True $p_T$ [GeV]', ytitle='$|\\mu_1 - \\mu_2|$ [A.U.]', plotSaveName='plots/params_vs_pt.pdf'):
     """Visualize components of GMM
 
     x : vector of floats
@@ -393,8 +393,8 @@ def visualize_GMM_vars(x, y, plotSaveLoc, xtitle='True $p_T$ [GeV]', ytitle='$|\
     log.info("Plotting GMM variables")
 
     fig = plt.figure(dpi=100, figsize=(4,4))
-    x_bins = np.linspace(np.min(x), 200, 15)
-    y_bins = np.linspace(np.min(y), np.max(y), 15)
+    x_bins = np.linspace(xlims[0], xlims[1], 15)
+    y_bins = np.linspace(ylims[0], ylims[1], 15)
     plt.hist2d(x, y, bins=[x_bins, y_bins])
     plt.xlabel(xtitle, loc='right')
     plt.ylabel(ytitle, loc='top')
