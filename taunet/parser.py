@@ -24,6 +24,8 @@ train_parser.add_argument('--small-2gauss', default=False, action='store_true')
 train_parser.add_argument('--small-1gauss', default=False, action='store_true')
 train_parser.add_argument('--small-2gauss-noreg', default=False, action='store_true')
 train_parser.add_argument('--gauss3', default=False, action='store_true')
+train_parser.add_argument('--nGauss-small-noreg', default=False, action='store_true')
+train_parser.add_argument('--nGauss-components', default=2, type=int)
 
 # parse commands for plotting (plot.py)
 plot_parser = argparse.ArgumentParser(parents=[common_parser])

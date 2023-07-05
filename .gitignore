@@ -2,3 +2,7 @@
 *pycache*
 *.pdf
 *.png
+*.h5
+*.npy
+*.sh
+launch_condor

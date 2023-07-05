@@ -57,6 +57,11 @@ if __name__ == '__main__':
     elif args.gauss3:
         from taunet.models import keras_model_3gauss_mdn_small_noreg
         regressor = keras_model_3gauss_mdn_small_noreg((len(FEATURES), ))
+    elif args.nGauss_small_noreg:
+        from taunet.models import keras_model_nGauss_mdn_small_noreg
+        regressor = keras_model_nGauss_mdn_small_noreg((len(FEATURES), ), 
+                            name='gauss{}_small_noreg'.format(args.nGauss_components), 
+                            nComponents=args.nGauss_components)
     else:
         from taunet.models import keras_model_2gauss_mdn_small_noreg
         regressor = keras_model_2gauss_mdn_small_noreg((len(FEATURES),))

@@ -177,7 +177,7 @@ def training_data(path, dataset, features, target, nfiles=-1, select_1p=False, s
         Vector of training data (80% of total sample)
 
     y_val : np.array
-        Same as y_train (20% or total sample)
+        Same as y_train (20% of total sample)
     """
 
     import numpy as np
