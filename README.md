@@ -2,24 +2,36 @@
 
 The scripts in this repo are designed to calibrate the tau energy scale (pt spectrum) at the ATLAS detector using Mixture Density Networks (MDN). 
 
-## Running the Code
+## Installing the Code
 
-This code runs out of the box on a lxplus node with a cern computing account. If the user does not have access to these, the dataset will have to be downloaded. 
+This code runs out of the box on a `lxplus` node with a cern computing account. If the user does not have access to these, the dataset will have to be downloaded. 
 
-To run the code, first create a python environment with the provided `requirements.txt` file as follows:
+### Installing using CVMFS (for e.g. on CERN `lxplus`)
+
+If you are on a computing node with access to CVMFS (for e.g. CERN's `lxplus`, or BNL, Berkley, UChicago, etc.), then run the following before proceeding
+
+```
+setupATLAS
+lsetup "python 3.9.14-x86_64-centos7"
+```
+
+### General Installation
+
+First clone the repository, then create a python environment with the provided `requirements.txt` file as follows:
 
 ````
-git clone git@github.com:qbuat/taunet.git
 python3 -m venv tesenv
 source tesenv/bin/activate
 pip install -r taunet/requirements.txt
 ````
 
-Note: the version of `pip` on the lxplus nodes is old and may not be able to find the desired version of `tensorflow`. Before installing requirements from the `txt` file consider running
+## Running the code
 
-````
-pip install --upgrade pip
-````
+If you are not on an `lxplus` node or would like to use a different dataset, specify the path to this data by running
+
+```
+export TAUNET_PATH="<path_to_ntuples>"
+```
 
 Once you have the environment set up you can run the file `fit.py` to learn a good network. Running `plot.py` will then create plots from this network. One good network is already in the folder `final_MDN`. To get plots for this using data from part of the dataset run 
 
